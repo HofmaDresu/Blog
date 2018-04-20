@@ -198,3 +198,64 @@ If we run the app now, we'll see our todo item titles listed on the screen
     <img src="" width="300">
     <!--TODO: iOS screenshot -->
 </div>
+
+There's one more thing we'd like to display for our todo list: whether-or-not we have completed to item! For this we're going to group our todos based on their IsCompleted property and show them in either a Active or Completed section. The Xamarin Forms ListView we're using has grouping built-in, so all we have to do is adjust our datastructure and bindings to handle groups.
+
+For ListView to display groups, we need to tell it what groups are available and which group each item belongs to. We're going to use a couple very useful LINQ methods to do this in our View Model. 
+
+{% highlight csharp %}
+using System.Collections.Generic;
+using System.Linq;
+
+namespace TodoXamarinForms
+{
+    class TodoListViewModel : BaseFodyObservable
+    {
+        public TodoListViewModel()
+        {
+            GroupedTodoList = GetGroupedTodoList();
+        }
+
+        public ILookup<string, TodoItem> GroupedTodoList { get; set; }
+        public string Title => "My Todo list";
+
+        private List<TodoItem> _todoList = new List<TodoItem>
+        {
+            new TodoItem { Id = 0, Title = "Create First Todo", IsCompleted = true},
+            new TodoItem { Id = 1, Title = "Run a Marathon"},
+            new TodoItem { Id = 2, Title = "Create TodoXamarinForms blog post"},
+        };
+
+        private ILookup<string, TodoItem> GetGroupedTodoList()
+        {
+            return _todoList.OrderBy(t => t.IsCompleted)
+                            .ToLookup(t => t.IsCompleted? "Completed" : "Active");
+        }
+    }
+}
+{% endhighlight %}
+
+We did a few things to set this up. First we created a new property for GroupedTodoList. This is what we'll bind our ListView to in the next step. Then we changed our TodoList property into a private field and changed the type to List. Since we won't be binding directly to the un-grouped list, we don't need any of the extra cruft for Observable or a property and we can clean it up now. Next we created a helper method that translates our todo list into a grouped todo list and called it in our View Model's constructor.
+
+Next we need to bind our ListView to the new data. We will make 3 changes for this: set our ItemSource to GroupedTodoList, enable grouping and set our group display binding.
+
+{% highlight xml %}
+...
+<ListView ItemsSource="{Binding GroupedTodoList}"
+                  IsGroupingEnabled="True"
+                  GroupDisplayBinding="{Binding Key}">
+...
+{% endhighlight %}
+
+Now when we run the app, we see our todo items separated out by their completion status.
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <img src="/assets/img/todo-xamarin-forms/GroupedListViewAndroid.png" width="300" />
+    <label>iOS</label>
+    <img src="" width="300">
+    <!--TODO: iOS screenshot -->
+</div>
+
+### Completing, Uncompleting and Deleting Items
+Now that we're showing our list of todos, we should let the user interact with them. We'll start by adding the ability to complete, uncomplete, and delete items from the list.
