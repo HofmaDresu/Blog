@@ -3,11 +3,18 @@
 
 @import "{{ site.theme }}";
 
+body {
+  background: #f4f8fb;
+}
+
 .page-header {
     background-image: url('/assets/img/NewZealand.jpg');
     background-position: left;
 }
 
+.home {
+  margin-top: -75px !important;
+}
 
 /**
  * Site footer
@@ -17,8 +24,7 @@
  $grey-color:       #828282 !default;
  $grey-color-light: lighten($grey-color, 40%) !default;
  $base-font-size:   16px !default;
- $on-palm:          600px !default;
- $on-laptop:        800px !default;
+ 
  @mixin relative-font-size($ratio) {
     font-size: $base-font-size * $ratio;
   }
@@ -63,3 +69,42 @@
     padding-top: 5px;
   }
 }
+
+.posts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 20px;
+  grid-auto-rows: 267px;
+
+  .post-box {
+    background: white;
+    box-shadow: 8px 14px 38px rgba(39,44,49,.06), 1px 3px 8px rgba(39,44,49,.03);
+    border-radius: 5px;
+    transition: all .5s ease;
+    color: $body-text-color;
+    text-decoration: none;
+    overflow: hidden;
+    padding: 20px;
+
+    &:first-of-type {
+      grid-column: span 3;
+    }
+
+    &:hover {
+      box-shadow: 0 0 1px rgba(39,44,49,.1), 0 3px 16px rgba(39,44,49,.07);
+      transition: all .3s ease;
+      transform: translate3D(0,-1px,0);
+    }
+
+    .tags {
+      text-transform: uppercase;      
+      color: #738a94;
+      font-size: .7rem;
+    }
+
+    .title {
+      font-weight: bold;
+    }
+  }
+}
+
