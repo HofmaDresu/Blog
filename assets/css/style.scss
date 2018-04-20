@@ -108,3 +108,13 @@ body {
   }
 }
 
+.os-screenshots {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: min-content min-content;
+  grid-column-gap: 30px;
+  width: 90%;
+  margin: 0 auto;
+  font-size: .8rem;
+}

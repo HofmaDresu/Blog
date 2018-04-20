@@ -35,9 +35,9 @@ Most of our work will be done in the .NET Standard library, with only minor vent
 
 <div class="os-screenshots">
     <label>Android</label>
-    <img src="/assets/img/todo-xamarin-forms/HelloWorldAndroid.png" width="300" />
+    <img src="/assets/img/todo-xamarin-forms/HelloWorldAndroid.png" />
     <label>iOS</label>
-    <img src="" width="300">
+    <img src="" >
     <!--TODO: iOS screenshot -->
 </div>
 
@@ -169,9 +169,9 @@ Now when we run the app, we see our new screen with a title and a list of "TodoX
 
 <div class="os-screenshots">
     <label>Android</label>
-    <img src="/assets/img/todo-xamarin-forms/InitialListViewAndroid.png" width="300" />
+    <img src="/assets/img/todo-xamarin-forms/InitialListViewAndroid.png" />
     <label>iOS</label>
-    <img src="" width="300">
+    <img src="">
     <!--TODO: iOS screenshot -->
 </div>
 
@@ -193,9 +193,9 @@ If we run the app now, we'll see our todo item titles listed on the screen
 
 <div class="os-screenshots">
     <label>Android</label>
-    <img src="/assets/img/todo-xamarin-forms/TitleBoundListViewAndroid.png" width="300" />
+    <img src="/assets/img/todo-xamarin-forms/TitleBoundListViewAndroid.png"  />
     <label>iOS</label>
-    <img src="" width="300">
+    <img src="">
     <!--TODO: iOS screenshot -->
 </div>
 
@@ -251,9 +251,9 @@ Now when we run the app, we see our todo items separated out by their completion
 
 <div class="os-screenshots">
     <label>Android</label>
-    <img src="/assets/img/todo-xamarin-forms/GroupedListViewAndroid.png" width="300" />
+    <img src="/assets/img/todo-xamarin-forms/GroupedListViewAndroid.png" />
     <label>iOS</label>
-    <img src="" width="300">
+    <img src="">
     <!--TODO: iOS screenshot -->
 </div>
 
