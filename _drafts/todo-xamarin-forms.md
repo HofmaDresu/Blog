@@ -259,3 +259,92 @@ Now when we run the app, we see our todo items separated out by their completion
 
 ### Completing, Uncompleting and Deleting Items
 Now that we're showing our list of todos, we should let the user interact with them. We'll start by adding the ability to complete, uncomplete, and delete items from the list.
+
+The first thing we'll do is create the UI for our actions. Fortunately this is built in to Xamarin Forms, so we just need to update our XAML. We'll open TodoListView.xaml and update our ListView to show our actions.
+
+{% highlight xml %}
+<ListView ItemsSource="{Binding GroupedTodoList}"
+            IsGroupingEnabled="True"
+            GroupDisplayBinding="{Binding Key}"
+            x:Name="TodoDisplayList">
+    <ListView.ItemTemplate>
+        <DataTemplate>
+            <TextCell Text="{Binding Title}" >
+                <TextCell.ContextActions>
+                    <MenuItem Command="{Binding Source={x:Reference TodoDisplayList}, Path=BindingContext.ChangeIsCompleted }"
+                                CommandParameter="{Binding .}" Text="Complete" />
+                    <MenuItem Command="{Binding Source={x:Reference TodoDisplayList}, Path=BindingContext.Delete }" 
+                                CommandParameter="{Binding .}" Text="Delete" IsDestructive="True" />
+                </TextCell.ContextActions>
+            </TextCell>
+        </DataTemplate>
+    </ListView.ItemTemplate>
+</ListView>
+{% endhighlight %}
+
+We made a couple changes to display our actions and prepare for implementing them. The first thing we did is we named our ListView . We need to do this in order to reference it in the new MenuItem tags. We then created 2 context menu items for our todos, one for Complete and one for Delete. There is some boilerplate we need to use to wire up our actions. This is because the data context for our TextCell is the TodoItem itself instead of the View Model, and we need to use commands on our View Model. We take care of this by setting the Source of our command binding to the TodoDisplayList and setting the path to our Command.
+
+Right now our actions don't do anything, but we set up the Command binding that we'll use to add actual functionality to these buttons. One interesting thing to note is that these actions are displayed differently on iOS and Android. This is because Xamarin Forms is using the native list actions for each OS, with Android showing actions in the titlebar on long press and iOS revealing the actions inline on swipe.
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <img src="/assets/img/todo-xamarin-forms/ContextActionsAndroid.png" />
+    <label>iOS</label>
+    <img src="/assets/img/todo-xamarin-forms/ContextActionsIOS.png">
+    <!--TODO: iOS screenshot -->
+</div>
+
+Now we'll wire up the buttons so they actually have an effect. Let's start with the Delete command. We create a Delete property in TodoListViewModel and a HandleDelete method. Then in our constructor we set Delete to a new command that uses HandleDelete.
+
+{% highlight csharp %}
+public TodoListViewModel()
+{
+    GroupedTodoList = GetGroupedTodoList();
+    Delete = new Command<TodoItem>(HandleDelete);
+}
+
+...
+
+public Command<TodoItem> Delete { get; set; }
+public void HandleDelete(TodoItem itemToDelete)
+{
+    // Remove item from private list
+    _todoList.Remove(itemToDelete);
+    // Update displayed list
+    GroupedTodoList = GetGroupedTodoList();
+}
+{% endhighlight %}
+
+We follow similar steps to create the ChangeIsCompleted command.
+
+{% highlight csharp %}
+public TodoListViewModel()
+{
+    GroupedTodoList = GetGroupedTodoList();
+    Delete = new Command<TodoItem>(HandleDelete);
+    ChangeIsCompleted = new Command<TodoItem>(HandleChangeIsCompleted);
+}
+
+...
+
+public Command<TodoItem> ChangeIsCompleted { get; set; }
+public void HandleChangeIsCompleted(TodoItem itemToUpdate)
+{
+    // Change item's IsCompleted flag
+    itemToUpdate.IsCompleted = !itemToUpdate.IsCompleted;
+    // Update displayed list
+    GroupedTodoList = GetGroupedTodoList();
+}
+{% endhighlight %} 
+
+Now if we click our actions, we can see the list updating for our changes. 
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <img src="/assets/img/todo-xamarin-forms/DeleteCompleteAndroid.gif" />
+    <label>iOS</label>
+    <img src="/assets/img/todo-xamarin-forms/DeleteCompleteIOS.gif">
+    <!--TODO: iOS screenshot -->
+</div>
+
+> One thing worth noting is that our code is not optimized for long lists. Since we're fully re-creating our grouped list anytime something happens, we're forcing the application to re-render the entire list. We could improve our logic by changing items in place instead of regenerating the list, but that's beyond the scope of this post.
