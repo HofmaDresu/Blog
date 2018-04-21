@@ -66,7 +66,7 @@ using System.ComponentModel;
 
 namespace TodoXamarinForms
 {
-    abstract class BaseFodyObservable : INotifyPropertyChanged
+    public abstract class BaseFodyObservable : INotifyPropertyChanged
     {
 #pragma warning disable CS0067
         public event PropertyChangedEventHandler PropertyChanged;
@@ -397,8 +397,100 @@ Then we update our Complete menu item to use our ChangeCompletedActionTextConver
 {% highlight xml %}
 ...
 <MenuItem Command="{Binding Source={x:Reference TodoDisplayList}, Path=BindingContext.ChangeIsCompleted }"
-            CommandParameter="{Binding .}" Text="{Binding IsCompleted, Converter={StaticResource ChangeCompletedActionTextConverter}}" />
+          CommandParameter="{Binding .}" 
+          Text="{Binding IsCompleted, Converter={StaticResource ChangeCompletedActionTextConverter}}" />
 ...
 {% endhighlight %}
 
 Now our ChangeIsCompleted button sets its text based on the selected item's IsCompleted property.
+
+There are two more things our app needs to be useful: the ability to add todo items and the ability to persist the todo list. We'll start with persistence as it will be useful when we implement the add functionality.
+
+### Persisting the Todo List
+Right now our todo list is held completely in memory and is reset to default anytime the app is closed or restarted. This isn't exactly ideal behavior, so we want to persist the list in a way that allows us to keep track of changes across application restarts and device reboots. We'll use SQLite to store our data, as it's easily compatible with both operating systems.
+
+The first thing we need to do is separate our data from our view model. We'll create a new folder in TodoXamarinForms called Persistence and add the class TodoRepository. Next we copy our _todoList from the TodoListViewModel into the repository and create four methods: GetList, DeleteItem, ChangeItemIsCompleted, and AddItem. We'll implement the first three here and later we'll implement AddItem.
+
+{% highlight csharp %}
+using System;
+using System.Collections.Generic;
+
+namespace TodoXamarinForms.Persistence
+{
+    class TodoRepository
+    {
+        private List<TodoItem> _todoList = new List<TodoItem>
+        {
+            new TodoItem { Id = 0, Title = "Create First Todo", IsCompleted = true},
+            new TodoItem { Id = 1, Title = "Run a Marathon"},
+            new TodoItem { Id = 2, Title = "Create TodoXamarinForms blog post"},
+        };
+
+        public List<TodoItem> GetList()
+        {
+            return _todoList;
+        }
+
+        public void DeleteItem(TodoItem itemToDelete)
+        {
+            _todoList.Remove(itemToDelete);
+        }
+
+        public void ChangeItemIsCompleted(TodoItem itemToChange)
+        {
+            itemToChange.IsCompleted = !itemToChange.IsCompleted;
+        }
+
+        public void AddItem(TodoItem itemToAdd)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+{% endhighlight %}
+
+> Note: This implementation leaves a lot to be desired, like safety checks to make sure an item exists before removing it. This is OK for now since we plan to replace it with real persistence soon.
+
+Next we need to create an instance of this repository for our ViewModel to use. There are many ways to handle this, but for simplicity's sake we're just going to create a static field in App.xaml.cs
+
+{% highlight csharp %}
+using TodoXamarinForms.Persistence;
+using Xamarin.Forms;
+
+namespace TodoXamarinForms
+{
+    public partial class App : Application
+	{
+        public static TodoRepository TodoRepository = new TodoRepository();
+...
+{% endhighlight %}
+
+Now we can update TodoListViewModel to use the repository.
+
+{% highlight csharp %}
+private ILookup<string, TodoItem> GetGroupedTodoList()
+{
+    return App.TodoRepository.GetList()
+              .OrderBy(t => t.IsCompleted)
+              .ToLookup(t => t.IsCompleted? "Completed" : "Active");
+}
+
+public Command<TodoItem> Delete { get; set; }
+public void HandleDelete(TodoItem itemToDelete)
+{
+    App.TodoRepository.DeleteItem(itemToDelete);
+    // Update displayed list
+    GroupedTodoList = GetGroupedTodoList();
+}
+
+public Command<TodoItem> ChangeIsCompleted { get; set; }
+public void HandleChangeIsCompleted(TodoItem itemToUpdate)
+{
+    App.TodoRepository.ChangeItemIsCompleted(itemToUpdate);
+    // Update displayed list
+    GroupedTodoList = GetGroupedTodoList();
+}
+{% endhighlight %}
+
+Now that we've separated our data from our view model, we're ready to start implementing real persistence.
