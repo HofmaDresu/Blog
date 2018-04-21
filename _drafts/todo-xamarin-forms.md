@@ -348,3 +348,57 @@ Now if we click our actions, we can see the list updating for our changes.
 </div>
 
 > One thing worth noting is that our code is not optimized for long lists. Since we're fully re-creating our grouped list anytime something happens, we're forcing the application to re-render the entire list. We could improve our logic by changing items in place instead of regenerating the list, but that's beyond the scope of this post.
+
+Our actions work now, but a clever user might notice that we show a Complete action for both Active and Completed items. It would be better to change the text to something like Uncomplete when dealing with completed actions. We'll do this with a Converter class. A Converter is a class that we can use to place conditional values, like text, color, visibility, etc, in our XAML. Create a new CSharp class called ChangeCompleteActionTextConverter.cs and add the following content.
+
+{% highlight csharp %}
+using System;
+using System.Globalization;
+using Xamarin.Forms;
+
+namespace TodoXamarinForms
+{
+    class ChangeCompleteActionTextConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var isCompleted = (bool)value;
+            return isCompleted ? "Uncomplete" : "Complete";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            // Not used since we only want to convert a boolean to text, and not the other way around
+            throw new NotImplementedException();
+        }
+    }
+}
+{% endhighlight %}
+
+Next we need to update our View to use this Converter. Before doing that, we should build our project to make sure the XAML compiler is aware of the new class. Then open TodoListViewModel.axml. We need to add a reference to our converter at the top of the file by adding a new namespace, xml:local, and creating a resource on our ContentPage.
+
+{% highlight xml %}
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TodoXamarinForms.TodoListView"
+             xmlns:local="clr-namespace:TodoXamarinForms"
+             Title="{Binding Title}">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <local:ChangeCompleteActionTextConverter x:Key="ChangeCompletedActionTextConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    ...
+{% endhighlight %}
+
+Then we update our Complete menu item to use our ChangeCompletedActionTextConverter with the IsCompleted property of the item.
+
+{% highlight xml %}
+...
+<MenuItem Command="{Binding Source={x:Reference TodoDisplayList}, Path=BindingContext.ChangeIsCompleted }"
+            CommandParameter="{Binding .}" Text="{Binding IsCompleted, Converter={StaticResource ChangeCompletedActionTextConverter}}" />
+...
+{% endhighlight %}
+
+Now our ChangeIsCompleted button sets its text based on the selected item's IsCompleted property.
