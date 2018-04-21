@@ -414,10 +414,11 @@ The first thing we need to do is separate our data from our view model. We'll cr
 {% highlight csharp %}
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace TodoXamarinForms.Persistence
 {
-    class TodoRepository
+    public class TodoRepository
     {
         private List<TodoItem> _todoList = new List<TodoItem>
         {
@@ -426,28 +427,29 @@ namespace TodoXamarinForms.Persistence
             new TodoItem { Id = 2, Title = "Create TodoXamarinForms blog post"},
         };
 
-        public List<TodoItem> GetList()
+        public Task<List<TodoItem>> GetList()
         {
-            return _todoList;
+            return Task.FromResult(_todoList);
         }
 
-        public void DeleteItem(TodoItem itemToDelete)
+        public Task DeleteItem(TodoItem itemToDelete)
         {
             _todoList.Remove(itemToDelete);
+            return Task.Delay(100);
         }
 
-        public void ChangeItemIsCompleted(TodoItem itemToChange)
+        public Task ChangeItemIsCompleted(TodoItem itemToChange)
         {
             itemToChange.IsCompleted = !itemToChange.IsCompleted;
+            return Task.Delay(100);
         }
 
-        public void AddItem(TodoItem itemToAdd)
+        public Task AddItem(TodoItem itemToAdd)
         {
             throw new NotImplementedException();
         }
     }
 }
-
 {% endhighlight %}
 
 > Note: This implementation leaves a lot to be desired, like safety checks to make sure an item exists before removing it. This is OK for now since we plan to replace it with real persistence soon.
@@ -469,27 +471,37 @@ namespace TodoXamarinForms
 Now we can update TodoListViewModel to use the repository.
 
 {% highlight csharp %}
-private ILookup<string, TodoItem> GetGroupedTodoList()
+public TodoListViewModel()
 {
-    return App.TodoRepository.GetList()
-              .OrderBy(t => t.IsCompleted)
-              .ToLookup(t => t.IsCompleted? "Completed" : "Active");
+    GetGroupedTodoList().ContinueWith(t =>
+    {
+        GroupedTodoList = t.Result;
+    });
+    Delete = new Command<TodoItem>(HandleDelete);
+    ChangeIsCompleted = new Command<TodoItem>(HandleChangeIsCompleted);
+}
+...
+private async Task<ILookup<string, TodoItem>> GetGroupedTodoList()
+{
+    return (await App.TodoRepository.GetList())
+                        .OrderBy(t => t.IsCompleted)
+                        .ToLookup(t => t.IsCompleted? "Completed" : "Active");
 }
 
 public Command<TodoItem> Delete { get; set; }
-public void HandleDelete(TodoItem itemToDelete)
+public async void HandleDelete(TodoItem itemToDelete)
 {
-    App.TodoRepository.DeleteItem(itemToDelete);
+    await App.TodoRepository.DeleteItem(itemToDelete);
     // Update displayed list
-    GroupedTodoList = GetGroupedTodoList();
+    GroupedTodoList = await GetGroupedTodoList();
 }
 
 public Command<TodoItem> ChangeIsCompleted { get; set; }
-public void HandleChangeIsCompleted(TodoItem itemToUpdate)
+public async void HandleChangeIsCompleted(TodoItem itemToUpdate)
 {
-    App.TodoRepository.ChangeItemIsCompleted(itemToUpdate);
+    await App.TodoRepository.ChangeItemIsCompleted(itemToUpdate);
     // Update displayed list
-    GroupedTodoList = GetGroupedTodoList();
+    GroupedTodoList = await GetGroupedTodoList();
 }
 {% endhighlight %}
 
