@@ -8,7 +8,7 @@ tags: mobile xamarin
 
 Today we're going to look at creating our TODO application using Xamarin Forms. Xamarin Forms is a cross platform framework build on the .NET stack that allows for massive code re-use across platforms. It allows us to share both the application logic and the UI code between multiple target platforms (mostly). There are some exceptions for truly native behavior, of course, like Notifications (which we won't get into today) and platform-specific elements like the Android Floating Action Button (we'll talk more about that later in this post). For now let's just get started and see what we get out of the box.
 
-Note: All of my steps are using Visual Studio 2017 Community on Windows. Your mileage may vary if you work on a different edition of VS or on Visual Studio for Mac.
+> Note: All of my steps are using Visual Studio 2017 Community on Windows. Your mileage may vary if you work on a different edition of VS or on Visual Studio for Mac.
 
 ### Tools and Environment
 We can develop for Xamarin Forms on either a PC or a Mac. On PC we would use <a href="" target="_blank">Visual Studio</a> (I'm using Visual Studio 2017 Community) and on Mac we would use <a href="" target="_blank">Visual Studio for Mac</a>. For Android development, the installers for Visual Studio will install all additional dependencies, like the Android SDK, emulators, Java, etc. iOS setup can be a little trickier: no matter which OS you develop on, you'll
