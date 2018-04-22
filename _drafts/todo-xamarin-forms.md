@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title:  "Todo in Xamarin Forms"
 date:   2018-04-20 17:16:00 -0400
 tags: mobile xamarin
