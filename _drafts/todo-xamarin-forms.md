@@ -507,4 +507,164 @@ public async void HandleChangeIsCompleted(TodoItem itemToUpdate)
 }
 {% endhighlight %}
 
-Now that we've separated our data from our view model, we're ready to start implementing real persistence.
+Now that we've separated our data from our view model, we're ready to start implementing real persistence. First off we need to install the sqlite-net-pcl package from nuget. Follow the same steps we used to install Foday, but add this package to all three projects. Make sure to install the correct package as there are many similarly named ones.
+
+![Install sqlite-net-pcs Package]({{ "/assets/img/todo-xamarin-forms/NugetSqlite.PNG" | absolute_url }})
+
+Now we need to update our TodoItem to play nicely with the database. We want to tell sqlite that our Id property is the primary key and that it should auto-increment. We can do this with a couple of attributes
+
+{% highlight csharp %}
+using SQLite;
+
+namespace TodoXamarinForms
+{
+    public class TodoItem : BaseFodyObservable
+    {
+        [PrimaryKey, AutoIncrement]
+        public int Id { get; set; }
+...
+{% endhighlight %}
+
+Next we want to update our TodoRepository to use the database instead of our in-memory storage.
+
+{% highlight csharp %}
+using SQLite;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace TodoXamarinForms.Persistence
+{
+    public class TodoRepository
+    {
+        private readonly SQLiteAsyncConnection _database;
+
+        public TodoRepository()
+        {
+            _database = new SQLiteAsyncConnection("TODO: file path");
+            _database.CreateTableAsync<TodoItem>().Wait();            
+        }
+
+        private List<TodoItem> _seedTodoList = new List<TodoItem>
+        {
+            new TodoItem { Title = "Create First Todo", IsCompleted = true},
+            new TodoItem { Title = "Run a Marathon"},
+            new TodoItem { Title = "Create TodoXamarinForms blog post"},
+        };
+
+        public async Task<List<TodoItem>> GetList()
+        {
+            //TODO: remove once Add is implemented
+            if ((await _database.Table<TodoItem>().CountAsync() == 0))
+            {
+                await _database.InsertAllAsync(_seedTodoList);
+            }
+
+            return await _database.Table<TodoItem>().ToListAsync();
+        }
+
+        public Task DeleteItem(TodoItem itemToDelete)
+        {
+            return _database.DeleteAsync(itemToDelete);
+        }
+
+        public Task ChangeItemIsCompleted(TodoItem itemToChange)
+        {
+            itemToChange.IsCompleted = !itemToChange.IsCompleted;
+            return _database.UpdateAsync(itemToChange);
+        }
+
+        public Task AddItem(TodoItem itemToAdd)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+{% endhighlight %}
+
+Note the TODO in our constructor. SQLite needs to know where to store the database file. This has a different path on each operating system, so we can't directly set it in our Standard project. Instead we'll create an interface in the Standard project and implement it in each of our platform projects.
+
+Add a new C# file to the Persistance folder in TodoXamarinForms called IFileHelper and add a method declaration for GetLocalFilePath
+
+{% highlight csharp %}
+namespace TodoXamarinForms.Persistence
+{
+    public interface IFileHelper
+    {
+        string GetLocalFilePath(string filename);
+    }
+}
+{% endhighlight %}
+
+Now use this interface in the constructor of the TodoRepository. We'll use Xamarin's DependencyService to get the correct OS specific instance of our interface.
+
+{% highlight csharp %}
+...
+_database = new SQLiteAsyncConnection(DependencyService.Get<IFileHelper>().GetLocalFilePath("TodoSQLite.db3"));
+...
+{% endhighlight %}
+
+That's all we need to do in the Standard project. The steps for each platform-specific class are very similar, with slightly different implementation details.
+
+##### FileHelper Android
+
+Create a class in TodoXamarinForms.Android called FileHelper. This will implement our IFileHelper interface and use an attribute to tell Xamarin about it.
+
+{% highlight csharp %}
+using System;
+using System.IO;
+using TodoXamarinForms.Droid;
+using TodoXamarinForms.Persistence;
+using Xamarin.Forms;
+
+[assembly: Dependency(typeof(FileHelper))]
+namespace TodoXamarinForms.Droid
+{
+    public class FileHelper : IFileHelper
+    {
+        public string GetLocalFilePath(string filename)
+        {
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            return Path.Combine(path, filename);
+        }
+    }
+}
+{% endhighlight %}
+##### FileHelper iOS
+
+Just like on Android, create a class in TodoXamarinForms.Android called FileHelper. This will use the same interface and attribute as the Android implementation.
+
+
+{% highlight csharp %}
+using System;
+using System.IO;
+using TodoXamarinForms.iOS;
+using TodoXamarinForms.Persistence;
+using Xamarin.Forms;
+
+[assembly: Dependency(typeof(FileHelper))]
+namespace TodoXamarinForms.iOS
+{
+    public class FileHelper : IFileHelper
+    {
+        public string GetLocalFilePath(string filename)
+        {
+            string docFolder = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            string libFolder = Path.Combine(docFolder, "..", "Library", "Databases");
+
+            if (!Directory.Exists(libFolder))
+            {
+                Directory.CreateDirectory(libFolder);
+            }
+
+            return Path.Combine(libFolder, filename);
+        }
+    }
+}
+{% endhighlight %}
+
+Now we can run the application. On both Android and iOS, the application will remember any changes we make across app restarts and device reboots.
+
+### Adding Todo Items
+
+All this is well and good, but our app is still pretty useless without the ability to add new items. To do this we're going to add a button that directs the user to an Add Todo Item screen that allows them to enter the item's Title and save or cancel. We're going to get a little fancy with the button and show a Floating Action Button on Android devices, while showing a regular button at the bottom of the screen on iOS.
