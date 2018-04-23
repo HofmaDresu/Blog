@@ -6,7 +6,7 @@ tags: mobile xamarin
 ---
 
 
-Today we're going to look at creating our TODO application using Xamarin Forms. Xamarin Forms is a cross platform framework build on the .NET stack that allows for massive code re-use across platforms. It allows us to share both the application logic and the UI code between multiple target platforms (mostly). There are some exceptions for truly native behavior, of course, like Notifications (which we won't get into today) and platform-specific elements like the Android Floating Action Button (we'll talk more about that later in this post). For now let's just get started and see what we get out of the box.
+Today we're going to look at creating our TODO application using Xamarin Forms. Xamarin Forms is a cross platform framework build on the .NET stack that allows for massive code re-use across platforms. It allows us to share both the application logic and the UI code between multiple target platforms (mostly). There are some exceptions for truly native behavior, of course, like Notifications and platform-specific elements like the Android Floating Action Button, but we won't go into them today. For now let's just get started and see what we get out of the box.
 
 > Note: All of my steps are using Visual Studio 2017 Community on Windows. Your mileage may vary if you work on a different edition of VS or on Visual Studio for Mac.
 
@@ -38,7 +38,6 @@ Most of our work will be done in the .NET Standard library, with only minor vent
     <img src="/assets/img/todo-xamarin-forms/HelloWorldAndroid.png" />
     <label>iOS</label>
     <img src="/assets/img/todo-xamarin-forms/HelloWorldIOS.png" >
-    <!--TODO: iOS screenshot -->
 </div>
 
 Out of the box we have a Hello World app running on both Android and iOS. It's not very exciting yet, but this is where the real fun begins.
@@ -172,7 +171,6 @@ Now when we run the app, we see our new screen with a title and a list of "TodoX
     <img src="/assets/img/todo-xamarin-forms/InitialListViewAndroid.png" />
     <label>iOS</label>
     <img src="/assets/img/todo-xamarin-forms/InitialListViewIOS.png">
-    <!--TODO: iOS screenshot -->
 </div>
 
 To show our TodoItems's Title, we're going to use a built in control called TextCell. There are many other controls we could use if we wanted a different layout, but for our simple app TextCell is more than sufficient. Open TodoListView.xaml and add the new TextCell to the ListView tag, binding the Text attribute to your Title property. Since this is in the context of our ListView, this binds to the individual TodoItem's Title property.
@@ -196,7 +194,6 @@ If we run the app now, we'll see our todo item titles listed on the screen
     <img src="/assets/img/todo-xamarin-forms/TitleBoundListViewAndroid.png"  />
     <label>iOS</label>
     <img src="/assets/img/todo-xamarin-forms/TitleBoundListViewIOS.png">
-    <!--TODO: iOS screenshot -->
 </div>
 
 There's one more thing we'd like to display for our todo list: whether-or-not we have completed to item! For this we're going to group our todos based on their IsCompleted property and show them in either a Active or Completed section. The Xamarin Forms ListView we're using has grouping built-in, so all we have to do is adjust our datastructure and bindings to handle groups.
@@ -254,7 +251,6 @@ Now when we run the app, we see our todo items separated out by their completion
     <img src="/assets/img/todo-xamarin-forms/GroupedListViewAndroid.png" />
     <label>iOS</label>
     <img src="/assets/img/todo-xamarin-forms/GroupedListViewIOS.png">
-    <!--TODO: iOS screenshot -->
 </div>
 
 ### Completing, Uncompleting and Deleting Items
@@ -291,7 +287,6 @@ Right now our actions don't do anything, but we set up the Command binding that 
     <img src="/assets/img/todo-xamarin-forms/ContextActionsAndroid.png" />
     <label>iOS</label>
     <img src="/assets/img/todo-xamarin-forms/ContextActionsIOS.png">
-    <!--TODO: iOS screenshot -->
 </div>
 
 Now we'll wire up the buttons so they actually have an effect. Let's start with the Delete command. We create a Delete property in TodoListViewModel and a HandleDelete method. Then in our constructor we set Delete to a new command that uses HandleDelete.
@@ -344,7 +339,6 @@ Now if we click our actions, we can see the list updating for our changes.
     <img src="/assets/img/todo-xamarin-forms/DeleteCompleteAndroid.gif" />
     <label>iOS</label>
     <img src="/assets/img/todo-xamarin-forms/DeleteCompleteIOS.gif">
-    <!--TODO: iOS screenshot -->
 </div>
 
 > One thing worth noting is that our code is not optimized for long lists. Since we're fully re-creating our grouped list anytime something happens, we're forcing the application to re-render the entire list. We could improve our logic by changing items in place instead of regenerating the list, but that's beyond the scope of this post.
@@ -667,4 +661,37 @@ Now we can run the application. On both Android and iOS, the application will re
 
 ### Adding Todo Items
 
-All this is well and good, but our app is still pretty useless without the ability to add new items. To do this we're going to add a button that directs the user to an Add Todo Item screen that allows them to enter the item's Title and save or cancel. We're going to get a little fancy with the button and show a Floating Action Button on Android devices, while showing a regular button at the bottom of the screen on iOS.
+All this is well and good, but our app is still pretty useless without the ability to add new items. To do this we're going to add a button that directs the user to an Add Todo Item screen that allows them to enter the item's Title and save or cancel.
+
+The first thing we want to do is create the button on both OSs. To do this we'll wrap our ListView in a StackLayout and add a Button element.
+
+{% highlight xml %}
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TodoXamarinForms.TodoListView"
+             xmlns:local="clr-namespace:TodoXamarinForms"
+             Title="{Binding Title}"
+             xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core" 
+             ios:Page.UseSafeArea="true">
+...
+    <ContentPage.Content>
+        <StackLayout Orientation="Vertical">
+            <ListView ItemsSource="{Binding GroupedTodoList}">
+...
+            </ListView>
+            <Button Command="{Binding AddItem}" Text="Add Todo Item" />
+        </StackLayout>
+...
+{% endhighlight %}
+
+> Note: we also added a new namespace and directive to the Content Page. This tells the app to use the "safe area" on iPhone X devices and not place our button under the bottom bar. It has no effect on Android or other current iOS devices.
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <img src="/assets/img/todo-xamarin-forms/DefaultButtonAndroid.png" />
+    <label>iOS</label>
+    <img src="/assets/img/todo-xamarin-forms/DefaultButtonIOS.png">
+</div>
+
+This works pretty well, but we want to use Android's Floating Action Button instead of a regular button. 
