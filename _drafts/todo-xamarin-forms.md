@@ -694,4 +694,163 @@ The first thing we want to do is create the button on both OSs. To do this we'll
     <img src="/assets/img/todo-xamarin-forms/DefaultButtonIOS.png">
 </div>
 
-This works pretty well, but we want to use Android's Floating Action Button instead of a regular button. 
+Next we'll add a new ContentPage called AddTodoItem.xaml to our TodoXamarinForms project and create a basic layout containing a text entry, a cancel button, and a save button. Our bindings won't do anything yet, but they'll be useful when we create a view model for this page.
+
+{% highlight xml %}
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TodoXamarinForms.AddTodoItem">
+    <ContentPage.Content>
+        <StackLayout Orientation="Vertical" VerticalOptions="Center">
+            <Entry Placeholder="Todo Title" Text="{Binding TodoTitle}" />
+            <StackLayout Orientation="Horizontal" HorizontalOptions="Center" >
+                <Button Text="Cancel" Command="{Binding Cancel}" />
+                <Button Text="Save" Command="{Binding Save}" />
+            </StackLayout>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
+{% endhighlight %}
+
+Now we need to navigate to this screen when the user clicks our "Add Todo Item" button. To do this we first need to adjust our TodoListViewModel to take an INavigation as a constructor parameter and use that to implement our AddItem command.
+
+{% highlight csharp %}
+
+        public TodoListViewModel(INavigation navigation)
+        {
+            _navigation = navigation;
+...
+            AddItem = new Command(HandleAddItem);
+        }
+
+        private INavigation _navigation;
+...
+
+        public Command AddItem { get; set; }
+        public async void HandleAddItem()
+        {
+            await _navigation.PushModalAsync(new AddTodoItem());
+        }
+...
+{% endhighlight %}
+
+We'll also need to update TodoListView.xaml.cs to pass in a Navigation object.
+
+{% highlight csharp %}
+using Xamarin.Forms;
+using Xamarin.Forms.Xaml;
+
+namespace TodoXamarinForms
+{
+    [XamlCompilation(XamlCompilationOptions.Compile)]
+	public partial class TodoListView : ContentPage
+	{
+		public TodoListView ()
+		{
+			InitializeComponent ();
+            BindingContext = new TodoListViewModel(Navigation);
+		}
+	}
+}
+{% endhighlight %}
+
+If we run our app, we'll be able to navigate to our new screen by pressing "Add Todo Item" button.
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <img src="/assets/img/todo-xamarin-forms/AddItemScreenAndroid.png" />
+    <label>iOS</label>
+    <img src="/assets/img/todo-xamarin-forms/AddItemScreenIOS.png">
+</div>
+
+The last things we need to do are creaet our View Model and implement AddItem in our repository. This is basically a repetition of many of the steps we've already done, so they won't be listed in detail here.
+
+First we create the view model.
+
+{% highlight csharp %}
+using Xamarin.Forms;
+
+namespace TodoXamarinForms
+{
+    class AddTodoItemViewModel : BaseFodyObservable
+    {
+
+        public AddTodoItemViewModel(INavigation navigation)
+        {
+            _navigation = navigation;
+            Save = new Command(HandleSave);
+            Cancel = new Command(HandleCancel);
+        }
+
+        private INavigation _navigation;
+        public string TodoTitle { get; set; }
+
+        public Command Save { get; set; }
+        public async void HandleSave()
+        {
+            await App.TodoRepository.AddItem(new TodoItem { Title = TodoTitle });
+            await _navigation.PopModalAsync();
+        }
+
+        public Command Cancel { get; set; }
+        public async void HandleCancel()
+        {
+            await _navigation.PopModalAsync();
+        }
+    }
+}
+{% endhighlight %}
+
+Then we set it as the binding context for our view.
+
+{% highlight csharp %}
+...
+public TodoListView ()
+{
+    InitializeComponent ();
+    BindingContext = new TodoListViewModel(Navigation);
+}
+...
+{% endhighlight %}
+
+And implement AddItem in the repository.
+
+{% highlight csharp %}
+...
+public Task AddItem(TodoItem itemToAdd)
+{
+    return _database.InsertAsync(itemToAdd);
+}
+...
+{% endhighlight %}
+
+If we run the application now, everything will seem to work but we won't see a newly added item on our list screen. This is because we have one step remaining: we need to refresh the list when it appears. To do this, we need to add a method to TodListViewModel.cs and call it in the OnAppearing lifecycle method of TodoListView.xaml.cs
+
+{% highlight csharp %}
+...
+public async Task RefreshTaskList()
+{
+    GroupedTodoList = await GetGroupedTodoList();
+}
+...
+{% endhighlight %}
+
+{% highlight csharp %}
+...
+protected override async void OnAppearing()
+{
+    base.OnAppearing();
+    await (BindingContext as TodoListViewModel).RefreshTaskList();
+}
+...
+{% endhighlight %}
+
+Now when we run the applicaiton we'll see new items appear in our list.
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <img src="/assets/img/todo-xamarin-forms/AddItemAndroid.png" />
+    <label>iOS</label>
+    <img src="/assets/img/todo-xamarin-forms/AddItemIOS.png" />
+</div>
