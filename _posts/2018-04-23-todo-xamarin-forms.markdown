@@ -846,7 +846,7 @@ protected override async void OnAppearing()
 ...
 {% endhighlight %}
 
-Now when we run the applicaiton we'll see new items appear in our list.
+Now when we run the application we'll see new items appear in our list.
 
 <div class="os-screenshots">
     <label>Android</label>
