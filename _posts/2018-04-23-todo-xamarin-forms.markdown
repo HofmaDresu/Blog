@@ -21,7 +21,7 @@ With all this installed, we can now start building our app!
 ### Creating Hello World
 The first thing we'll do is create a new app project and see what Xamarin Forms gives us out-of-the-box. We open Visual Studio and select File->New Project. This opens a dialog where we'll select Installed->Visual C#->Cross-Platform->Mobile App (Xamarin.Forms) and name our solution "TodoXamarinForms".
 
-![Create Project]({{ "./assets/img/todo-xamarin-forms/CreateProject.PNG" | absolute_url }})
+![Create Project]({{ "/assets/img/todo-xamarin-forms/CreateProject.PNG" }})
 
 Next we're asked what platforms we want to target and what type of shared project we want. We'll deselect Windows so we only create Android and iOS projects, and we'll select .NET Standard.
 
@@ -47,7 +47,7 @@ Xamarin Forms uses XAML for UI developent, which provides access to two way data
 
 First we'll install the Fody package. Right click on the solution and select 'Manage NuGet Packages for Solution'. Search for PropertyChanged.Fody and install it on the .NET Standard project (reminder: the one that says neither Android nor iOS). Next we need to create a configuration XML file.
 
-![Install Fody Package]({{ "/assets/img/todo-xamarin-forms/FODY.PNG" | absolute_url }})
+![Install Fody Package]({{ "/assets/img/todo-xamarin-forms/FODY.PNG" }})
 
 Right click on the TodoXamarinForms project and select 'Add->New Item'. Select XML from the list and name it FodyWeavers.xml. Paste this content into the file:
 
@@ -503,7 +503,7 @@ public async void HandleChangeIsCompleted(TodoItem itemToUpdate)
 
 Now that we've separated our data from our view model, we're ready to start implementing real persistence. First off we need to install the sqlite-net-pcl package from nuget. Follow the same steps we used to install Foday, but add this package to all three projects. Make sure to install the correct package as there are many similarly named ones.
 
-![Install sqlite-net-pcs Package]({{ "/assets/img/todo-xamarin-forms/NugetSqlite.PNG" | absolute_url }})
+![Install sqlite-net-pcs Package]({{ "/assets/img/todo-xamarin-forms/NugetSqlite.PNG" }})
 
 Now we need to update our TodoItem to play nicely with the database. We want to tell sqlite that our Id property is the primary key and that it should auto-increment. We can do this with a couple of attributes
 
