@@ -3,16 +3,6 @@
 
 @import "{{ site.theme }}";
 
-body {
-  background: #f4f8fb;
-}
-
-.page-header {
-  background-image: url('/assets/img/NewZealand.jpg');
-  background-position: left;
-  background-size: cover;
-}
-
 .home {
   margin-top: -75px !important;
 }
