@@ -21,7 +21,7 @@ With all this installed, we can now start building our app!
 ### Creating Hello World
 The first thing we'll do is create a new app project and see what Xamarin Forms gives us out-of-the-box. We open Visual Studio and select File->New Project. This opens a dialog where we'll select Installed->Visual C#->Cross-Platform->Mobile App (Xamarin.Forms) and name our solution "TodoXamarinForms".
 
-![Create Project]({{ "/assets/img/todo-xamarin-forms/CreateProject.PNG" | absolute_url }})
+![Create Project]({{ "./assets/img/todo-xamarin-forms/CreateProject.PNG" | absolute_url }})
 
 Next we're asked what platforms we want to target and what type of shared project we want. We'll deselect Windows so we only create Android and iOS projects, and we'll select .NET Standard.
 
