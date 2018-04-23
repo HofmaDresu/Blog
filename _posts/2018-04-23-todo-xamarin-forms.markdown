@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Todo in Xamarin Forms"
-date:   2018-04-20 17:16:00 -0400
+date:   2018-04-23 13:00:00 -0400
 tags: mobile xamarin
 ---
 
@@ -850,9 +850,9 @@ Now when we run the applicaiton we'll see new items appear in our list.
 
 <div class="os-screenshots">
     <label>Android</label>
-    <img src="/assets/img/todo-xamarin-forms/AddItemAndroid.png" />
+    <img src="/assets/img/todo-xamarin-forms/AddItemAndroid.gif" />
     <label>iOS</label>
-    <img src="/assets/img/todo-xamarin-forms/AddItemIOS.png" />
+    <img src="/assets/img/todo-xamarin-forms/AddItemIOS.gif" />
 </div>
 
 And there we have it! A function Todo application on both iOS and Android built with Xamarin Forms. Obviously there's a lot more we could do with this application, like customizing styles or adding application icons, but this gets us through the basics of creating a simple cross platform application.
