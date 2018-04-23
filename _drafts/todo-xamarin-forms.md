@@ -6,12 +6,12 @@ tags: mobile xamarin
 ---
 
 
-Today we're going to look at creating our TODO application using Xamarin Forms. Xamarin Forms is a cross platform framework build on the .NET stack that allows for massive code re-use across platforms. It allows us to share both the application logic and the UI code between multiple target platforms (mostly). There are some exceptions for truly native behavior, of course, like Notifications and platform-specific elements like the Android Floating Action Button, but we won't go into them today. For now let's just get started and see what we get out of the box.
+Today we're going to look at creating our TODO application using Xamarin Forms. Xamarin Forms is a cross platform framework build on the .NET stack that allows for massive code re-use across platforms. It allows us to share both the application logic and the UI code between multiple target platforms (mostly). There are some exceptions for truly native behavior, of course, like Notifications and platform-specific elements like the Android Floating Action Button, but we won't go into them today. For now let's just get started and see what we get out of the box. Full source code for this application is available <a href="https://github.com/HofmaDresu/TodoMobile/tree/master/TodoXamarinForms" target="_blank">on GitHub</a>
 
 > Note: All of my steps are using Visual Studio 2017 Community on Windows. Your mileage may vary if you work on a different edition of VS or on Visual Studio for Mac.
 
 ### Tools and Environment
-We can develop for Xamarin Forms on either a PC or a Mac. On PC we would use <a href="" target="_blank">Visual Studio</a> (I'm using Visual Studio 2017 Community) and on Mac we would use <a href="" target="_blank">Visual Studio for Mac</a>. For Android development, the installers for Visual Studio will install all additional dependencies, like the Android SDK, emulators, Java, etc. iOS setup can be a little trickier: no matter which OS you develop on, you'll
+We can develop for Xamarin Forms on either a PC or a Mac. On PC we would use Visual Studio (I'm using Visual Studio 2017 Community) and on Mac we would use Visual Studio for Mac, both available <a href="https://www.visualstudio.com/" target="_blank">here</a>. For Android development, the installers for Visual Studio will install all additional dependencies, like the Android SDK, emulators, Java, etc. iOS setup can be a little trickier: no matter which OS you develop on, you'll
 need a Mac with XCode installed. If you're developing on a Windows machine, Visual Studio will connect to the Mac for iOS compilation. This is needed because Apple requires a Mac to compile iOS applications.
 
 In addition to Visual Studio, I would also recommend installing Android Studio. This isn't required, especially for quick prototyping, but it has better tools for creating/managing emulators and for managing the SDK.
@@ -854,3 +854,5 @@ Now when we run the applicaiton we'll see new items appear in our list.
     <label>iOS</label>
     <img src="/assets/img/todo-xamarin-forms/AddItemIOS.png" />
 </div>
+
+And there we have it! A function Todo application on both iOS and Android built with Xamarin Forms. Obviously there's a lot more we could do with this application, like customizing styles or adding application icons, but this gets us through the basics of creating a simple cross platform application.
