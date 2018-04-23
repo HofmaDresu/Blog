@@ -25,7 +25,7 @@ The first thing we'll do is create a new app project and see what Xamarin Forms 
 
 Next we're asked what platforms we want to target and what type of shared project we want. We'll deselect Windows so we only create Android and iOS projects, and we'll select .NET Standard.
 
-![Select Project Type]({{ "/assets/img/todo-xamarin-forms/ProjectType.PNG" | absolute_url }})
+![Select Project Type]({{ "/assets/img/todo-xamarin-forms/ProjectType.PNG" }})
 
 Visual Studio will create our solution with 3 projects: a .NET Standard library (TodoXamarinForms), an Android project (TodoXamarinForms.Android), and an iOS project (TodoXamarinForms.iOS).
 
