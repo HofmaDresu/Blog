@@ -435,12 +435,14 @@ namespace TodoXamarinForms.Persistence
         public Task DeleteItem(TodoItem itemToDelete)
         {
             _todoList.Remove(itemToDelete);
+            // We're using Task.Delay to simulate async behavior for now. It will be replaced by real async database calls
             return Task.Delay(100);
         }
 
         public Task ChangeItemIsCompleted(TodoItem itemToChange)
         {
             itemToChange.IsCompleted = !itemToChange.IsCompleted;
+            // We're using Task.Delay to simulate async behavior for now. It will be replaced by real async database calls
             return Task.Delay(100);
         }
 
