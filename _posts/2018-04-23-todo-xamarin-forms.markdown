@@ -6,7 +6,7 @@ tags: mobile xamarin
 ---
 
 
-Today we're going to look at creating our TODO application using Xamarin Forms. Xamarin Forms is a cross platform framework build on the .NET stack that allows for massive code re-use across platforms. It allows us to share both the application logic and the UI code between multiple target platforms (mostly). There are some exceptions for truly native behavior, of course, like Notifications and platform-specific elements like the Android Floating Action Button, but we won't go into them today. For now let's just get started and see what we get out of the box. Full source code for this application is available <a href="https://github.com/HofmaDresu/TodoMobile/tree/master/TodoXamarinForms" target="_blank">on GitHub</a>
+Today we're going to look at creating a Todo application using Xamarin Forms. Xamarin Forms is a cross platform framework build on the .NET stack that allows for massive code re-use across platforms. It allows us to share both the application logic and the UI code between multiple target platforms (mostly). There are some exceptions for truly native behavior, of course, like Notifications and platform-specific elements like the Android Floating Action Button, but we won't go into them today. For now let's just get started and see what we get out of the box. Full source code for this application is available <a href="https://github.com/HofmaDresu/TodoMobile/tree/master/TodoXamarinForms" target="_blank">on GitHub</a>
 
 > Note: All of my steps are using Visual Studio 2017 Community on Windows. Your mileage may vary if you work on a different edition of VS or on Visual Studio for Mac.
 
@@ -42,7 +42,7 @@ Most of our work will be done in the .NET Standard library, with only minor vent
 
 Out of the box we have a Hello World app running on both Android and iOS. It's not very exciting yet, but this is where the real fun begins.
 
-### Displaying a list of TODO items
+### Displaying a list of Todo items
 Xamarin Forms uses XAML for UI developent, which provides access to two way databinding. Unfortunately, there is a little boilerplate code required to get this working. We're going to use the <a href="https://github.com/Fody/PropertyChanged" target="_blank">Fody</a> package and a base class to clean that up a little.
 
 First we'll install the Fody package. Right click on the solution and select 'Manage NuGet Packages for Solution'. Search for PropertyChanged.Fody and install it on the .NET Standard project (reminder: the one that says neither Android nor iOS). Next we need to create a configuration XML file.
@@ -74,9 +74,9 @@ namespace TodoXamarinForms
 }
 {% endhighlight %}
 
-You may notice a couple weird looking #pragma statements in the sample code. These aren't strictly needed, but they tell the compiler to ignore the fact that nothing directly uses the PropertyChanged event. This has no effect on the functionality of our app, but I prefer to hide this warning since we know it will be used by the Fody package.
+> You may notice a couple weird looking #pragma statements in the sample code. These aren't strictly needed, but they tell the compiler to ignore the fact that nothing directly uses the PropertyChanged event. This has no effect on the functionality of our app, but I prefer to hide this warning since we know it will be used by the Fody package.
 
-Now that we have the boilerplate out of the way, we should is define our TODO item. Since this is a simple app, we only have 3 properties we care about for a todo: a unique id, a title, and whether or not it has been completed. For this we'll create a new class called TodoItem.cs that is a subclass of our BaseFodyObservable. Follow the same steps used to create the BaseFodyObservable file and add the following content:
+Now that we have the boilerplate out of the way, we should is define our Todo item. Since this is a simple app, we only have 3 properties we care about for a todo: a unique id, a title, and whether or not it has been completed. For this we'll create a new class called TodoItem.cs that is a subclass of our BaseFodyObservable. Follow the same steps used to create the BaseFodyObservable file and add the following content:
 
 {% highlight csharp %}
 namespace TodoXamarinForms
@@ -138,7 +138,7 @@ namespace TodoXamarinForms
 }
 {% endhighlight %}
 
-Next we'll create our UI and bind it to the data in our View Model. For now this will just be a simple screen that displays our list of TODO items. Open TodoList.xaml and delete everything from within the ContentPage.Content tag. Replace it with a ListView and bind the data from our View Model. We should also set the page title and bind it to our View Model.
+Next we'll create our UI and bind it to the data in our View Model. For now this will just be a simple screen that displays our list of Todo items. Open TodoList.xaml and delete everything from within the ContentPage.Content tag. Replace it with a ListView and bind the data from our View Model. We should also set the page title and bind it to our View Model.
 
 {% highlight xml %}
 <?xml version="1.0" encoding="utf-8" ?>
@@ -278,7 +278,7 @@ The first thing we'll do is create the UI for our actions. Fortunately this is b
 </ListView>
 {% endhighlight %}
 
-We made a couple changes to display our actions and prepare for implementing them. The first thing we did is we named our ListView . We need to do this in order to reference it in the new MenuItem tags. We then created 2 context menu items for our todos, one for Complete and one for Delete. There is some boilerplate we need to use to wire up our actions. This is because the data context for our TextCell is the TodoItem itself instead of the View Model, and we need to use commands on our View Model. We take care of this by setting the Source of our command binding to the TodoDisplayList and setting the path to our Command.
+We made a couple changes to display our actions and prepare for implementing them. The first thing we did is we named our ListView . We need to do this in order to reference it in the new MenuItem tags. We then created two context menu items for our todos, one for Complete and one for Delete. There is some boilerplate we need to use to wire up our actions. This is because the data context for our TextCell is the TodoItem itself instead of the View Model, and we need to use commands on our View Model. We take care of this by setting the Source of our command binding to the TodoDisplayList and setting the path to our Command.
 
 Right now our actions don't do anything, but we set up the Command binding that we'll use to add actual functionality to these buttons. One interesting thing to note is that these actions are displayed differently on iOS and Android. This is because Xamarin Forms is using the native list actions for each OS, with Android showing actions in the titlebar on long press and iOS revealing the actions inline on swipe.
 
