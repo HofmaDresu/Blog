@@ -53,6 +53,173 @@ This gives us a solution with 3 projects: Core, Android, and iOS. If we run it o
 We can see our app is up-and-running on both OSs, but it's not exactly what one would call "exciting" or "useful" yet. That's what we're going to do in the rest of this post!
 
 ### Creating the Data Layer
-> Note: If you've already read the previous post on creating the todo app with Xamarin Native, this section will be very familiar to you and you can skip ahead to <a href="#">Displaying a list of Todo items</a>
+> Note: If you've already read the previous post on creating the todo app with Xamarin Native, this section will be very familiar to you and you can skip ahead to <a href="#displaying-todo-list">Displaying a list of Todo Items</a>
 
 First we're going to create our core data layer. This is where we'll handle CRUD operations for our todo list database. We want to create this in our Core project so we can share the code between iOS and Android with as little repetition as possible. On a more complicated app we may decide to create this layer later, but since this is very simple I want to get it out of the way so we can get into building the UI.
+
+Our application needs to be able to do 4 things in the data layer: retrieve a list of todo Items, add items, remove items, and toggle an is completed status on an item. The first thing we need to do is define our Todo Item. Right click on TodoXamarinForms.Core and select "Add->Class". Name the class TodoItem.cs and add three properties: Id, Title and IsCompleted.
+
+{% highlight csharp %}
+namespace TodoXamarinNative.Core
+{
+    public class TodoItem
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public bool IsCompleted { get; set; } 
+    }
+}
+{% endhighlight %}
+
+Next we'll create a repository class called TodoRepository with empty methods for our CRUD actions. We'll return Tasks from the methods so we can perform our data access off of the main thread
+
+{% highlight csharp %}
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace TodoXamarinNative.Core
+{
+    public class TodoRepository
+    {
+        public Task<List<TodoItem>> GetList()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteItem(TodoItem itemToDelete)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task ChangeItemIsCompleted(TodoItem itemToChange)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task AddItem(TodoItem itemToAdd)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+{% endhighlight %}
+
+That sets up our methods for the data layer, but obviously doesn't do anything yet. We're going to use Sqlite as our database library so we can persist our todo list across application and device restarts. First off we need to install the sqlite-net-pcl package from nuget. Right click on the solution and select 'Manage NuGet Packages for Solution'. Search for sqlite-net-pcl and install it on all three projects. Make sure to install the correct package as there are many similarly named ones.
+
+![Install sqlite-net-pcs Package]({{ "/assets/img/todo-xamarin-native/NugetSqlite.PNG" }})
+
+Now we need to update our TodoItem to play nicely with the database. We want to tell sqlite that our Id property is the primary key and that it should auto-increment. We can do this with a couple of attributes
+
+{% highlight csharp %}
+using SQLite;
+
+namespace TodoXamarinNative.Core
+{
+    public class TodoItem
+    {
+        [PrimaryKey, AutoIncrement]
+        public int Id { get; set; }
+...
+{% endhighlight %}
+
+Next we need to implement our TodoRepository. This is going to be a naive implementation that expects to be run as a single instance.  There are several things we need to do here, the first of which is we'll create a constructor that accepts a string parameter for the database file location. We need the parameter because each OS has a different prefered storage path.
+
+{% highlight csharp %}
+using SQLite;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace TodoXamarinNative.Core
+{
+    public class TodoRepository
+    {
+        private readonly SQLiteAsyncConnection _database;
+
+        public TodoRepository(string databaseFilePath)
+        {
+            _database = new SQLiteAsyncConnection(databaseFilePath);
+            _database.CreateTableAsync<TodoItem>().Wait();
+        }
+...
+{% endhighlight %}
+
+We'll also create a 'seed' list of TODO items to display if the user hasn't entered any data. This is useful for development, but we'd want to remove it later if we were going to deployt this app.
+
+{% highlight csharp %}
+...
+private List<TodoItem> _seedTodoList = new List<TodoItem>
+{
+    new TodoItem { Title = "Create First Todo", IsCompleted = true},
+    new TodoItem { Title = "Run a Marathon"},
+    new TodoItem { Title = "Create TodoXamarinForms blog post"},
+};
+...
+{% endhighlight %}
+
+Finally we want to actually implement our CRUD methods. This is fairly straightforward with Sqlite
+
+{% highlight csharp %}
+...
+public async Task<List<TodoItem>> GetList()
+{
+    if ((await _database.Table<TodoItem>().CountAsync() == 0))
+    {
+        await _database.InsertAllAsync(_seedTodoList);
+    }
+
+    return await _database.Table<TodoItem>().ToListAsync();
+}
+
+public Task DeleteItem(TodoItem itemToDelete)
+{
+    return _database.DeleteAsync(itemToDelete);
+}
+
+public Task ChangeItemIsCompleted(TodoItem itemToChange)
+{
+    itemToChange.IsCompleted = !itemToChange.IsCompleted;
+    return _database.UpdateAsync(itemToChange);
+}
+
+public Task AddItem(TodoItem itemToAdd)
+{
+    return _database.InsertAsync(itemToAdd);
+}
+...
+{% endhighlight %}
+
+The last thing we need to do is instanciate this repository in each OS specific project.
+
+##### iOS
+We'll open AppDelegate.cs in our iOS project and add a new static property called TodoRepository. Then we'll edit the FinishedLaunching method and instantiate the new property.
+
+{% highlight csharp %}
+...
+public static TodoRepository TodoRepository;
+...
+public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
+{
+    // Override point for customization after application launch.
+    // If not required for your application you can safely delete this method
+    var docFolder = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+    var libFolder = Path.Combine(docFolder, "..", "Library", "Databases");
+
+    if (!Directory.Exists(libFolder))
+    {
+        Directory.CreateDirectory(libFolder);
+    }
+
+    var repositoryFilePath = Path.Combine(libFolder, "TodoRepository.db3");
+    TodoRepository = new TodoRepository(repositoryFilePath);
+
+    return true;
+}
+...
+{% endhighlight %}
+
+##### Android
+
+
+<h3 id="displaying-todo-list">Displaying a list of Todo Items</h3>
