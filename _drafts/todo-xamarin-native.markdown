@@ -33,7 +33,7 @@ To set up our dependency, right click on References under TodoXamarinNative.Andr
 
 ![Set Android Core Reference]({{ "/assets/img/todo-xamarin-native/ProjectReferenceAndroid.PNG" }})
 
-Now we'll do the same thing for iOS. We open the Add New Project dialog again and select "Visual C# -> iOS -> Universal -> Blank App (iOS)" and name the project TodoXamarinNative.iOS.
+Now we'll do the same thing for iOS. We open the Add New Project dialog again and select "Visual C# -> iOS -> Universal -> Single View App (iOS)" and name the project TodoXamarinNative.iOS. We choose "Single View App" here because it handles some of the required boilerplate to wire up the application. If we chose "Blank App" like we did for Android, we'd need to do that all ourselves.
 
 ![Create iOS Project]({{ "/assets/img/todo-xamarin-native/CreateIOSProject.PNG" }})
 
