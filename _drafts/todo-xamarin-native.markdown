@@ -13,8 +13,7 @@ In this post we're going to create a todo application on both iOS and Android us
 ### Tools and Environment
 > Note: If you've already read the previous post on creating the todo app with Xamarin Native, this section will be very familiar to you and you can skip ahead to <a href="#creating-hello-world">Creating Hello World</a>
 
-We can develop for Xamarin Forms on either a PC or a Mac. On PC we would use Visual Studio (I'm using Visual Studio 2017 Community) and on Mac we would use Visual Studio for Mac, both available <a href="https://www.visualstudio.com/" target="_blank">here</a>. For Android development, the installers for Visual Studio will install all additional dependencies, like the Android SDK, emulators, Java, etc. iOS setup can be a little trickier: no matter which OS you develop on, you'll
-need a Mac with XCode installed. If you're developing on a Windows machine, Visual Studio will connect to the Mac for iOS compilation. This is needed because Apple requires a Mac to compile iOS applications.
+We can develop for Xamarin on either a PC or a Mac. On PC we would use Visual Studio (I'm using Visual Studio 2017 Community) and on Mac we would use Visual Studio for Mac, both available <a href="https://www.visualstudio.com/" target="_blank">here</a>. For Android development, the installers for Visual Studio will install all additional dependencies, like the Android SDK, emulators, Java, etc. iOS setup can be a little trickier: no matter which OS you develop on, you'll need a Mac with XCode installed. If you're developing on a Windows machine, Visual Studio will connect to the Mac for iOS compilation. This is needed because Apple requires a Mac to compile iOS applications.
 
 In addition to Visual Studio, I would also recommend installing Android Studio. This isn't required, especially for quick prototyping, but it has better tools for creating/managing emulators and for managing the SDK.
 
@@ -240,3 +239,76 @@ public override void OnCreate()
 {% endhighlight %}
 
 <h3 id="displaying-todo-list">Displaying a list of Todo Items</h3>
+Now that we've finished our data layer, it's time to actually show something to the user! This is where our code is no longer shared between OSs. This is because Xamarin Native only shares core logic, and leaves the UI code to each OS project. It leads to less code sharing than something like Xamarin Forms, but also makes it easier to customize the UI and make it follow platform standards more closely.
+
+> Note: Most real apps will have a much larger percentage of shared code than this example does. There will often be much more application logic than a single CRUD table, so Xamarin's code-sharing will become more advantageous.
+
+We'll start by displaying a simple list of our Todo Items without any user interaction.
+
+##### Android
+Android UIs generally created using a minimum of 2 files per screen: an Activity (where our behavior) and a Layout (where we'll define the UI). Conveniently, the project template created each of these for us: MainActivity.cs and Resources\layout\Main.axml.
+
+We'll start by opening Main.axml. Visual Studio will default to a designer view, with a tab to switch to the source view. We could work in the designer, however I find the source much easier to work with so that's what we'll use on this post. We'll add a new ListView to our layout.
+> Note: For most real applications you should prefer a RecyclerView to a ListView. The RecyclerView handles long lists much more effeciently, but we're using a ListView to keep this example simple. You can read about the RecyclerView <a href="https://developer.android.com/guide/topics/ui/layout/recyclerview" target="_blank">here</a>
+
+{% highlight xml %}
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+  <ListView
+    android:id="@+id/TodoList"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    
+  </ListView>
+</LinearLayout>
+{% endhighlight %}
+
+This sets up our layout, but doesn't display any data. To do that we'll edit MainActivity.cs. We need to retrieve our todo list from the repositry and create an Adapter for our ListView to use.
+
+{% highlight csharp %}
+using Android.App;
+using Android.Widget;
+using Android.OS;
+using GoogleAndroid = Android;
+using System.Linq;
+
+namespace TodoXamarinNative.Android
+{
+    [Activity(Label = "TodoXamarinNative.Android", MainLauncher = true)]
+    public class MainActivity : Activity
+    {
+        private ListView _todoList;
+
+        protected override void OnCreate(Bundle savedInstanceState)
+        {
+            base.OnCreate(savedInstanceState);
+
+            // Set our view from the "main" layout resource
+            SetContentView(Resource.Layout.Main);
+            _todoList = FindViewById<ListView>(Resource.Id.TodoList);
+        }
+
+        protected override async void OnResume()
+        {
+            base.OnResume();
+
+            var todoList = await MainApplication.TodoRepository.GetList();
+            var adapter = new ArrayAdapter<string>(this, GoogleAndroid.Resource.Layout.SimpleListItem1, todoList.Select(t => t.Title).ToArray());
+            _todoList.Adapter = adapter;
+        }
+    }
+}
+{% endhighlight %}
+
+Now when we run the application, we can see our list items!
+
+<div class="os-screenshots">
+    <img src="/assets/img/todo-xamarin-native/InitialTodoListAndroid.png" />
+</div>
+
+This is a good start, but we should probably show the user which items have been completed.
+
+##### iOS
