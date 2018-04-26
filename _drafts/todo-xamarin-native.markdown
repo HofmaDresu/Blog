@@ -281,7 +281,7 @@ namespace TodoXamarinNative.Android
     [Activity(Label = "TodoXamarinNative.Android", MainLauncher = true)]
     public class MainActivity : Activity
     {
-        private ListView _todoList;
+        private ListView _todoListView;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -289,7 +289,7 @@ namespace TodoXamarinNative.Android
 
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.Main);
-            _todoList = FindViewById<ListView>(Resource.Id.TodoList);
+            _todoListView = FindViewById<ListView>(Resource.Id.TodoList);
         }
 
         protected override async void OnResume()
@@ -298,7 +298,7 @@ namespace TodoXamarinNative.Android
 
             var todoList = await MainApplication.TodoRepository.GetList();
             var adapter = new ArrayAdapter<string>(this, GoogleAndroid.Resource.Layout.SimpleListItem1, todoList.Select(t => t.Title).ToArray());
-            _todoList.Adapter = adapter;
+            _todoListView.Adapter = adapter;
         }
     }
 }
@@ -418,7 +418,7 @@ Finally we need to tell our ListView to use our new adapter. This is a fairly si
 ...
 var todoList = await MainApplication.TodoRepository.GetList();
 var adapter = new TodoAdapter(this, todoList.OrderBy(t => t.IsCompleted).ToList());
-_todoList.Adapter = adapter;
+_todoListView.Adapter = adapter;
 ...
 {% endhighlight %}
 
@@ -429,5 +429,82 @@ Now when we run the application we'll see our list with checkboxes showing the c
 </div>
 
 With that done, we can move on to showing the list on iOS.
+
+##### iOS
+TODO
+
+Now that we're displaying our todo list on both OSs, we should allow the user to start interacting with it.
+
+### Completing, Uncompleting, and Deleting Items
+We're going to start by implemeting actions that the user can take without leaving the main screen: Completing, Uncompleting, and Deleting items. Much like displaying the items, this involves platform specific code to wire up.
+
+##### Android
+We'll start with Completing and Uncompleting tasks since we already have a CheckBox control to interact with. The first thing we need to do is update our TodoAdapter to raise an event when the user clicks a checkbox. We need to create an EventHandler called OnCompletedChanged and a method called IsCompleted_CheckedChange that calls the handler.
+
+{% highlight csharp %}
+class TodoAdapter : BaseAdapter
+{
+    Context context;
+    private List<TodoItem> _todoItems;
+    public EventHandler<int> OnCompletedChanged;
+...
+public override View GetView(int position, View convertView, ViewGroup parent)
+{
+    ...
+    holder.IsCompleted.Checked = currentTodoItem.IsCompleted;
+    holder.IsCompleted.Tag = currentTodoItem.Id;
+    holder.IsCompleted.CheckedChange -= IsCompleted_CheckedChange;
+    holder.IsCompleted.CheckedChange += IsCompleted_CheckedChange;
+
+    return view;
+}        
+...
+private void IsCompleted_CheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e)
+{
+    var id = (int)((View)sender).Tag;
+    OnCompletedChanged?.Invoke(sender, id);
+}
+{% endhighlight %}
+> We're using the 'Tag' property of the CheckBox to store our TodoItem's Id so we can pass it to the EventHandler
+
+Next we need to update our MainActivity to respond to OnCompletedChanged. To do this, we'll also need to store our todo list in a private field.
+
+{% highlight csharp %}
+...
+public class MainActivity : Activity
+{
+    private ListView _todoListView;
+    private List<TodoItem> _todoList;
+...
+protected override async void OnResume()
+{
+    base.OnResume();
+
+    await UpdateTodoList();
+}
+
+private async Task UpdateTodoList()
+{
+    _todoList = await MainApplication.TodoRepository.GetList();
+    var adapter = new TodoAdapter(this, _todoList.OrderBy(t => t.IsCompleted).ToList());
+    adapter.OnCompletedChanged += HandleItemCompletedChanged;
+    _todoListView.Adapter = adapter;
+}
+
+private async void HandleItemCompletedChanged(object sender, int todoId)
+{
+    var targetItem = _todoList.Single(t => t.Id == todoId);
+    await MainApplication.TodoRepository.ChangeItemIsCompleted(targetItem);
+    await UpdateTodoList();
+}
+{% endhighlight %}
+
+Now when we run the application, we can see our list updating when the user clicks an item's checkbox.
+
+<div class="os-screenshots">
+    <img src="/assets/img/todo-xamarin-native/ChangeCompletedAndroid.gif" />
+</div>
+
+Next we want to allow the user to delete an item from the list.
 
 ##### iOS
