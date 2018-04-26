@@ -220,6 +220,23 @@ public override bool FinishedLaunching(UIApplication application, NSDictionary l
 {% endhighlight %}
 
 ##### Android
+We'll handle Android much like we did iOS, overriding OnCreate in MainApplication.cs.
 
+{% highlight csharp %}
+...
+public static TodoRepository TodoRepository;
+...
+public override void OnCreate()
+{
+    base.OnCreate();
+    RegisterActivityLifecycleCallbacks(this);
+    //A great place to initialize Xamarin.Insights and Dependency Services!
+
+    string path = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal);
+    var repositoryFilePath = Path.Combine(path, "TodoRepository.db3");
+    TodoRepository = new TodoRepository(repositoryFilePath);
+}
+...
+{% endhighlight %}
 
 <h3 id="displaying-todo-list">Displaying a list of Todo Items</h3>
