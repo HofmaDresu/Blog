@@ -265,6 +265,7 @@ We'll start by opening Main.axml. Visual Studio will default to a designer view,
   </ListView>
 </LinearLayout>
 {% endhighlight %}
+> You might notice some weird syntax in there where we set the id to "@+id/...". This is Android specific syntax that tells the system to add our id to the Resource.Id enumeration so we can use it in our activity code
 
 This sets up our layout, but doesn't display any data. To do that we'll edit MainActivity.cs. We need to retrieve our todo list from the repositry and create an Adapter for our ListView to use.
 
@@ -309,6 +310,124 @@ Now when we run the application, we can see our list items!
     <img src="/assets/img/todo-xamarin-native/InitialTodoListAndroid.png" />
 </div>
 
-This is a good start, but we should probably show the user which items have been completed.
+This is a good start, but we should probably show the user which items have been completed. To do this, we're going to create a custom layout for our Todo Items that has a checkbox for the Completed status. Right now this will just display the status, but later we'll use it for changing the IsCompleted property.
+
+First we need to create a new layout for our todo item. Right click on "Resources/layout" and select "Add -> New Item". In the resulting dialog we'll pick "Android Layout" and name it TodoListItem. When the file opens, switch to the source view. We're going to change the linear layout to a horizontal orientation and add a new TextView and CheckBox.
+
+{% highlight xml %}
+<?xml version="1.0" encoding="utf-8"?>\
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/TodoTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
+    <CheckBox
+        android:id="@+id/TodoIsCompleted"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</LinearLayout>
+{% endhighlight %}
+> One interesting piece of code in this section is on our TextView where we set the layout_width to 0dp and the layout_weight to 1. This tells the TextView to fill any horizontal space not already used by other elements and pushes our CheckBox to the right side of the screen.
+
+Next we need to create our own custom adapter to use this layout. There's a helpful template we can use that sets up a lot of the code for us. Right click on TodoXamarinNative.Android and select "Add -> New Item". In the dialog that appears, select the Adapter template and name it TodoAdapter. This creates a basic Adapter that implements the <a href="https://developer.android.com/training/improving-layouts/smooth-scrolling" target="_blank">ViewHolder pattern</a>. We won't go into detail about it here, but this pattern allows Android to make effecient use of memory in ListViews.
+
+We'll make a few changes to our adapter. First we'll accept a List<TodoItem> in the constructor and store it in a private field. Then we'll flesh out the TodoItemViewHolder and implment the GetView method and Count property.
+
+{% highlight csharp %}
+using System.Collections.Generic;
+using Android.Content;
+using Android.Runtime;
+using Android.Views;
+using Android.Widget;
+using TodoXamarinNative.Core;
+
+namespace TodoXamarinNative.Android
+{
+    class TodoAdapter : BaseAdapter
+    {
+        Context context;
+        private List<TodoItem> _todoItems;
+
+        public TodoAdapter(Context context, List<TodoItem> todoItems)
+        {
+            this.context = context;
+            _todoItems = todoItems;
+        }
+
+        public override Java.Lang.Object GetItem(int position)
+        {
+            return position;
+        }
+
+        public override long GetItemId(int position)
+        {
+            return position;
+        }
+
+        public override View GetView(int position, View convertView, ViewGroup parent)
+        {
+            var view = convertView;
+            TodoAdapterViewHolder holder = null;
+
+            if (view != null)
+                holder = view.Tag as TodoAdapterViewHolder;
+
+            if (holder == null)
+            {
+                holder = new TodoAdapterViewHolder();
+                var inflater = context.GetSystemService(Context.LayoutInflaterService).JavaCast<LayoutInflater>();
+
+                view = inflater.Inflate(Resource.Layout.TodoListItem, parent, false);
+                holder.Title = view.FindViewById<TextView>(Resource.Id.TodoTitle);
+                holder.IsCompleted = view.FindViewById<CheckBox>(Resource.Id.TodoIsCompleted);
+                view.Tag = holder;
+            }
+
+            var currentTodoItem = _todoItems[position];
+            holder.Title.Text = currentTodoItem.Title;
+            holder.IsCompleted.Checked = currentTodoItem.IsCompleted;
+
+            return view;
+        }
+        
+        public override int Count
+        {
+            get
+            {
+                return _todoItems.Count;
+            }
+        }
+
+    }
+
+    class TodoAdapterViewHolder : Java.Lang.Object
+    {
+        public TextView Title { get; set; }
+        public CheckBox IsCompleted { get; set; }
+    }
+}
+{% endhighlight %}
+
+Finally we need to tell our ListView to use our new adapter. This is a fairly simple update to our OnResume method in MainActivity.
+
+{% highlight csharp %}
+...
+var todoList = await MainApplication.TodoRepository.GetList();
+var adapter = new TodoAdapter(this, todoList.OrderBy(t => t.IsCompleted).ToList());
+_todoList.Adapter = adapter;
+...
+{% endhighlight %}
+
+Now when we run the application we'll see our list with checkboxes showing the completed status of each task. 
+
+<div class="os-screenshots">
+    <img src="/assets/img/todo-xamarin-native/StatusListAndroid.png" />
+</div>
+
+With that done, we can move on to showing the list on iOS.
 
 ##### iOS
