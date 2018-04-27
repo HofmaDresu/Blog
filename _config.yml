@@ -23,6 +23,7 @@ twitter_username: hofmadresu
 github_username:  hofmadresu
 linkedin_username: matthewthoffman
 google_analytics: UA-88212615-2
+rss: "RSS"
 
 # Build settings
 markdown: kramdown
