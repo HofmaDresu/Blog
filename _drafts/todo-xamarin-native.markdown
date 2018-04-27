@@ -505,6 +505,53 @@ Now when we run the application, we can see our list updating when the user clic
     <img src="/assets/img/todo-xamarin-native/ChangeCompletedAndroid.gif" />
 </div>
 
-Next we want to allow the user to delete an item from the list.
+Next we want to allow the user to delete an item from the list. Conveniently, Android ListViews have a built-in context menu we can call when the user long presses an item. First thing we'll do is display the menu with a "delete" button.
+
+We need to adjust our MainActivity to do two things: register our listview for a context menu, and implement an override for OnCreateContextMenu where we set our items. We might be tempted to handle registration in the constructor, thinking that we only want to do that once, however we want to register after the adapter is set in OnResume so Android knows what items need to be handled.
+
+{% highlight csharp %}
+    ...
+    _todoListView.Adapter = adapter;
+    RegisterForContextMenu(_todoListView);
+}
+...
+public override void OnCreateContextMenu(IContextMenu menu, View v, IContextMenuContextMenuInfo menuInfo)
+{
+    base.OnCreateContextMenu(menu, v, menuInfo);
+    if (v.Id == _todoListView.Id)
+    {
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
+        var item = _todoList.Single(t => t.Id == _todoListView.Adapter.GetItemId(info.Position));
+        var title = item.Title;
+        menu.SetHeaderTitle(title);
+
+        menu.Add("Delete");
+    }
+}
+{% endhighlight %}
+
+If we try to run the app now, we won't see the context menu that we expect. This is because we need to make a couple changes in our adapter to support this. First we need to enable long press on our view, and second we need to actually implement the GetItemId method that we're calling in OnCreateContextMenu.
+
+{% highlight csharp %}
+...
+public override long GetItemId(int position)
+{
+    return _todoItems[position].Id;
+}
+...
+public override View GetView(int position, View convertView, ViewGroup parent)
+{
+    ...
+    view = inflater.Inflate(Resource.Layout.TodoListItem, parent, false);
+    view.LongClickable = true;
+{% endhighlight %}
+
+Now we'll see a context menu with our item's title and a Delete button when the user long presses on a todo item.
+
+<div class="os-screenshots">
+    <img src="/assets/img/todo-xamarin-native/DeleteButtonAndroid.png" />
+</div>
+    
+
 
 ##### iOS
