@@ -623,6 +623,60 @@ This adds our new button to the bottom of our screen. Notice we used the "layout
     <img src="/assets/img/todo-xamarin-native/AddButtonAndroid.png" />
 </div>
 
-Before we implement the buttions functionality, we should create a new screen for it to navigate to. 
+Before we implement the buttions functionality, we should create a new screen for it to navigate to. We'll add a new Activity to TodoXamarinNative.Android called "AddTodoItemActivity" and a new layout to Resources/layout called "AddTodoItem". Our layout will contain an EditText and two Buttons (Cancel and Save), and we'll tell AddTodoItemActivity to use our layout in the OnCreate method.
+
+{% highlight xml %}
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+  <EditText
+    android:id="@+id/TodoTitle"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"/>
+  <LinearLayout
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <Button
+      android:id="@+id/CancelButton"
+      android:text="Cancel"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:layout_marginLeft="5dp"/>
+    <Button
+      android:id="@+id/SaveButton"
+      android:text="Save"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:layout_marginRight="5dp"/>
+  </LinearLayout>
+</LinearLayout>
+{% endhighlight %}
+
+{% hightlight csharp %}
+using Android.App;
+using Android.OS;
+
+namespace TodoXamarinNative.Android
+{
+    [Activity(Label = "AddTodoItemActivity")]
+    public class AddTodoItemActivity : Activity
+    {
+        protected override void OnCreate(Bundle savedInstanceState)
+        {
+            base.OnCreate(savedInstanceState);
+
+            SetContentView(Resource.Layout.AddTodoItem);
+        }
+    }
+}
+{% endhighlight %}
+
+We did a couple new things in our layout worth calling out: (TODO gravity, new use of weight)
 
 ##### iOS
