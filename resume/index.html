@@ -1,0 +1,10 @@
+---
+layout: static-page
+---
+<p>
+This resume was last updated on 4/27/2018. 
+To request an updated copy, please DM me on Twitter <a href="https://www.twitter.com/hofmadresu" target="_blank">@hofmadresu</a> 
+or email me at <a class="u-email" href="mailto:{{ site.email }}">{{ site.email }}</a>.
+</p>
+{% assign resume = site.static_files | where: "name", "resume" %}
+<object class="resume" data="/assets/pdf/resume.pdf" type='application/pdf'/>
