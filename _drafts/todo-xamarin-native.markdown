@@ -646,19 +646,21 @@ Before we implement the buttions functionality, we should create a new screen fo
       android:layout_width="0dp"
       android:layout_height="wrap_content"
       android:layout_weight="1"
-      android:layout_marginLeft="5dp"/>
+      android:layout_marginLeft="5dp"
+      android:layout_marginRight="5dp"/>
     <Button
       android:id="@+id/SaveButton"
       android:text="Save"
       android:layout_width="0dp"
       android:layout_height="wrap_content"
       android:layout_weight="1"
-      android:layout_marginRight="5dp"/>
+      android:layout_marginRight="5dp"
+      android:layout_marginLeft="5dp"/>
   </LinearLayout>
 </LinearLayout>
 {% endhighlight %}
 
-{% hightlight csharp %}
+{% highlight csharp %}
 using Android.App;
 using Android.OS;
 
@@ -677,6 +679,91 @@ namespace TodoXamarinNative.Android
 }
 {% endhighlight %}
 
-We did a couple new things in our layout worth calling out: (TODO gravity, new use of weight)
+We did a couple new things in our layout worth calling out. First, we used layout_weight again but a little differently than before. Instead of setting a single element to use layout_weight, we told both buttons to use the same weight. This will cause them to both expand to use half of the available space (excluding the left and right margins we set). We also set the main StackLayout's gravity to 'center'. This will put our controls in the center of the screen vertically.
+
+Next we need to wire up our button and tell it to navigate to our new activity. We'll do this in the OnCreate method in MainActivity.
+
+{% highlight csharp %}
+protected override void OnCreate(Bundle savedInstanceState)
+{
+    ...
+    FindViewById<Button>(Resource.Id.AddNewItem).Click += 
+            (s, e) => StartActivity(new Intent(this, typeof(AddTodoItemActivity)));
+}
+{% endhighlight %}
+
+Now when the user clicks our button, they're taken to the AddTodoItemActivity.
+
+<div class="os-screenshots">
+    <img src="/assets/img/todo-xamarin-native/AddItemScreenAndroid.png" />
+</div>
+
+Now it's time to implement our Add Item screen. First we'll start with the Cancel button, since that has the least amount of work to do. We'll open AddTodoItemActivity and add a single line that calls the built in Finish method.
+
+{% highlight csharp %}
+protected override void OnCreate(Bundle savedInstanceState)
+{
+    ...
+    FindViewById<Button>(Resource.Id.CancelButton).Click += (s, e) => Finish();
+}
+{% endhighlight %}
+
+Next we'll implement the "Save" button. This has a little more work to do, but not much. We need to:
+* Read the text from our EditText
+* Save a new Item to the database
+* Call Finish
+Because there are more steps, we'll split it out into a separate method.
+
+{% highlight csharp %}
+protected override void OnCreate(Bundle savedInstanceState)
+{
+    ...    
+    FindViewById<Button>(Resource.Id.SaveButton).Click += HandleSave;
+}
+
+private async void HandleSave(object s, EventArgs e)
+{
+    var todoText = FindViewById<EditText>(Resource.Id.TodoTitle).Text;
+    await MainApplication.TodoRepository.AddItem(new TodoItem { Title = todoText });
+    Finish();
+}
+{% endhighlight %}
+
+With that in place, our user can add items!
+
+<div class="os-screenshots">
+    <img src="/assets/img/todo-xamarin-native/AddItemAndroid.gif" />
+</div>
+
+That finishes our functionality on Android, but there's one more thing we should cover before finishing iOS. You may have noticed that our screen titles aren't very useful. Let's fix that. If we look in both of our Activity files, there's an Activity attribute with a Label. That label is what Android is displaying to our user, so lets set them to something more useful.
+
+{% highlight csharp %}
+...
+[Activity(Label = "Todo List", MainLauncher = true)]
+public class MainActivity : Activity
+...
+{% endhighlight %}
+
+{% highlight csharp %}
+...
+[Activity(Label = "Add Todo Item")]
+public class AddTodoItemActivity : Activity
+...
+{% endhighlight %}
+
+Now our screen titles are much better.
+
+<div class="os-screenshots">
+    <label></label>
+    <img src="/assets/img/todo-xamarin-native/TitledTodoListAndroid.png" />
+    <label></label>
+    <img src="/assets/img/todo-xamarin-native/TitledAddItemAndroid.png" />
+</div>
+
+Now let's move onto iOS and finish our application there.
 
 ##### iOS
+TODO
+
+### Conclusion
+And there we have it! We've created a simple Todo application for both iOS and Android using Xamarin Native. We've created the UIs using native-style platform specific code while sharing our data storage code between the platforms. While we didn't do a lot with shared code, hopefully you can see how we would use the same technique for things like business logic, web request, or most other non-UI functionality you need. 
