@@ -623,4 +623,6 @@ This adds our new button to the bottom of our screen. Notice we used the "layout
     <img src="/assets/img/todo-xamarin-native/AddButtonAndroid.png" />
 </div>
 
+Before we implement the buttions functionality, we should create a new screen for it to navigate to. 
+
 ##### iOS
