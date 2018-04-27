@@ -10,6 +10,8 @@ In this post we're going to create a todo application on both iOS and Android us
 
 > Note: All of my steps are using Visual Studio 2017 Community on Windows. Your mileage may vary if you work on a different edition of VS or on Visual Studio for Mac.
 
+> Note for Android development: If you ever see a runtime error similiar to "Android.Content.Res.Resources+NotFoundException: File res/drawable-xxhdpi-v4/abc_ab_share_pack_mtrl_alpha.9.png from xml type layout resource ID #0x7f020000", clean your solution and re-run. It also may help to make sure all axml files are closed when you start your build. I'm not sure what causes this issue, but it seems to crop up every now and then after making a change to an axml file.
+
 ### Tools and Environment
 > Note: If you've already read the previous post on creating the todo app with Xamarin Native, this section will be very familiar to you and you can skip ahead to <a href="#creating-hello-world">Creating Hello World</a>
 
