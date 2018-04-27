@@ -552,6 +552,50 @@ Now we'll see a context menu with our item's title and a Delete button when the 
     <img src="/assets/img/todo-xamarin-native/DeleteButtonAndroid.png" />
 </div>
     
+Finally we should implement the delete button. For this we'll override the OnContextItemSelected method in MainActivity, making it remove the selected item from the database and refresh our list.
 
+{% highlight csharp %}
+public override bool OnContextItemSelected(IMenuItem menuItem)
+{
+    switch (menuItem.GroupId)
+    {
+        case 0:
+            var info = (AdapterContextMenuInfo)menuItem.MenuInfo;
+            var item = _todoList.Single(t => t.Id == _todoListView.Adapter.GetItemId(info.Position));
+            MainApplication.TodoRepository.DeleteItem(item)
+                .ContinueWith(_ =>
+                {
+                    RunOnUiThread(async () =>
+                    {
+                        await UpdateTodoList();
+                    });
+                });
+            return true;
+        default:
+            return base.OnContextItemSelected(menuItem);
+    }
+}
+{% endhighlight %}
+
+There are a few interesting things to look at here. 
+* We used a ContinueWith instead of an await. We did this because the base OnContextItemSelected method expects to return a bool, so we can't adjust it to be an async function.
+* We used a method we haven't seen before: RunOnUiThread. This marshalls the action back to the UI thread, and is required when you need to make a visual change from a background thread. In our case, we're updating the ListView's adapter
+* Our switch statement is currently hard-coded to expect 'delete' to be in the 0th position. This is not a good idea in more complex apps, since future developers can add or re-arrange context items. There are better ways to handle this, but they're beyond what I want to get into for this post.
+
+With that implemented, we can run the app and see that our item deletion works!
+
+<div class="os-screenshots">
+    <img src="/assets/img/todo-xamarin-native/DeleteItemAndroid.gif" />
+</div>
+
+Now we'll switch to iOS and add our actions there.
+
+##### iOS
+TODO
+
+### Adding Todo Items
+Our app is doing pretty well at this point, but we're missing one very important feature: adding new todo items! We're going to add a button to our todo list screen and create a new screen where the user can enter their item. Following the pattern of the previous two sections, this will involve solely OS specific code.
+
+##### Android
 
 ##### iOS
