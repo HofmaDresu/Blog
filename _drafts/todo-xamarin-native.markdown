@@ -596,8 +596,31 @@ Now we'll switch to iOS and add our actions there.
 TODO
 
 ### Adding Todo Items
+
 Our app is doing pretty well at this point, but we're missing one very important feature: adding new todo items! We're going to add a button to our todo list screen and create a new screen where the user can enter their item. Following the pattern of the previous two sections, this will involve solely OS specific code.
 
 ##### Android
+
+The first thing we want to do is create an "Add Todo Item" button for the user to click. We'll do this by editing our Main.axml layout file.
+
+{% highlight xml %}
+...
+    <ListView
+        android:id="@+id/TodoList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+    <Button
+        android:id="@+id/AddNewItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+</LinearLayout>
+{% endhighlight %}
+
+This adds our new button to the bottom of our screen. Notice we used the "layout_weight" attribute again on the ListView to tell it to consume all available space.
+
+<div class="os-screenshots">
+    <img src="/assets/img/todo-xamarin-native/AddButtonAndroid.png" />
+</div>
 
 ##### iOS
