@@ -433,7 +433,12 @@ Now when we run the application we'll see our list with checkboxes showing the c
 With that done, we can move on to showing the list on iOS.
 
 ##### iOS
-TODO
+
+The first thing we're going to do on iOS is remove the Main.storyboard file from our solution and re-build our initial blank screen through code. Storyboards are a visual design tool that can be used to create UIs, however they can become difficult to maintain (expecially with multiple developers). Because of that, we'll prefer a code based approach to our UI. After deleting the storyboard file, we should open Info.plist and set Main Interface to "(not set)".
+
+![Create Core Project]({{ "/assets/img/todo-xamarin-native/RemoveStoryboardIOS.PNG" }})
+
+Next we'll create a new View Controller and tell iOS to use that as our starting window (we could use ViewController.cs from the template, but that name is too generic for my taste).
 
 Now that we're displaying our todo list on both OSs, we should allow the user to start interacting with it.
 
