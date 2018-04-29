@@ -10,10 +10,10 @@ This is the the first post in a series where I'll create a simple Todo applicati
 My current plan is to build this app with the following:
 
 * <a href="/2018/04/23/todo-xamarin-forms.html">Xamarin Forms (Android and iOS)</a>
-* Xamarin Native (Android and iOS)
+* Xamarin Native (<a href="/2018/04/29/todo-xamarin-native-android.html">Android</a> and iOS)
 * React Native (Android and iOS)
 * Flutter (Android and iOS)
 * Kotlin (Android)
 * Swift (iOS)
 
-Each post will contain a link to the finished source code for the application. I hope you enjoy reading these as much as I do writing them!
+Each post will contain a link to the finished source code for the application, our you can view the full repository <a href="https://github.com/HofmaDresu/TodoMobile/">on Github</a>. I hope you enjoy reading these as much as I do writing them!
