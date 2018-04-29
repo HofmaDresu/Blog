@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Todo in Xamarin Native Part 1 (Android)"
-date:   2018-04-24 13:00:00 -0400
+date:   2018-04-29 13:00:00 -0400
 tags: mobile xamarin android
 excerpt_separator: "<!--more-->"
 ---
