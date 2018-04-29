@@ -1,28 +1,28 @@
 ---
 layout: post
-title:  "Todo in Xamarin Native"
+title:  "Todo in Xamarin Native Part 1 (Android)"
 date:   2018-04-24 13:00:00 -0400
-tags: mobile xamarin
+tags: mobile xamarin android
 excerpt_separator: "<!--more-->"
 ---
 
-In this post we're going to create a todo application on both iOS and Android using Xamarin native. Xamarin is a cross platform development tool on the .NET stack that allows you to share application logic and other 'core' code (like data persistance, API access, etc) across target platforms. To get started we're going to create the default project files and see what Xamarin gives us out of the box. <!--more--> Full source code for this application is available <a href="https://github.com/HofmaDresu/TodoMobile/tree/master/TodoXamarinNative" target="_blank">on GitHub</a>.
+In this post we're going to create a todo application on Android using Xamarin Native. Xamarin is a cross platform development tool on the .NET stack that allows you to share application logic and other 'core' code (like data persistance, API access, etc) across target platforms. To get started we're going to create the default project files and see what Xamarin gives us out of the box. <!--more--> Full source code for this application is available <a href="https://github.com/HofmaDresu/TodoMobile/tree/master/TodoXamarinNative" target="_blank">on GitHub</a>. This solution will be updated to include iOS code when Part 2 is complete. 
 
 > Note: All of my steps are using Visual Studio 2017 Community on Windows. Your mileage may vary if you work on a different edition of VS or on Visual Studio for Mac.
 
-> Note for Android development: If you ever see a runtime error similiar to "Android.Content.Res.Resources+NotFoundException: File res/drawable-xxhdpi-v4/abc_ab_share_pack_mtrl_alpha.9.png from xml type layout resource ID #0x7f020000", clean your solution and re-run. It also may help to make sure all axml files are closed when you start your build. I'm not sure what causes this issue, but it seems to crop up every now and then after making a change to an axml file.
+> Note 2: If you ever see a runtime error similiar to "Android.Content.Res.Resources+NotFoundException: File res/drawable-xxhdpi-v4/abc_ab_share_pack_mtrl_alpha.9.png from xml type layout resource ID #0x7f020000", clean your solution and re-run. It also may help to make sure all axml files are closed when you start your build. I'm not sure what causes this issue, but it seems to crop up every now and then after making a change to an axml file.
 
 ### Tools and Environment
-> Note: If you've already read the previous post on creating the todo app with Xamarin Native, this section will be very familiar to you and you can skip ahead to <a href="#creating-hello-world">Creating Hello World</a>
+> Note: If you've already read the previous post on creating the todo app with Xamarin Forms, this section will be very familiar to you and you can skip ahead to <a href="#creating-hello-world">Creating Hello World</a>
 
-We can develop for Xamarin on either a PC or a Mac. On PC we would use Visual Studio (I'm using Visual Studio 2017 Community) and on Mac we would use Visual Studio for Mac, both available <a href="https://www.visualstudio.com/" target="_blank">here</a>. For Android development, the installers for Visual Studio will install all additional dependencies, like the Android SDK, emulators, Java, etc. iOS setup can be a little trickier: no matter which OS you develop on, you'll need a Mac with XCode installed. If you're developing on a Windows machine, Visual Studio will connect to the Mac for iOS compilation. This is needed because Apple requires a Mac to compile iOS applications.
+We can develop for Xamarin on either a PC or a Mac. On PC we would use Visual Studio (I'm using Visual Studio 2017 Community) and on Mac we would use Visual Studio for Mac, both available <a href="https://www.visualstudio.com/" target="_blank">here</a>. For Android development, the installers for Visual Studio will install all additional dependencies, like the Android SDK, emulators, Java, etc. 
 
 In addition to Visual Studio, I would also recommend installing Android Studio. This isn't required, especially for quick prototyping, but it has better tools for creating/managing emulators and for managing the SDK.
 
 With all this installed, we can now start building our app!
 
 <h3 id="creating-hello-world">Creating Hello World</h3>
-The first thing we want to do is create our default iOS and Android projects. Unfortunately, at the time of this writing there is no built-in template to do this (there used to be, but it was removed at some point). Instead, we're going to create our 3 projects manually. First we'll create a core .NET Standard project by selecting "File->New Project" and in the dialog that appears select "Visual C# -> .NET Standard -> Class Library (.NET Standard)", naming the project TodoXamarinNative.Core and the solution TodoXamarinNative.
+The first thing we want to do is create our default Android and Core projects. Unfortunately, at the time of this writing there is no built-in template to do this (there used to be one that created Android, iOS, and Core, but it was removed at some point). Instead, we're going to create our two projects manually. First we'll create a core .NET Standard project by selecting "File->New Project" and in the dialog that appears select "Visual C# -> .NET Standard -> Class Library (.NET Standard)", naming the project TodoXamarinNative.Core and the solution TodoXamarinNative.
 
 ![Create Core Project]({{ "/assets/img/todo-xamarin-native/CreateCoreProject.PNG" }})
 
@@ -34,24 +34,14 @@ To set up our dependency, right click on References under TodoXamarinNative.Andr
 
 ![Set Android Core Reference]({{ "/assets/img/todo-xamarin-native/ProjectReferenceAndroid.PNG" }})
 
-Now we'll do the same thing for iOS. We open the Add New Project dialog again and select "Visual C# -> iOS -> Universal -> Single View App (iOS)" and name the project TodoXamarinNative.iOS. We choose "Single View App" here because it handles some of the required boilerplate to wire up the application. If we chose "Blank App" like we did for Android, we'd need to do that all ourselves.
-
-![Create iOS Project]({{ "/assets/img/todo-xamarin-native/CreateIOSProject.PNG" }})
-
-Finally we set up our reference to Core. This is done the same way for iOS as we did it for Android.
-
-![Set iOS Core Reference]({{ "/assets/img/todo-xamarin-native/ProjectReferenceIOS.PNG" }})
-
-This gives us a solution with 3 projects: Core, Android, and iOS. If we run it on both OSs, we'll see the default application.
+This gives us a solution with two projects: Core and Android. If we run it on both Android, we'll see the default application.
 
 <div class="os-screenshots">
     <label>Android</label>
     <img src="/assets/img/todo-xamarin-native/HelloWorldAndroid.png" />
-    <label>iOS</label>
-    <img src="/assets/img/todo-xamarin-native/HelloWorldIOS.png" >
 </div>
 
-We can see our app is up-and-running on both OSs, but it's not exactly what one would call "exciting" or "useful" yet. That's what we're going to do in the rest of this post!
+We can see our app is up-and-running, but it's not exactly what one would call "exciting" or "useful" yet. That's what we're going to do in the rest of this post!
 
 ### Creating the Data Layer
 > Note: If you've already read the previous post on creating the todo app with Xamarin Native, this section will be very familiar to you and you can skip ahead to <a href="#displaying-todo-list">Displaying a list of Todo Items</a>
@@ -106,7 +96,7 @@ namespace TodoXamarinNative.Core
 }
 {% endhighlight %}
 
-That sets up our methods for the data layer, but obviously doesn't do anything yet. We're going to use Sqlite as our database library so we can persist our todo list across application and device restarts. First off we need to install the sqlite-net-pcl package from nuget. Right click on the solution and select 'Manage NuGet Packages for Solution'. Search for sqlite-net-pcl and install it on all three projects. Make sure to install the correct package as there are many similarly named ones.
+That sets up our methods for the data layer, but obviously doesn't do anything yet. We're going to use Sqlite as our database library so we can persist our todo list across application and device restarts. First off we need to install the sqlite-net-pcl package from nuget. Right click on the solution and select 'Manage NuGet Packages for Solution'. Search for sqlite-net-pcl and install it on both of our projects. Make sure to install the correct package as there are many similarly named ones.
 
 ![Install sqlite-net-pcs Package]({{ "/assets/img/todo-xamarin-native/NugetSqlite.PNG" }})
 
@@ -124,7 +114,7 @@ namespace TodoXamarinNative.Core
 ...
 {% endhighlight %}
 
-Next we need to implement our TodoRepository. This is going to be a naive implementation that expects to be run as a single instance.  There are several things we need to do here, the first of which is we'll create a constructor that accepts a string parameter for the database file location. We need the parameter because each OS has a different prefered storage path.
+Next we need to implement our TodoRepository. This is going to be a naive implementation that expects to be run as a single instance.  There are several things we need to do here, the first of which is we'll create a constructor that accepts a string parameter for the database file location. We need the parameter because Android and iOS have different preferred storage paths and we'll eventually expand this app to support both OSs.
 
 {% highlight csharp %}
 using SQLite;
@@ -146,7 +136,7 @@ namespace TodoXamarinNative.Core
 ...
 {% endhighlight %}
 
-We'll also create a 'seed' list of TODO items to display if the user hasn't entered any data. This is useful for development, but we'd want to remove it later if we were going to deployt this app.
+We'll also create a 'seed' list of TODO items to display if the user hasn't entered any data. This is useful for development, but we'd want to remove it later if we were going to deploy this app.
 
 {% highlight csharp %}
 ...
@@ -191,37 +181,7 @@ public Task AddItem(TodoItem itemToAdd)
 ...
 {% endhighlight %}
 
-The last thing we need to do is instanciate this repository in each OS specific project.
-
-##### iOS
-We'll open AppDelegate.cs in our iOS project and add a new static property called TodoRepository. Then we'll edit the FinishedLaunching method and instantiate the new property.
-
-{% highlight csharp %}
-...
-public static TodoRepository TodoRepository;
-...
-public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
-{
-    // Override point for customization after application launch.
-    // If not required for your application you can safely delete this method
-    var docFolder = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-    var libFolder = Path.Combine(docFolder, "..", "Library", "Databases");
-
-    if (!Directory.Exists(libFolder))
-    {
-        Directory.CreateDirectory(libFolder);
-    }
-
-    var repositoryFilePath = Path.Combine(libFolder, "TodoRepository.db3");
-    TodoRepository = new TodoRepository(repositoryFilePath);
-
-    return true;
-}
-...
-{% endhighlight %}
-
-##### Android
-We'll handle Android much like we did iOS, overriding OnCreate in MainApplication.cs.
+The last thing we need to do is instanciate this repository in our Android project. To do this we'll override OnCreate in MainApplication.cs.
 
 {% highlight csharp %}
 ...
@@ -241,13 +201,12 @@ public override void OnCreate()
 {% endhighlight %}
 
 <h3 id="displaying-todo-list">Displaying a list of Todo Items</h3>
-Now that we've finished our data layer, it's time to actually show something to the user! This is where our code is no longer shared between OSs. This is because Xamarin Native only shares core logic, and leaves the UI code to each OS project. It leads to less code sharing than something like Xamarin Forms, but also makes it easier to customize the UI and make it follow platform standards more closely.
+Now that we've finished our data layer, it's time to actually show something to the user! At this point we'll be developing directly in the Android project instead of in Core. This is because Xamarin Native only shares core logic, and leaves the UI code to each OS project. It leads to less code sharing than something like Xamarin Forms, but also makes it easier to customize the UI and make it follow platform standards more closely.
 
 > Note: Most real apps will have a much larger percentage of shared code than this example does. There will often be much more application logic than a single CRUD table, so Xamarin's code-sharing will become more advantageous.
 
 We'll start by displaying a simple list of our Todo Items without any user interaction.
 
-##### Android
 Android UIs generally created using a minimum of 2 files per screen: an Activity (where our behavior) and a Layout (where we'll define the UI). Conveniently, the project template created each of these for us: MainActivity.cs and Resources\layout\Main.axml.
 
 We'll start by opening Main.axml. Visual Studio will default to a designer view, with a tab to switch to the source view. We could work in the designer, however I find the source much easier to work with so that's what we'll use on this post. We'll add a new ListView to our layout.
@@ -263,7 +222,6 @@ We'll start by opening Main.axml. Visual Studio will default to a designer view,
     android:id="@+id/TodoList"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    
   </ListView>
 </LinearLayout>
 {% endhighlight %}
@@ -430,22 +388,11 @@ Now when we run the application we'll see our list with checkboxes showing the c
     <img src="/assets/img/todo-xamarin-native/StatusListAndroid.png" />
 </div>
 
-With that done, we can move on to showing the list on iOS.
-
-##### iOS
-
-The first thing we're going to do on iOS is remove the Main.storyboard file from our solution and re-build our initial blank screen through code. Storyboards are a visual design tool that can be used to create UIs, however they can become difficult to maintain (expecially with multiple developers). Because of that, we'll prefer a code based approach to our UI. After deleting the storyboard file, we should open Info.plist and set Main Interface to "(not set)".
-
-![Create Core Project]({{ "/assets/img/todo-xamarin-native/RemoveStoryboardIOS.PNG" }})
-
-Next we'll create a new View Controller and tell iOS to use that as our starting window (we could use ViewController.cs from the template, but that name is too generic for my taste).
-
-Now that we're displaying our todo list on both OSs, we should allow the user to start interacting with it.
+With that done, we should allow the user to start interacting with our list.
 
 ### Completing, Uncompleting, and Deleting Items
-We're going to start by implemeting actions that the user can take without leaving the main screen: Completing, Uncompleting, and Deleting items. Much like displaying the items, this involves platform specific code to wire up.
+We're going to start by implementing actions that the user can take without leaving the main screen: Completing, Uncompleting, and Deleting items. Much like displaying the items, this involves platform specific code to wire up.
 
-##### Android
 We'll start with Completing and Uncompleting tasks since we already have a CheckBox control to interact with. The first thing we need to do is update our TodoAdapter to raise an event when the user clicks a checkbox. We need to create an EventHandler called OnCompletedChanged and a method called IsCompleted_CheckedChange that calls the handler.
 
 {% highlight csharp %}
@@ -595,16 +542,9 @@ With that implemented, we can run the app and see that our item deletion works!
     <img src="/assets/img/todo-xamarin-native/DeleteItemAndroid.gif" />
 </div>
 
-Now we'll switch to iOS and add our actions there.
-
-##### iOS
-TODO
-
 ### Adding Todo Items
 
 Our app is doing pretty well at this point, but we're missing one very important feature: adding new todo items! We're going to add a button to our todo list screen and create a new screen where the user can enter their item. Following the pattern of the previous two sections, this will involve solely OS specific code.
-
-##### Android
 
 The first thing we want to do is create an "Add Todo Item" button for the user to click. We'll do this by editing our Main.axml layout file.
 
@@ -740,7 +680,7 @@ With that in place, our user can add items!
     <img src="/assets/img/todo-xamarin-native/AddItemAndroid.gif" />
 </div>
 
-That finishes our functionality on Android, but there's one more thing we should cover before finishing iOS. You may have noticed that our screen titles aren't very useful. Let's fix that. If we look in both of our Activity files, there's an Activity attribute with a Label. That label is what Android is displaying to our user, so lets set them to something more useful.
+That finishes our functionality on Android, but there's one more thing we should cover before saying our app is done. You may have noticed that our screen titles aren't very useful. Let's fix that. If we look in both of our Activity files, there's an Activity attribute with a Label. That label is what Android is displaying to our user, so lets set them to something more useful.
 
 {% highlight csharp %}
 ...
@@ -765,10 +705,5 @@ Now our screen titles are much better.
     <img src="/assets/img/todo-xamarin-native/TitledAddItemAndroid.png" />
 </div>
 
-Now let's move onto iOS and finish our application there.
-
-##### iOS
-TODO
-
 ### Conclusion
-And there we have it! We've created a simple Todo application for both iOS and Android using Xamarin Native. We've created the UIs using native-style platform specific code while sharing our data storage code between the platforms. While we didn't do a lot with shared code, hopefully you can see how we would use the same technique for things like business logic, web request, or most other non-UI functionality you need. 
+And there we have it! We've created a simple Todo application for Android using Xamarin Native and we're ready to begin creating our iOS side. We'll cover that in part 2 (currently being written).
