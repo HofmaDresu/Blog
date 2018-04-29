@@ -24,21 +24,21 @@ With all this installed, we can now start building our app!
 <h3 id="creating-hello-world">Creating Hello World</h3>
 The first thing we want to do is create our default Android and Core projects. Unfortunately, at the time of this writing there is no built-in template to do this (there used to be one that created Android, iOS, and Core, but it was removed at some point). Instead, we're going to create our two projects manually. First we'll create a core .NET Standard project by selecting "File->New Project" and in the dialog that appears select "Visual C# -> .NET Standard -> Class Library (.NET Standard)", naming the project TodoXamarinNative.Core and the solution TodoXamarinNative.
 
-![Create Core Project]({{ "/assets/img/todo-xamarin-native/CreateCoreProject.PNG" }})
+![Create Core Project]({{ "/assets/img/todo-xamarin-native-android/CreateCoreProject.PNG" }})
 
 Next we'll create our Android project and set Core as a dependency. First we right click on the Solution and select "Add -> New Project...". In the dialog that appears we'll select "Visual C# -> Android -> Blank App (Android)" and name the project TodoXamarinNative.Android.
 
-![Create Android Project]({{ "/assets/img/todo-xamarin-native/CreateAndroidProject.PNG" }})
+![Create Android Project]({{ "/assets/img/todo-xamarin-native-android/CreateAndroidProject.PNG" }})
 
 To set up our dependency, right click on References under TodoXamarinNative.Android and select "Add Reference". It should open a dialog with the Projects tab open (if not, select the Projects tab). We'll select TodoXamarinNative.Core and click OK.
 
-![Set Android Core Reference]({{ "/assets/img/todo-xamarin-native/ProjectReferenceAndroid.PNG" }})
+![Set Android Core Reference]({{ "/assets/img/todo-xamarin-native-android/ProjectReferenceAndroid.PNG" }})
 
 This gives us a solution with two projects: Core and Android. If we run it on both Android, we'll see the default application.
 
 <div class="os-screenshots">
     <label>Android</label>
-    <img src="/assets/img/todo-xamarin-native/HelloWorldAndroid.png" />
+    <img src="/assets/img/todo-xamarin-native-android/HelloWorldAndroid.png" />
 </div>
 
 We can see our app is up-and-running, but it's not exactly what one would call "exciting" or "useful" yet. That's what we're going to do in the rest of this post!
@@ -98,7 +98,7 @@ namespace TodoXamarinNative.Core
 
 That sets up our methods for the data layer, but obviously doesn't do anything yet. We're going to use Sqlite as our database library so we can persist our todo list across application and device restarts. First off we need to install the sqlite-net-pcl package from nuget. Right click on the solution and select 'Manage NuGet Packages for Solution'. Search for sqlite-net-pcl and install it on both of our projects. Make sure to install the correct package as there are many similarly named ones.
 
-![Install sqlite-net-pcs Package]({{ "/assets/img/todo-xamarin-native/NugetSqlite.PNG" }})
+![Install sqlite-net-pcs Package]({{ "/assets/img/todo-xamarin-native-android/NugetSqlite.PNG" }})
 
 Now we need to update our TodoItem to play nicely with the database. We want to tell sqlite that our Id property is the primary key and that it should auto-increment. We can do this with a couple of attributes
 
@@ -267,7 +267,7 @@ namespace TodoXamarinNative.Android
 Now when we run the application, we can see our list items!
 
 <div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native/InitialTodoListAndroid.png" />
+    <img src="/assets/img/todo-xamarin-native-android/InitialTodoListAndroid.png" />
 </div>
 
 This is a good start, but we should probably show the user which items have been completed. To do this, we're going to create a custom layout for our Todo Items that has a checkbox for the Completed status. Right now this will just display the status, but later we'll use it for changing the IsCompleted property.
@@ -385,7 +385,7 @@ _todoListView.Adapter = adapter;
 Now when we run the application we'll see our list with checkboxes showing the completed status of each task. 
 
 <div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native/StatusListAndroid.png" />
+    <img src="/assets/img/todo-xamarin-native-android/StatusListAndroid.png" />
 </div>
 
 With that done, we should allow the user to start interacting with our list.
@@ -456,7 +456,7 @@ private async void HandleItemCompletedChanged(object sender, int todoId)
 Now when we run the application, we can see our list updating when the user clicks an item's checkbox.
 
 <div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native/ChangeCompletedAndroid.gif" />
+    <img src="/assets/img/todo-xamarin-native-android/ChangeCompletedAndroid.gif" />
 </div>
 
 Next we want to allow the user to delete an item from the list. Conveniently, Android ListViews have a built-in context menu we can call when the user long presses an item. First thing we'll do is display the menu with a "delete" button.
@@ -503,7 +503,7 @@ public override View GetView(int position, View convertView, ViewGroup parent)
 Now we'll see a context menu with our item's title and a Delete button when the user long presses on a todo item.
 
 <div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native/DeleteButtonAndroid.png" />
+    <img src="/assets/img/todo-xamarin-native-android/DeleteButtonAndroid.png" />
 </div>
     
 Finally we should implement the delete button. For this we'll override the OnContextItemSelected method in MainActivity, making it remove the selected item from the database and refresh our list.
@@ -539,7 +539,7 @@ There are a few interesting things to look at here.
 With that implemented, we can run the app and see that our item deletion works!
 
 <div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native/DeleteItemAndroid.gif" />
+    <img src="/assets/img/todo-xamarin-native-android/DeleteItemAndroid.gif" />
 </div>
 
 ### Adding Todo Items
@@ -565,7 +565,7 @@ The first thing we want to do is create an "Add Todo Item" button for the user t
 This adds our new button to the bottom of our screen. Notice we used the "layout_weight" attribute again on the ListView to tell it to consume all available space.
 
 <div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native/AddButtonAndroid.png" />
+    <img src="/assets/img/todo-xamarin-native-android/AddButtonAndroid.png" />
 </div>
 
 Before we implement the buttions functionality, we should create a new screen for it to navigate to. We'll add a new Activity to TodoXamarinNative.Android called "AddTodoItemActivity" and a new layout to Resources/layout called "AddTodoItem". Our layout will contain an EditText and two Buttons (Cancel and Save), and we'll tell AddTodoItemActivity to use our layout in the OnCreate method.
@@ -640,7 +640,7 @@ protected override void OnCreate(Bundle savedInstanceState)
 Now when the user clicks our button, they're taken to the AddTodoItemActivity.
 
 <div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native/AddItemScreenAndroid.png" />
+    <img src="/assets/img/todo-xamarin-native-android/AddItemScreenAndroid.png" />
 </div>
 
 Now it's time to implement our Add Item screen. First we'll start with the Cancel button, since that has the least amount of work to do. We'll open AddTodoItemActivity and add a single line that calls the built in Finish method.
@@ -677,7 +677,7 @@ private async void HandleSave(object s, EventArgs e)
 With that in place, our user can add items!
 
 <div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native/AddItemAndroid.gif" />
+    <img src="/assets/img/todo-xamarin-native-android/AddItemAndroid.gif" />
 </div>
 
 That finishes our functionality on Android, but there's one more thing we should cover before saying our app is done. You may have noticed that our screen titles aren't very useful. Let's fix that. If we look in both of our Activity files, there's an Activity attribute with a Label. That label is what Android is displaying to our user, so lets set them to something more useful.
@@ -700,9 +700,9 @@ Now our screen titles are much better.
 
 <div class="os-screenshots">
     <label></label>
-    <img src="/assets/img/todo-xamarin-native/TitledTodoListAndroid.png" />
+    <img src="/assets/img/todo-xamarin-native-android/TitledTodoListAndroid.png" />
     <label></label>
-    <img src="/assets/img/todo-xamarin-native/TitledAddItemAndroid.png" />
+    <img src="/assets/img/todo-xamarin-native-android/TitledAddItemAndroid.png" />
 </div>
 
 ### Conclusion
