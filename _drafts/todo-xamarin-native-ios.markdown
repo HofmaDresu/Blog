@@ -18,7 +18,7 @@ With all this installed, we can now start building our app!
 <h3 id="creating-hello-world">Creating Hello World</h3>
 The first thing we want to do is create our default iOS project. Since we're using our existing solution we can just add our new project to that. We can open TodoXamarinNative.sln then right click on the Solution and select "Add -> New Project...". In the dialog that appears we'll select "Visual C# -> iOS -> Universal -> Blank App (iOS)" and name the project TodoXamarinNative.iOS.
 
-![Create Android Project]({{ "/assets/img/todo-xamarin-native-ios/CreateProject.PNG" }})
+![Create iOS Project]({{ "/assets/img/todo-xamarin-native-ios/CreateProject.PNG" }})
 
 Next we need to create a reference from our new iOS project to Core. To do this, right click on References under TodoXamarinNative.iOS and select "Add Reference". It should open a dialog with the Projects tab open (if not, select the Projects tab). We'll select TodoXamarinNative.Core and click OK.
 
@@ -76,7 +76,11 @@ Now when we run it, we'll see the default application.
 Our application is now up and running, but it's not exactly what one would call "exciting" or "useful" yet. That's what we're going to do in the rest of this post!
 
 ### Connecting to the data layer
-We'll open AppDelegate.cs in our iOS project and add a new static property called TodoRepository. Then we'll edit the FinishedLaunching method and instantiate the new property.
+Before we get to the meat of our UI, we need to connect to the data layer. The first thing we need to do is add the sqlite-net-pcl nuget package to our iOS project.
+
+![Add Sqlite Package]({{ "/assets/img/todo-xamarin-native-ios/AddSqlite.PNG" }})
+
+Next we'll open AppDelegate.cs in our iOS project and add a new static property called TodoRepository. Then we'll edit the FinishedLaunching method and instantiate the new property.
 
 {% highlight csharp %}
 ...
@@ -84,8 +88,6 @@ public static TodoRepository TodoRepository;
 ...
 public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
 {
-    // Override point for customization after application launch.
-    // If not required for your application you can safely delete this method
     var docFolder = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
     var libFolder = Path.Combine(docFolder, "..", "Library", "Databases");
 
@@ -98,26 +100,6 @@ public override bool FinishedLaunching(UIApplication application, NSDictionary l
     TodoRepository = new TodoRepository(repositoryFilePath);
 
     return true;
-}
-...
-{% endhighlight %}
-
-##### Android
-We'll handle Android much like we did iOS, overriding OnCreate in MainApplication.cs.
-
-{% highlight csharp %}
-...
-public static TodoRepository TodoRepository;
-...
-public override void OnCreate()
-{
-    base.OnCreate();
-    RegisterActivityLifecycleCallbacks(this);
-    //A great place to initialize Xamarin.Insights and Dependency Services!
-
-    string path = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal);
-    var repositoryFilePath = Path.Combine(path, "TodoRepository.db3");
-    TodoRepository = new TodoRepository(repositoryFilePath);
 }
 ...
 {% endhighlight %}
