@@ -105,206 +105,84 @@ public override bool FinishedLaunching(UIApplication application, NSDictionary l
 {% endhighlight %}
 
 <h3 id="displaying-todo-list">Displaying a list of Todo Items</h3>
-Now that we've finished our data layer, it's time to actually show something to the user! This is where our code is no longer shared between OSs. This is because Xamarin Native only shares core logic, and leaves the UI code to each OS project. It leads to less code sharing than something like Xamarin Forms, but also makes it easier to customize the UI and make it follow platform standards more closely.
+Now that we've finished our data layer, it's time to actually show something to the user! At this point we're switching out of shared code and will be working entirely in the iOS project. We'll start by displaying a simple list of our Todo Items without any user interaction.
 
-> Note: Most real apps will have a much larger percentage of shared code than this example does. There will often be much more application logic than a single CRUD table, so Xamarin's code-sharing will become more advantageous.
+There are several ways to create UIs in iOS, the most common of which are Storyboards and through code. Storyboards are designer files that allow you to lay out the UI of multiple screens and the transitions between them. They are reasonably nice to use if you're the sole developer, however they can quickly become complicated and cause conflicts if there are multiple developers. Instead we're going to create our UI in code. In my opinion, this is better both for version control and for multi-developer scenarios.
 
-We'll start by displaying a simple list of our Todo Items without any user interaction.
-
-##### Android
-Android UIs generally created using a minimum of 2 files per screen: an Activity (where our behavior) and a Layout (where we'll define the UI). Conveniently, the project template created each of these for us: MainActivity.cs and Resources\layout\Main.axml.
-
-We'll start by opening Main.axml. Visual Studio will default to a designer view, with a tab to switch to the source view. We could work in the designer, however I find the source much easier to work with so that's what we'll use on this post. We'll add a new ListView to our layout.
-> Note: For most real applications you should prefer a RecyclerView to a ListView. The RecyclerView handles long lists much more effeciently, but we're using a ListView to keep this example simple. You can read about the RecyclerView <a href="https://developer.android.com/guide/topics/ui/layout/recyclerview" target="_blank">here</a>
-
-{% highlight xml %}
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-  <ListView
-    android:id="@+id/TodoList"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    
-  </ListView>
-</LinearLayout>
-{% endhighlight %}
-> You might notice some weird syntax in there where we set the id to "@+id/...". This is Android specific syntax that tells the system to add our id to the Resource.Id enumeration so we can use it in our activity code
-
-This sets up our layout, but doesn't display any data. To do that we'll edit MainActivity.cs. We need to retrieve our todo list from the repositry and create an Adapter for our ListView to use.
+We need to create two things to display our list: a UITableView to hold our items and a UITableViewSource to translate our list into rows in the table (this is similar in concept to the Adapter we used on the Android side). We'll start with the UITableaViewSource by creating a new class called TodoItemTableSource. We'll add a constructor that takes in a list of TodoItems and implement the GetCell and RowsInSection methods.
 
 {% highlight csharp %}
-using Android.App;
-using Android.Widget;
-using Android.OS;
-using GoogleAndroid = Android;
-using System.Linq;
-
-namespace TodoXamarinNative.Android
-{
-    [Activity(Label = "TodoXamarinNative.Android", MainLauncher = true)]
-    public class MainActivity : Activity
-    {
-        private ListView _todoListView;
-
-        protected override void OnCreate(Bundle savedInstanceState)
-        {
-            base.OnCreate(savedInstanceState);
-
-            // Set our view from the "main" layout resource
-            SetContentView(Resource.Layout.Main);
-            _todoListView = FindViewById<ListView>(Resource.Id.TodoList);
-        }
-
-        protected override async void OnResume()
-        {
-            base.OnResume();
-
-            var todoList = await MainApplication.TodoRepository.GetList();
-            var adapter = new ArrayAdapter<string>(this, GoogleAndroid.Resource.Layout.SimpleListItem1, todoList.Select(t => t.Title).ToArray());
-            _todoListView.Adapter = adapter;
-        }
-    }
-}
-{% endhighlight %}
-
-Now when we run the application, we can see our list items!
-
-<div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native/InitialTodoListAndroid.png" />
-</div>
-
-This is a good start, but we should probably show the user which items have been completed. To do this, we're going to create a custom layout for our Todo Items that has a checkbox for the Completed status. Right now this will just display the status, but later we'll use it for changing the IsCompleted property.
-
-First we need to create a new layout for our todo item. Right click on "Resources/layout" and select "Add -> New Item". In the resulting dialog we'll pick "Android Layout" and name it TodoListItem. When the file opens, switch to the source view. We're going to change the linear layout to a horizontal orientation and add a new TextView and CheckBox.
-
-{% highlight xml %}
-<?xml version="1.0" encoding="utf-8"?>\
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-    <TextView
-        android:id="@+id/TodoTitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"/>
-    <CheckBox
-        android:id="@+id/TodoIsCompleted"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-</LinearLayout>
-{% endhighlight %}
-> One interesting piece of code in this section is on our TextView where we set the layout_width to 0dp and the layout_weight to 1. This tells the TextView to fill any horizontal space not already used by other elements and pushes our CheckBox to the right side of the screen.
-
-Next we need to create our own custom adapter to use this layout. There's a helpful template we can use that sets up a lot of the code for us. Right click on TodoXamarinNative.Android and select "Add -> New Item". In the dialog that appears, select the Adapter template and name it TodoAdapter. This creates a basic Adapter that implements the <a href="https://developer.android.com/training/improving-layouts/smooth-scrolling" target="_blank">ViewHolder pattern</a>. We won't go into detail about it here, but this pattern allows Android to make effecient use of memory in ListViews.
-
-We'll make a few changes to our adapter. First we'll accept a List<TodoItem> in the constructor and store it in a private field. Then we'll flesh out the TodoItemViewHolder and implment the GetView method and Count property.
-
-{% highlight csharp %}
+using System;
 using System.Collections.Generic;
-using Android.Content;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
+using Foundation;
 using TodoXamarinNative.Core;
+using UIKit;
 
-namespace TodoXamarinNative.Android
+namespace TodoXamarinNative.iOS
 {
-    class TodoAdapter : BaseAdapter
+    class TodoItemTableSource : UITableViewSource
     {
-        Context context;
-        private List<TodoItem> _todoItems;
+        private const string CellIdentifier = "TodoItemCell";
+        private readonly List<TodoItem> _todoItems;
 
-        public TodoAdapter(Context context, List<TodoItem> todoItems)
+        public TodoItemTableSource(List<TodoItem> todoItems)
         {
-            this.context = context;
             _todoItems = todoItems;
         }
 
-        public override Java.Lang.Object GetItem(int position)
+        public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
-            return position;
+            var cell = new UITableViewCell(UITableViewCellStyle.Default, CellIdentifier);
+            cell.TextLabel.Text = _todoItems[indexPath.Row].Title;
+            return cell;
         }
 
-        public override long GetItemId(int position)
+        public override nint RowsInSection(UITableView tableview, nint section)
         {
-            return position;
+            return _todoItems.Count;
         }
-
-        public override View GetView(int position, View convertView, ViewGroup parent)
-        {
-            var view = convertView;
-            TodoAdapterViewHolder holder = null;
-
-            if (view != null)
-                holder = view.Tag as TodoAdapterViewHolder;
-
-            if (holder == null)
-            {
-                holder = new TodoAdapterViewHolder();
-                var inflater = context.GetSystemService(Context.LayoutInflaterService).JavaCast<LayoutInflater>();
-
-                view = inflater.Inflate(Resource.Layout.TodoListItem, parent, false);
-                holder.Title = view.FindViewById<TextView>(Resource.Id.TodoTitle);
-                holder.IsCompleted = view.FindViewById<CheckBox>(Resource.Id.TodoIsCompleted);
-                view.Tag = holder;
-            }
-
-            var currentTodoItem = _todoItems[position];
-            holder.Title.Text = currentTodoItem.Title;
-            holder.IsCompleted.Checked = currentTodoItem.IsCompleted;
-
-            return view;
-        }
-        
-        public override int Count
-        {
-            get
-            {
-                return _todoItems.Count;
-            }
-        }
-
-    }
-
-    class TodoAdapterViewHolder : Java.Lang.Object
-    {
-        public TextView Title { get; set; }
-        public CheckBox IsCompleted { get; set; }
     }
 }
 {% endhighlight %}
+> Note: we're using the built in UITableViewCellStyle.Default for our cell's layout. There are a few other options built in, but we could also create our own custom cell.
 
-Finally we need to tell our ListView to use our new adapter. This is a fairly simple update to our OnResume method in MainActivity.
+We also need open our MainViewController and add + populate the list. We'll do this by creating the list in ViewDidLoad and populating it in ViewDidAppear. The only part of this that isn't obvious is that we're using constraints to position our list. Constraints tell iOS how to position our view and work well across multiple device sizes.
 
 {% highlight csharp %}
-...
-var todoList = await MainApplication.TodoRepository.GetList();
-var adapter = new TodoAdapter(this, todoList.OrderBy(t => t.IsCompleted).ToList());
-_todoListView.Adapter = adapter;
-...
-{% endhighlight %}
+public override void ViewDidLoad()
+{
+    base.ViewDidLoad();
 
-Now when we run the application we'll see our list with checkboxes showing the completed status of each task. 
+    _todoTableView = new UITableView
+    {
+        TranslatesAutoresizingMaskIntoConstraints = false
+    };
+    View.Add(_todoTableView);
+
+    _todoTableView.TopAnchor.ConstraintEqualTo(View.TopAnchor).Active = true;
+    _todoTableView.BottomAnchor.ConstraintEqualTo(View.BottomAnchor).Active = true;
+    _todoTableView.LeftAnchor.ConstraintEqualTo(View.LeftAnchor).Active = true;
+    _todoTableView.RightAnchor.ConstraintEqualTo(View.RightAnchor).Active = true;
+}
+
+public override async void ViewDidAppear(bool animated)
+{
+    base.ViewDidAppear(animated);
+
+    var todoList = await AppDelegate.TodoRepository.GetList();
+    _todoTableView.Source = new TodoItemTableSource(todoList);
+    _todoTableView.ReloadData();
+}
+{% endhighlight %}
+> Setting .Active = true on each of our constraints looks weird, but if we don't do this the app won't use those settings
+
+Now our application will display the list of our Todos!
 
 <div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native/StatusListAndroid.png" />
+    <img src="/assets/img/todo-xamarin-native-ios/InitialList.png" >
 </div>
 
-With that done, we can move on to showing the list on iOS.
-
-##### iOS
-
-The first thing we're going to do on iOS is remove the Main.storyboard file from our solution and re-build our initial blank screen through code. Storyboards are a visual design tool that can be used to create UIs, however they can become difficult to maintain (expecially with multiple developers). Because of that, we'll prefer a code based approach to our UI. After deleting the storyboard file, we should open Info.plist and set Main Interface to "(not set)".
-
-![Create Core Project]({{ "/assets/img/todo-xamarin-native/RemoveStoryboardIOS.PNG" }})
-
-Next we'll create a new View Controller and tell iOS to use that as our starting window (we could use ViewController.cs from the template, but that name is too generic for my taste).
-
-Now that we're displaying our todo list on both OSs, we should allow the user to start interacting with it.
+The only thing remaining that we should show is whether-or-not the items are completed.
 
 ### Completing, Uncompleting, and Deleting Items
 We're going to start by implemeting actions that the user can take without leaving the main screen: Completing, Uncompleting, and Deleting items. Much like displaying the items, this involves platform specific code to wire up.
