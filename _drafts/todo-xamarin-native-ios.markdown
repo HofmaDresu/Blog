@@ -182,335 +182,190 @@ Now our application will display the list of our Todos!
     <img src="/assets/img/todo-xamarin-native-ios/InitialList.png" >
 </div>
 
-The only thing remaining that we should show is whether-or-not the items are completed.
+The only thing remaining that we should show is whether-or-not the items are completed. We're going to deviate from how we did this on Android and add sections to our list. iOS makes this easy to do, and we only need to make a couple alterations to our TodoItemTableSource. We need to order our list correctly, update the RowsInSection override, and implement boty NumberOfSections and TitleForHeader.
+
+{% highlight csharp %}
+    ...
+    public TodoItemTableSource(List<TodoItem> todoItems)
+    {
+        _todoItems = todoItems.OrderBy(t => t.IsCompleted).ToList();
+    }
+    ...
+    public override nint RowsInSection(UITableView tableview, nint section)
+    {
+        return _todoItems.Count(t => t.IsCompleted == (section == 1));
+    }
+
+    public override nint NumberOfSections(UITableView tableView) => 2;
+
+    public override string TitleForHeader(UITableView tableView, nint section) => section == 0 ? "Active" : "Completed";
+}
+{% endhighlight %}
+
+Finally we need to update GetCell to look at the correct item. This needs to change because indexPath.Row returns the row relative to the section, so our third item (the first completed item) gives a row of 0. We'll create a helper method to do this, since we'll need the functionality later as well.
+
+{% highlight csharp %}
+...
+public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
+{
+    var cell = new UITableViewCell(UITableViewCellStyle.Default, CellIdentifier);
+    cell.TextLabel.Text = GetItem(indexPath).Title;
+    return cell;
+}
+
+public TodoItem GetItem(NSIndexPath indexPath)
+{
+    var releventList = indexPath.Section == 0 ? _activeItems : _completedItems;
+    return releventList.ToList()[indexPath.Row];
+}
+...
+{% endhighlight %}
+
+With this done we can run our application and see our grouped items.
+
+<div class="os-screenshots">
+    <img src="/assets/img/todo-xamarin-native-ios/GroupedList.png" >
+</div>
+
+Now we can start adding actions to our list!
 
 ### Completing, Uncompleting, and Deleting Items
 We're going to start by implemeting actions that the user can take without leaving the main screen: Completing, Uncompleting, and Deleting items. Much like displaying the items, this involves platform specific code to wire up.
 
-##### Android
-We'll start with Completing and Uncompleting tasks since we already have a CheckBox control to interact with. The first thing we need to do is update our TodoAdapter to raise an event when the user clicks a checkbox. We need to create an EventHandler called OnCompletedChanged and a method called IsCompleted_CheckedChange that calls the handler.
+The first thing we'll do is display the action buttons to the user without backing them with functionality. We're going to use iOS's "swipe left" functionality to display our buttons. This involves a decent number of changes, so hang tight!
+
+First thing we need to do is update our TodoItemTableSource and tell it that we want to enable edit on our rows. For this we need to override two new methods.
 
 {% highlight csharp %}
-class TodoAdapter : BaseAdapter
-{
-    Context context;
-    private List<TodoItem> _todoItems;
-    public EventHandler<int> OnCompletedChanged;
-...
-public override View GetView(int position, View convertView, ViewGroup parent)
-{
-    ...
-    holder.IsCompleted.Checked = currentTodoItem.IsCompleted;
-    holder.IsCompleted.Tag = currentTodoItem.Id;
-    holder.IsCompleted.CheckedChange -= IsCompleted_CheckedChange;
-    holder.IsCompleted.CheckedChange += IsCompleted_CheckedChange;
-
-    return view;
-}        
-...
-private void IsCompleted_CheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e)
-{
-    var id = (int)((View)sender).Tag;
-    OnCompletedChanged?.Invoke(sender, id);
-}
-{% endhighlight %}
-> We're using the 'Tag' property of the CheckBox to store our TodoItem's Id so we can pass it to the EventHandler
-
-Next we need to update our MainActivity to respond to OnCompletedChanged. To do this, we'll also need to store our todo list in a private field.
-
-{% highlight csharp %}
-...
-public class MainActivity : Activity
-{
-    private ListView _todoListView;
-    private List<TodoItem> _todoList;
-...
-protected override async void OnResume()
-{
-    base.OnResume();
-
-    await UpdateTodoList();
-}
-
-private async Task UpdateTodoList()
-{
-    _todoList = await MainApplication.TodoRepository.GetList();
-    var adapter = new TodoAdapter(this, _todoList.OrderBy(t => t.IsCompleted).ToList());
-    adapter.OnCompletedChanged += HandleItemCompletedChanged;
-    _todoListView.Adapter = adapter;
-}
-
-private async void HandleItemCompletedChanged(object sender, int todoId)
-{
-    var targetItem = _todoList.Single(t => t.Id == todoId);
-    await MainApplication.TodoRepository.ChangeItemIsCompleted(targetItem);
-    await UpdateTodoList();
-}
-{% endhighlight %}
-
-Now when we run the application, we can see our list updating when the user clicks an item's checkbox.
-
-<div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native/ChangeCompletedAndroid.gif" />
-</div>
-
-Next we want to allow the user to delete an item from the list. Conveniently, Android ListViews have a built-in context menu we can call when the user long presses an item. First thing we'll do is display the menu with a "delete" button.
-
-We need to adjust our MainActivity to do two things: register our listview for a context menu, and implement an override for OnCreateContextMenu where we set our items. We might be tempted to handle registration in the constructor, thinking that we only want to do that once, however we want to register after the adapter is set in OnResume so Android knows what items need to be handled.
-
-{% highlight csharp %}
-    ...
-    _todoListView.Adapter = adapter;
-    RegisterForContextMenu(_todoListView);
-}
-...
-public override void OnCreateContextMenu(IContextMenu menu, View v, IContextMenuContextMenuInfo menuInfo)
-{
-    base.OnCreateContextMenu(menu, v, menuInfo);
-    if (v.Id == _todoListView.Id)
+    ...    
+    public override bool CanEditRow(UITableView tableView, NSIndexPath indexPath)
     {
-        AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
-        var item = _todoList.Single(t => t.Id == _todoListView.Adapter.GetItemId(info.Position));
-        var title = item.Title;
-        menu.SetHeaderTitle(title);
+        return true;
+    }
 
-        menu.Add("Delete");
+    public override void CommitEditingStyle(UITableView tableView, UITableViewCellEditingStyle editingStyle, NSIndexPath indexPath)
+    {
     }
 }
 {% endhighlight %}
+> One interesting thing to note is that we overrode CommitEditingStyle but didn't do anything. iOS requires this to be overridden when we add our edit buttons, but we don't have anything we want to do with it. Additionally: we should not call the base method for this, so we're just leaving it empty.
 
-If we try to run the app now, we won't see the context menu that we expect. This is because we need to make a couple changes in our adapter to support this. First we need to enable long press on our view, and second we need to actually implement the GetItemId method that we're calling in OnCreateContextMenu.
-
-{% highlight csharp %}
-...
-public override long GetItemId(int position)
-{
-    return _todoItems[position].Id;
-}
-...
-public override View GetView(int position, View convertView, ViewGroup parent)
-{
-    ...
-    view = inflater.Inflate(Resource.Layout.TodoListItem, parent, false);
-    view.LongClickable = true;
-{% endhighlight %}
-
-Now we'll see a context menu with our item's title and a Delete button when the user long presses on a todo item.
-
-<div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native/DeleteButtonAndroid.png" />
-</div>
-    
-Finally we should implement the delete button. For this we'll override the OnContextItemSelected method in MainActivity, making it remove the selected item from the database and refresh our list.
+Next we need to create a UITableViewDelegate to handle displaying and responding to our buttons. We'll do this by creating a new class that subclasses UITableViewDelegate and implementing EditActionsForRow. This is where we'll use the GetItem method that we added to our TodoItemTableSource. We'll also add a couple events in preparation for completing our actions.
 
 {% highlight csharp %}
-public override bool OnContextItemSelected(IMenuItem menuItem)
+using System;
+using Foundation;
+using TodoXamarinNative.Core;
+using UIKit;
+
+namespace TodoXamarinNative.iOS
 {
-    switch (menuItem.GroupId)
+    class TodoTableDelegate : UITableViewDelegate
     {
-        case 0:
-            var info = (AdapterContextMenuInfo)menuItem.MenuInfo;
-            var item = _todoList.Single(t => t.Id == _todoListView.Adapter.GetItemId(info.Position));
-            MainApplication.TodoRepository.DeleteItem(item)
-                .ContinueWith(_ =>
-                {
-                    RunOnUiThread(async () =>
-                    {
-                        await UpdateTodoList();
-                    });
-                });
-            return true;
-        default:
-            return base.OnContextItemSelected(menuItem);
-    }
-}
-{% endhighlight %}
+        public EventHandler<TodoItem> OnIsCompletedToggled;
+        public EventHandler<TodoItem> OnTodoDeleted;
 
-There are a few interesting things to look at here. 
-* We used a ContinueWith instead of an await. We did this because the base OnContextItemSelected method expects to return a bool, so we can't adjust it to be an async function.
-* We used a method we haven't seen before: RunOnUiThread. This marshalls the action back to the UI thread, and is required when you need to make a visual change from a background thread. In our case, we're updating the ListView's adapter
-* Our switch statement is currently hard-coded to expect 'delete' to be in the 0th position. This is not a good idea in more complex apps, since future developers can add or re-arrange context items. There are better ways to handle this, but they're beyond what I want to get into for this post.
-
-With that implemented, we can run the app and see that our item deletion works!
-
-<div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native/DeleteItemAndroid.gif" />
-</div>
-
-Now we'll switch to iOS and add our actions there.
-
-##### iOS
-TODO
-
-### Adding Todo Items
-
-Our app is doing pretty well at this point, but we're missing one very important feature: adding new todo items! We're going to add a button to our todo list screen and create a new screen where the user can enter their item. Following the pattern of the previous two sections, this will involve solely OS specific code.
-
-##### Android
-
-The first thing we want to do is create an "Add Todo Item" button for the user to click. We'll do this by editing our Main.axml layout file.
-
-{% highlight xml %}
-...
-    <ListView
-        android:id="@+id/TodoList"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
-    <Button
-        android:id="@+id/AddNewItem"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-</LinearLayout>
-{% endhighlight %}
-
-This adds our new button to the bottom of our screen. Notice we used the "layout_weight" attribute again on the ListView to tell it to consume all available space.
-
-<div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native/AddButtonAndroid.png" />
-</div>
-
-Before we implement the buttions functionality, we should create a new screen for it to navigate to. We'll add a new Activity to TodoXamarinNative.Android called "AddTodoItemActivity" and a new layout to Resources/layout called "AddTodoItem". Our layout will contain an EditText and two Buttons (Cancel and Save), and we'll tell AddTodoItemActivity to use our layout in the OnCreate method.
-
-{% highlight xml %}
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center">
-  <EditText
-    android:id="@+id/TodoTitle"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"/>
-  <LinearLayout
-    android:orientation="horizontal"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-    <Button
-      android:id="@+id/CancelButton"
-      android:text="Cancel"
-      android:layout_width="0dp"
-      android:layout_height="wrap_content"
-      android:layout_weight="1"
-      android:layout_marginLeft="5dp"
-      android:layout_marginRight="5dp"/>
-    <Button
-      android:id="@+id/SaveButton"
-      android:text="Save"
-      android:layout_width="0dp"
-      android:layout_height="wrap_content"
-      android:layout_weight="1"
-      android:layout_marginRight="5dp"
-      android:layout_marginLeft="5dp"/>
-  </LinearLayout>
-</LinearLayout>
-{% endhighlight %}
-
-{% highlight csharp %}
-using Android.App;
-using Android.OS;
-
-namespace TodoXamarinNative.Android
-{
-    [Activity(Label = "AddTodoItemActivity")]
-    public class AddTodoItemActivity : Activity
-    {
-        protected override void OnCreate(Bundle savedInstanceState)
+        public override UITableViewRowAction[] EditActionsForRow(UITableView tableView, NSIndexPath indexPath)
         {
-            base.OnCreate(savedInstanceState);
+            var source = tableView.Source as TodoItemTableSource;
+            var selectedItem = source.GetItem(indexPath);
 
-            SetContentView(Resource.Layout.AddTodoItem);
+            UITableViewRowAction editButton = UITableViewRowAction.Create(
+                UITableViewRowActionStyle.Normal,
+                selectedItem.IsCompleted ? "Uncomplete" : "Complete",
+                (arg1, arg2) => OnIsCompletedToggled?.Invoke(this, selectedItem));
+            UITableViewRowAction deleteButton = UITableViewRowAction.Create(
+                UITableViewRowActionStyle.Destructive,
+                "Delete",
+                (arg1, arg2) => OnTodoDeleted?.Invoke(this, selectedItem));
+            return new UITableViewRowAction[] { deleteButton, editButton };
         }
     }
 }
 {% endhighlight %}
 
-We did a couple new things in our layout worth calling out. First, we used layout_weight again but a little differently than before. Instead of setting a single element to use layout_weight, we told both buttons to use the same weight. This will cause them to both expand to use half of the available space (excluding the left and right margins we set). We also set the main StackLayout's gravity to 'center'. This will put our controls in the center of the screen vertically.
-
-Next we need to wire up our button and tell it to navigate to our new activity. We'll do this in the OnCreate method in MainActivity.
+The last thing we need to do is tell our table view to use our new delegate. We'll do this in MainViewController by adding a new private field _todoTableDelegete, instanciating it in ViewDidLoad, and setting it in ViewDidAppear.
 
 {% highlight csharp %}
-protected override void OnCreate(Bundle savedInstanceState)
+...
+private TodoTableDelegate _todoTableDelegate;
+...
+public override void ViewDidLoad()
 {
     ...
-    FindViewById<Button>(Resource.Id.AddNewItem).Click += 
-            (s, e) => StartActivity(new Intent(this, typeof(AddTodoItemActivity)));
+    _todoTableDelegate = new TodoTableDelegate();
+    ...
 }
-{% endhighlight %}
 
-Now when the user clicks our button, they're taken to the AddTodoItemActivity.
-
-<div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native/AddItemScreenAndroid.png" />
-</div>
-
-Now it's time to implement our Add Item screen. First we'll start with the Cancel button, since that has the least amount of work to do. We'll open AddTodoItemActivity and add a single line that calls the built in Finish method.
-
-{% highlight csharp %}
-protected override void OnCreate(Bundle savedInstanceState)
+public override async void ViewDidAppear(bool animated)
 {
     ...
-    FindViewById<Button>(Resource.Id.CancelButton).Click += (s, e) => Finish();
+    _todoTableView.Delegate = _todoTableDelegate;
+    _todoTableView.ReloadData();
 }
 {% endhighlight %}
 
-Next we'll implement the "Save" button. This has a little more work to do, but not much. We need to:
-* Read the text from our EditText
-* Save a new Item to the database
-* Call Finish
-Because there are more steps, we'll split it out into a separate method.
-
-{% highlight csharp %}
-protected override void OnCreate(Bundle savedInstanceState)
-{
-    ...    
-    FindViewById<Button>(Resource.Id.SaveButton).Click += HandleSave;
-}
-
-private async void HandleSave(object s, EventArgs e)
-{
-    var todoText = FindViewById<EditText>(Resource.Id.TodoTitle).Text;
-    await MainApplication.TodoRepository.AddItem(new TodoItem { Title = todoText });
-    Finish();
-}
-{% endhighlight %}
-
-With that in place, our user can add items!
+With all of that set, we can run our app and swipe left on items to see our action buttons!
 
 <div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native/AddItemAndroid.gif" />
+    <img src="/assets/img/todo-xamarin-native-ios/ActiveItemActions.png" >
+    <img src="/assets/img/todo-xamarin-native-ios/CompletedItemActions.png" >
 </div>
 
-That finishes our functionality on Android, but there's one more thing we should cover before finishing iOS. You may have noticed that our screen titles aren't very useful. Let's fix that. If we look in both of our Activity files, there's an Activity attribute with a Label. That label is what Android is displaying to our user, so lets set them to something more useful.
+Next we'll want to have our buttons actually do something. We'll do this in MainViewController by subscribing to the event handlers we created in TodoTableDelegete. For good practice, we'll also unsubscribe from them in ViewDidDisappear. We'll also split some ouf our ViewDidAppear code off into a separate methods that we can re-use.
 
 {% highlight csharp %}
 ...
-[Activity(Label = "Todo List", MainLauncher = true)]
-public class MainActivity : Activity
+public override async void ViewDidAppear(bool animated)
+{
+    base.ViewDidAppear(animated);
+
+    await PopulateTable();
+    _todoTableDelegate.OnIsCompletedToggled += HandleIsCompletedToggled;
+    _todoTableDelegate.OnTodoDeleted += HandleTodoDeleted;
+}
+
+private async Task PopulateTable()
+{
+    var todoList = await AppDelegate.TodoRepository.GetList();
+    _todoTableView.Source = new TodoItemTableSource(todoList);
+    _todoTableView.Delegate = _todoTableDelegate;
+    _todoTableView.ReloadData();
+}
+
+public override void ViewDidDisappear(bool animated)
+{
+    base.ViewDidDisappear(animated);
+    _todoTableDelegate.OnIsCompletedToggled -= HandleIsCompletedToggled;
+    _todoTableDelegate.OnTodoDeleted -= HandleTodoDeleted;
+}
+
+private async void HandleIsCompletedToggled(object sender, TodoItem targetItem)
+{
+    await AppDelegate.TodoRepository.ChangeItemIsCompleted(targetItem);
+    await PopulateTable();
+}
+
+private async void HandleTodoDeleted(object sender, TodoItem targetItem)
+{
+    await AppDelegate.TodoRepository.DeleteItem(targetItem);
+    await PopulateTable();
+}
 ...
 {% endhighlight %}
 
-{% highlight csharp %}
-...
-[Activity(Label = "Add Todo Item")]
-public class AddTodoItemActivity : Activity
-...
-{% endhighlight %}
-
-Now our screen titles are much better.
+Now when we run the application we can complete, uncomplete, and delete items!
 
 <div class="os-screenshots">
-    <label></label>
-    <img src="/assets/img/todo-xamarin-native/TitledTodoListAndroid.png" />
-    <label></label>
-    <img src="/assets/img/todo-xamarin-native/TitledAddItemAndroid.png" />
+    <img src="/assets/img/todo-xamarin-native-ios/ActiveItemActions.png" >
+    <img src="/assets/img/todo-xamarin-native-ios/CompletedItemActions.png" >
 </div>
 
-Now let's move onto iOS and finish our application there.
+### Adding Todo Items
 
-##### iOS
-TODO
+Our app is doing pretty well at this point, but we're missing one very important feature: adding new todo items! We're going to add a button to our todo list screen and create a new screen where the user can enter their item. Following the pattern of the previous two sections, this will involve solely OS specific code.
+
+The first thing we want to do is create an "Add Todo Item" button for the user to click. 
 
 ### Conclusion
 And there we have it! We've created a simple Todo application for both iOS and Android using Xamarin Native. We've created the UIs using native-style platform specific code while sharing our data storage code between the platforms. While we didn't do a lot with shared code, hopefully you can see how we would use the same technique for things like business logic, web request, or most other non-UI functionality you need. 
