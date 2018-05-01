@@ -1,0 +1,1 @@
+for %%f in (*.png) do magick convert %%f -strip %%f

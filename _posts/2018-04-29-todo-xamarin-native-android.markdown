@@ -6,7 +6,7 @@ tags: mobile xamarin android
 excerpt_separator: "<!--more-->"
 ---
 
-In this post we're going to create a todo application on Android using Xamarin Native. Xamarin is a cross platform development tool on the .NET stack that allows you to share application logic and other 'core' code (like data persistance, API access, etc) across target platforms. To get started we're going to create the default project files and see what Xamarin gives us out of the box. <!--more--> Full source code for this application is available <a href="https://github.com/HofmaDresu/TodoMobile/tree/master/TodoXamarinNative" target="_blank">on GitHub</a>. This solution will be updated to include iOS code when Part 2 is complete. 
+In this post we're going to create a todo application on Android using Xamarin Native. Xamarin is a cross platform development tool on the .NET stack that allows you to share application logic and other 'core' code (like data persistance, API access, etc) across target platforms. To get started we're going to create the default project files and see what Xamarin gives us out of the box. <!--more--> Full source code for this application is available <a href="https://github.com/HofmaDresu/TodoMobile/tree/master/TodoXamarinNative" target="_blank">on GitHub</a>. This solution also contains the iOS code we'll create in <a href="/2018/05/01/todo-xamarin-native-ios.html">Part 2</a>. 
 
 > Note: All of my steps are using Visual Studio 2017 Community on Windows. Your mileage may vary if you work on a different edition of VS or on Visual Studio for Mac.
 
@@ -699,9 +699,7 @@ public class AddTodoItemActivity : Activity
 Now our screen titles are much better.
 
 <div class="os-screenshots">
-    <label></label>
     <img src="/assets/img/todo-xamarin-native-android/TitledTodoListAndroid.png" />
-    <label></label>
     <img src="/assets/img/todo-xamarin-native-android/TitledAddItemAndroid.png" />
 </div>
 
