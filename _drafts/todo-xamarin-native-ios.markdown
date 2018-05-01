@@ -357,8 +357,7 @@ private async void HandleTodoDeleted(object sender, TodoItem targetItem)
 Now when we run the application we can complete, uncomplete, and delete items!
 
 <div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native-ios/ActiveItemActions.png" >
-    <img src="/assets/img/todo-xamarin-native-ios/CompletedItemActions.png" >
+    <img src="/assets/img/todo-xamarin-native-ios/CompleteDeleteActions.gif" >
 </div>
 
 ### Adding Todo Items
