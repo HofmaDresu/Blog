@@ -365,7 +365,178 @@ Now when we run the application we can complete, uncomplete, and delete items!
 
 Our app is doing pretty well at this point, but we're missing one very important feature: adding new todo items! We're going to add a button to our todo list screen and create a new screen where the user can enter their item. Following the pattern of the previous two sections, this will involve solely OS specific code.
 
-The first thing we want to do is create an "Add Todo Item" button for the user to click. 
+The first thing we want to do is create an "Add Todo Item" button for the user to click. We'll do this by editing ViewDidLoad in our MainViewController. We need to create a new System button, set its text, add it to the view, and adjust our constraints to place it at the bottom of the screen.
+
+{% highlight csharp %}
+...
+public override void ViewDidLoad()
+{
+    ...
+    _addItemButton = new UIButton(UIButtonType.System)
+    {
+        TranslatesAutoresizingMaskIntoConstraints = false,
+    };
+    _addItemButton.SetTitle("Add Todo Item", UIControlState.Normal);
+    View.Add(_addItemButton);
+
+    _todoTableView.TopAnchor.ConstraintEqualTo(View.TopAnchor).Active = true;
+    _todoTableView.BottomAnchor.ConstraintEqualTo(_addItemButton.TopAnchor).Active = true;
+    _todoTableView.LeftAnchor.ConstraintEqualTo(View.LeftAnchor).Active = true;
+    _todoTableView.RightAnchor.ConstraintEqualTo(View.RightAnchor).Active = true;
+
+    _addItemButton.TopAnchor.ConstraintEqualTo(_todoTableView.BottomAnchor).Active = true;
+    _addItemButton.BottomAnchor.ConstraintEqualTo(View.LayoutMarginsGuide.BottomAnchor).Active = true;
+    _addItemButton.CenterXAnchor.ConstraintEqualTo(View.CenterXAnchor).Active = true;
+}
+{% endhighlight %}
+> Notice that we change the Bottom Anchor of our table view to be the top of the button. We also used a new constraint for the bottom of the button: LayoutMarginsGuide. This lets us position the button within the 'safe area' of iPhone X devices.
+> Make sure to set your button's type when creating it. The button will still be created if this step is missed, however the button won't be styled and will likely be invisible on the screen.
+
+We can now run our app and see the button at the bottom of our screen.
+
+<div class="os-screenshots">
+    <img src="/assets/img/todo-xamarin-native-ios/AddItemButton.png" >
+</div>
+
+Next we should make our button actually do something. We're going to have it navigate to a new screen where the user can create a todo item. First we should create the target screen. We'll make a new UIViewController called AddTodoItemViewController and place 3 items on the screen: a UITextField, a cancel UIButton, and a save UIButton.
+
+{% highlight csharp %}
+using UIKit;
+
+namespace TodoXamarinNative.iOS
+{
+    class AddTodoItemViewController : UIViewController
+    {
+        private UITextField _todoTitleView;
+        private UIButton _saveButton;
+        private UIButton _cancelButton;
+
+        public AddTodoItemViewController()
+        {
+            Title = "Add Todo Item";
+            View.BackgroundColor = UIColor.White;
+        }
+
+        public override void ViewDidLoad()
+        {
+            base.ViewDidLoad();
+
+            // Use a container view to easily center our components on the screen
+            var containerView = new UIView
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+            };
+
+            View.Add(containerView);
+
+            containerView.CenterXAnchor.ConstraintEqualTo(View.CenterXAnchor).Active = true;
+            containerView.CenterYAnchor.ConstraintEqualTo(View.CenterYAnchor).Active = true;
+            containerView.WidthAnchor.ConstraintEqualTo(View.WidthAnchor, .7f).Active = true;
+
+            _todoTitleView = new UITextField
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+                Placeholder = "Enter Todo Title",
+            };
+            containerView.Add(_todoTitleView);
+            _todoTitleView.BecomeFirstResponder();
+
+            _cancelButton = new UIButton(UIButtonType.System)
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+            };
+            _cancelButton.SetTitle("Cancel", UIControlState.Normal);
+            containerView.Add(_cancelButton);
+
+            _saveButton = new UIButton(UIButtonType.System)
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+            };
+            _saveButton.SetTitle("Save", UIControlState.Normal);
+            containerView.Add(_saveButton);
+
+            _todoTitleView.TopAnchor.ConstraintEqualTo(containerView.TopAnchor).Active = true;
+            _todoTitleView.LeftAnchor.ConstraintEqualTo(containerView.LeftAnchor).Active = true;
+            _todoTitleView.RightAnchor.ConstraintEqualTo(containerView.RightAnchor).Active = true;
+
+            _cancelButton.TopAnchor.ConstraintEqualTo(_todoTitleView.BottomAnchor).Active = true;
+            _cancelButton.LeftAnchor.ConstraintEqualTo(containerView.LeftAnchor).Active = true;
+            _cancelButton.BottomAnchor.ConstraintEqualTo(containerView.BottomAnchor).Active = true;
+
+            _saveButton.TopAnchor.ConstraintEqualTo(_todoTitleView.BottomAnchor).Active = true;
+            _saveButton.RightAnchor.ConstraintEqualTo(containerView.RightAnchor).Active = true;
+            _saveButton.BottomAnchor.ConstraintEqualTo(containerView.BottomAnchor).Active = true;
+        }
+    }
+}
+{% endhighlight %}
+> We used a new constraint feature here: the multiplier. We told our container view to have a width equal to 70% of our screen's width
+
+We'll then update MainViewController to navigate to AddTodoItemViewController when the button is clicked.
+
+{% highlight csharp %}
+...
+public override async void ViewDidAppear(bool animated)
+{
+    ...
+    _addItemButton.TouchUpInside += AddItemTouched;
+}
+
+private void AddItemTouched(object sender, System.EventArgs e)
+{
+    NavigationController.PushViewController(new AddTodoItemViewController(), true);
+}
+...
+public override void ViewDidDisappear(bool animated)
+{
+    ...
+    _addItemButton.TouchUpInside -= AddItemTouched;
+}
+{% endhighlight %}
+
+And when we run the app and click on our button, we'll see the new screen we created.
+
+<div class="os-screenshots">
+    <img src="/assets/img/todo-xamarin-native-ios/AddItemScreen.png" >
+</div>
+
+Now all we need to do is implement our Save and Cancel buttons. We'll create a method for each, subscribing to TouchUpInside in ViewDidAppear and unsubscribing in ViewDidDisappear.
+
+{% highlight csharp %}
+...
+public override void ViewDidAppear(bool animated)
+{
+    base.ViewDidAppear(animated);
+    _cancelButton.TouchUpInside += HandleCancelTouched;
+    _saveButton.TouchUpInside += HandleSaveTouched;
+}
+
+private async void HandleSaveTouched(object sender, System.EventArgs e)
+{
+    await AppDelegate.TodoRepository.AddItem(new TodoItem { Title = _todoTitleView.Text });
+    NavigationController.PopViewController(true);
+}
+
+private void HandleCancelTouched(object sender, System.EventArgs e)
+{
+    NavigationController.PopViewController(true);
+}
+
+public override void ViewDidDisappear(bool animated)
+{
+    base.ViewDidDisappear(animated);
+    _cancelButton.TouchUpInside -= HandleCancelTouched;
+    _saveButton.TouchUpInside -= HandleSaveTouched;
+}
+...
+{% endhighlight %}
+
+Now we can run our app and add new items!
+
+<div class="os-screenshots">
+    <img src="/assets/img/todo-xamarin-native-ios/AddNewItem.gif" >
+</div>
+> I have my simulator set to hide the onscreen keyboard and allow me to use my computer's keyboard. The user would see the on screen keyboard on a real device.
 
 ### Conclusion
 And there we have it! We've created a simple Todo application for both iOS and Android using Xamarin Native. We've created the UIs using native-style platform specific code while sharing our data storage code between the platforms. While we didn't do a lot with shared code, hopefully you can see how we would use the same technique for things like business logic, web request, or most other non-UI functionality you need. 
