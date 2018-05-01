@@ -699,9 +699,7 @@ public class AddTodoItemActivity : Activity
 Now our screen titles are much better.
 
 <div class="os-screenshots">
-    <label></label>
     <img src="/assets/img/todo-xamarin-native-android/TitledTodoListAndroid.png" />
-    <label></label>
     <img src="/assets/img/todo-xamarin-native-android/TitledAddItemAndroid.png" />
 </div>
 

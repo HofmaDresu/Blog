@@ -120,6 +120,10 @@
   width: 90%;
   margin: 0 auto;
   font-size: .8rem;
+
+  img {
+    grid-row: 2;
+  }
 }
 
 .home-link {
