@@ -35,9 +35,15 @@ Most of our work will be done in the .NET Standard library, with only minor vent
 
 <div class="os-screenshots">
     <label>Android</label>
-    <img src="/assets/img/todo-xamarin-forms/HelloWorldAndroid.png" />
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-forms/HelloWorldAndroid.webp">
+        <img src="/assets/img/todo-xamarin-forms/HelloWorldAndroid.png" >
+    </picture>
     <label>iOS</label>
-    <img src="/assets/img/todo-xamarin-forms/HelloWorldIOS.png" >
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-forms/HelloWorldIOS.webp">
+        <img src="/assets/img/todo-xamarin-forms/HelloWorldIOS.png" >
+    </picture>
 </div>
 
 Out of the box we have a Hello World app running on both Android and iOS. It's not very exciting yet, but this is where the real fun begins.
@@ -168,9 +174,15 @@ Now when we run the app, we see our new screen with a title and a list of "TodoX
 
 <div class="os-screenshots">
     <label>Android</label>
-    <img src="/assets/img/todo-xamarin-forms/InitialListViewAndroid.png" />
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-forms/InitialListViewAndroid.webp">
+        <img src="/assets/img/todo-xamarin-forms/InitialListViewAndroid.png" >
+    </picture>
     <label>iOS</label>
-    <img src="/assets/img/todo-xamarin-forms/InitialListViewIOS.png">
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-forms/InitialListViewIOS.webp">
+        <img src="/assets/img/todo-xamarin-forms/InitialListViewIOS.png" >
+    </picture>
 </div>
 
 To show our TodoItems's Title, we're going to use a built in control called TextCell. There are many other controls we could use if we wanted a different layout, but for our simple app TextCell is more than sufficient. Open TodoListView.xaml and add the new TextCell to the ListView tag, binding the Text attribute to your Title property. Since this is in the context of our ListView, this binds to the individual TodoItem's Title property.
@@ -191,9 +203,15 @@ If we run the app now, we'll see our todo item titles listed on the screen
 
 <div class="os-screenshots">
     <label>Android</label>
-    <img src="/assets/img/todo-xamarin-forms/TitleBoundListViewAndroid.png"  />
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-forms/TitleBoundListViewAndroid.webp">
+        <img src="/assets/img/todo-xamarin-forms/TitleBoundListViewAndroid.png" >
+    </picture>
     <label>iOS</label>
-    <img src="/assets/img/todo-xamarin-forms/TitleBoundListViewIOS.png">
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-forms/TitleBoundListViewIOS.webp">
+        <img src="/assets/img/todo-xamarin-forms/TitleBoundListViewIOS.png" >
+    </picture>
 </div>
 
 There's one more thing we'd like to display for our todo list: whether-or-not we have completed to item! For this we're going to group our todos based on their IsCompleted property and show them in either a Active or Completed section. The Xamarin Forms ListView we're using has grouping built-in, so all we have to do is adjust our datastructure and bindings to handle groups.
@@ -248,9 +266,15 @@ Now when we run the app, we see our todo items separated out by their completion
 
 <div class="os-screenshots">
     <label>Android</label>
-    <img src="/assets/img/todo-xamarin-forms/GroupedListViewAndroid.png" />
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-forms/GroupedListViewAndroid.webp">
+        <img src="/assets/img/todo-xamarin-forms/GroupedListViewAndroid.png" >
+    </picture>
     <label>iOS</label>
-    <img src="/assets/img/todo-xamarin-forms/GroupedListViewIOS.png">
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-forms/GroupedListViewIOS.webp">
+        <img src="/assets/img/todo-xamarin-forms/GroupedListViewIOS.png" >
+    </picture>
 </div>
 
 ### Completing, Uncompleting and Deleting Items
@@ -284,9 +308,15 @@ Right now our actions don't do anything, but we set up the Command binding that 
 
 <div class="os-screenshots">
     <label>Android</label>
-    <img src="/assets/img/todo-xamarin-forms/ContextActionsAndroid.png" />
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-forms/ContextActionsAndroid.webp">
+        <img src="/assets/img/todo-xamarin-forms/ContextActionsAndroid.png" >
+    </picture>
     <label>iOS</label>
-    <img src="/assets/img/todo-xamarin-forms/ContextActionsIOS.png">
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-forms/ContextActionsIOS.webp">
+        <img src="/assets/img/todo-xamarin-forms/ContextActionsIOS.png" >
+    </picture>
 </div>
 
 Now we'll wire up the buttons so they actually have an effect. Let's start with the Delete command. We create a Delete property in TodoListViewModel and a HandleDelete method. Then in our constructor we set Delete to a new command that uses HandleDelete.
@@ -689,9 +719,15 @@ The first thing we want to do is create the button on both OSs. To do this we'll
 
 <div class="os-screenshots">
     <label>Android</label>
-    <img src="/assets/img/todo-xamarin-forms/DefaultButtonAndroid.png" />
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-forms/DefaultButtonAndroid.webp">
+        <img src="/assets/img/todo-xamarin-forms/DefaultButtonAndroid.png" >
+    </picture>
     <label>iOS</label>
-    <img src="/assets/img/todo-xamarin-forms/DefaultButtonIOS.png">
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-forms/DefaultButtonIOS.webp">
+        <img src="/assets/img/todo-xamarin-forms/DefaultButtonIOS.png" >
+    </picture>
 </div>
 
 Next we'll add a new ContentPage called AddTodoItem.xaml to our TodoXamarinForms project and create a basic layout containing a text entry, a cancel button, and a save button. Our bindings won't do anything yet, but they'll be useful when we create a view model for this page.
@@ -759,9 +795,15 @@ If we run our app, we'll be able to navigate to our new screen by pressing "Add 
 
 <div class="os-screenshots">
     <label>Android</label>
-    <img src="/assets/img/todo-xamarin-forms/AddItemScreenAndroid.png" />
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-forms/AddItemScreenAndroid.webp">
+        <img src="/assets/img/todo-xamarin-forms/AddItemScreenAndroid.png" >
+    </picture>
     <label>iOS</label>
-    <img src="/assets/img/todo-xamarin-forms/AddItemScreenIOS.png">
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-forms/AddItemScreenIOS.webp">
+        <img src="/assets/img/todo-xamarin-forms/AddItemScreenIOS.png" >
+    </picture>
 </div>
 
 The last things we need to do are creaet our View Model and implement AddItem in our repository. This is basically a repetition of many of the steps we've already done, so they won't be listed in detail here.

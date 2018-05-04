@@ -18,11 +18,17 @@ With all this installed, we can now start building our app!
 <h3 id="creating-hello-world">Creating Hello World</h3>
 The first thing we want to do is create our default iOS project. Since we're using our existing solution we can just add our new project to that. We can open TodoXamarinNative.sln then right click on the Solution and select "Add -> New Project...". In the dialog that appears we'll select "Visual C# -> iOS -> Universal -> Blank App (iOS)" and name the project TodoXamarinNative.iOS.
 
-![Create iOS Project]({{ "/assets/img/todo-xamarin-native-ios/CreateProject.PNG" }})
+<picture>
+  <source type="image/webp" srcset="/assets/img/todo-xamarin-native-ios/CreateProject.webp">
+  <img src="/assets/img/todo-xamarin-native-ios/CreateProject.png" >
+</picture>
 
 Next we need to create a reference from our new iOS project to Core. To do this, right click on References under TodoXamarinNative.iOS and select "Add Reference". It should open a dialog with the Projects tab open (if not, select the Projects tab). We'll select TodoXamarinNative.Core and click OK.
 
-![Set iOS Core Reference]({{ "/assets/img/todo-xamarin-native-ios/ProjectReferenceIOS.PNG" }})
+<picture>
+  <source type="image/webp" srcset="/assets/img/todo-xamarin-native-ios/ProjectReferenceIOS.webp">
+  <img src="/assets/img/todo-xamarin-native-ios/ProjectReferenceIOS.png" >
+</picture>
 
 We now have a solution with 3 projects: Core, Android, and iOS. To run it on iOS we first tell Visual Studio to set our new project as startup project (right click on TodoXamarinNative.iOS and select "Set as Startup Project"). If we try to run our application now we'll see it start up but throw an exception. This is because we still need to create our initial screen. There are a couple ways to do this, the most common of which are using a Storyboard or creating it through code. We're going to opt for the code approach here. While this doesn't give us the designer tools that a storyboard would, it's much easier for both maintenance and when working with other developers.
 
@@ -70,7 +76,10 @@ public override bool FinishedLaunching(UIApplication application, NSDictionary l
 Now when we run it, we'll see the default application.
 
 <div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native-ios/BlankPage.png" >
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-native-ios/BlankPage.webp">
+        <img src="/assets/img/todo-xamarin-native-ios/BlankPage.png" >
+    </picture>
 </div>
 
 Our application is now up and running, but it's not exactly what one would call "exciting" or "useful" yet. That's what we're going to do in the rest of this post!
@@ -78,7 +87,10 @@ Our application is now up and running, but it's not exactly what one would call 
 ### Connecting to the data layer
 Before we get to the meat of our UI, we need to connect to the data layer. The first thing we need to do is add the sqlite-net-pcl nuget package to our iOS project.
 
-![Add Sqlite Package]({{ "/assets/img/todo-xamarin-native-ios/AddSqlite.PNG" }})
+<picture>
+  <source type="image/webp" srcset="/assets/img/todo-xamarin-native-ios/AddSqlite.webp">
+  <img src="/assets/img/todo-xamarin-native-ios/AddSqlite.png" >
+</picture>
 
 Next we'll open AppDelegate.cs in our iOS project and add a new static property called TodoRepository. Then we'll edit the FinishedLaunching method and instantiate the new property.
 
@@ -179,7 +191,10 @@ public override async void ViewDidAppear(bool animated)
 Now our application will display the list of our Todos!
 
 <div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native-ios/InitialList.png" >
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-native-ios/InitialList.webp">
+        <img src="/assets/img/todo-xamarin-native-ios/InitialList.png" >
+    </picture>
 </div>
 
 The only thing remaining that we should show is whether-or-not the items are completed. We're going to deviate from how we did this on Android and add sections to our list. iOS makes this easy to do, and we only need to make a couple alterations to our TodoItemTableSource. We need to order our list correctly, update the RowsInSection override, and implement boty NumberOfSections and TitleForHeader.
@@ -224,7 +239,10 @@ public TodoItem GetItem(NSIndexPath indexPath)
 With this done we can run our application and see our grouped items.
 
 <div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native-ios/GroupedList.png" >
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-native-ios/GroupedList.webp">
+        <img src="/assets/img/todo-xamarin-native-ios/GroupedList.png" >
+    </picture>
 </div>
 
 Now we can start adding actions to our list!
@@ -308,8 +326,14 @@ public override async void ViewDidAppear(bool animated)
 With all of that set, we can run our app and swipe left on items to see our action buttons!
 
 <div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native-ios/ActiveItemActions.png" >
-    <img src="/assets/img/todo-xamarin-native-ios/CompletedItemActions.png" >
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-native-ios/ActiveItemActions.webp">
+        <img src="/assets/img/todo-xamarin-native-ios/ActiveItemActions.png" >
+    </picture>
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-native-ios/CompletedItemActions.webp">
+        <img src="/assets/img/todo-xamarin-native-ios/CompletedItemActions.png" >
+    </picture>
 </div>
 
 Next we'll want to have our buttons actually do something. We'll do this in MainViewController by subscribing to the event handlers we created in TodoTableDelegete. For good practice, we'll also unsubscribe from them in ViewDidDisappear. We'll also split some ouf our ViewDidAppear code off into a separate methods that we can re-use.
@@ -394,7 +418,10 @@ public override void ViewDidLoad()
 We can now run our app and see the button at the bottom of our screen.
 
 <div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native-ios/AddItemButton.png" >
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-native-ios/AddItemButton.webp">
+        <img src="/assets/img/todo-xamarin-native-ios/AddItemButton.png" >
+    </picture>
 </div>
 
 Next we should make our button actually do something. We're going to have it navigate to a new screen where the user can create a todo item. First we should create the target screen. We'll make a new UIViewController called AddTodoItemViewController and place 3 items on the screen: a UITextField, a cancel UIButton, and a save UIButton.
@@ -496,7 +523,10 @@ public override void ViewDidDisappear(bool animated)
 And when we run the app and click on our button, we'll see the new screen we created.
 
 <div class="os-screenshots">
-    <img src="/assets/img/todo-xamarin-native-ios/AddItemScreen.png" >
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-xamarin-native-ios/AddItemScreen.webp">
+        <img src="/assets/img/todo-xamarin-native-ios/AddItemScreen.png" >
+    </picture>
 </div>
 
 Now all we need to do is implement our Save and Cancel buttons. We'll create a method for each, subscribing to TouchUpInside in ViewDidAppear and unsubscribing in ViewDidDisappear.
