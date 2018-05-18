@@ -68,3 +68,4 @@ Now that  we have see our hello world up and running on both OSs, it's time to b
 
 ### Displaying a list of Todo items
 
+The first thing we want to do is set up our main todo list
