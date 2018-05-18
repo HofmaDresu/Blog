@@ -20,6 +20,51 @@ For more in-depth details, React Native provides good instructions for all optio
 
 ### Creating Hello World
 
+We're going to use the second option today so we don't have to rely on having physical devices but get the simple setup. I have node 8.11.2 and npm 6.0.1 installed and will be using the iPhone X simulator and a Nexus 5x API 26 emulator.  First we need to install create-react-native-app.
+
+{% highlight bash %}
+    npm install -g create-react-native-app
+{% endhighlight %}
+
+Then we'll open our terminal to the directory where we want to create our project and run the following commands to create and start our project.
+
+{% highlight bash %}
+    create-react-native-app TodoReactNative
+    cd TodoReactNative
+    npm start
+{% endhighlight %}
+
+This will start the application using Expo and give us the following options.
+
+{% highlight bash %}
+ › Press a to open Android device or emulator, or i to open iOS emulator.
+ › Press s to send the app URL to your phone number or email address
+ › Press q to display QR code.
+ › Press r to restart packager, or R to restart packager and clear cache.
+ › Press d to toggle development mode. (current mode: development)
+{% endhighlight %}
+
+Finally we'll run our application on the iOS simulator and Android emulator. Make sure to start your emulator through Android Studio (or whatever tool you're using) before following this step. In our terminal we'll type "i" and wait for it to launch then type "a".
+
+On the Android emulator we'll see a request for permissions. Follow the instructions and hit 'back'.
+> The Expo app crashed when I first ran this. If this happens to you, just hit 'a' again in your terminal to re-launch.
+
+On the iOS emulator we'll see a "Welcome to Expo" screen. Click "Got it" to proceed to our app.
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-react-native/HelloWorldAndroid.webp">
+        <img src="/assets/img/todo-react-native/HelloWorldAndroid.png" >
+    </picture>
+    <label>iOS</label>
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-react-native/HelloWorldIOS.webp">
+        <img src="/assets/img/todo-react-native/HelloWorldIOS.png" >
+    </picture>
+</div>
+
+Now that  we have see our hello world up and running on both OSs, it's time to begin building our app!
 
 ### Displaying a list of Todo items
 
