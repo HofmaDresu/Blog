@@ -179,3 +179,7 @@ Now when we run our app we can see our todo items in a list!
         <img src="/assets/img/todo-react-native/InitialListiOS.png" >
     </picture>
 </div>
+
+A clever observer may notice that our items are going under the title bar on Android and under the notch on the iPhone X simulator. This is definitely not the desired behavior, so we'll take care of it before moving on. There are a couple ways to do this but since we know we'll eventually want navigation when we create our Add Todo screen, we'll add the basic nav structure now and use the navigation bar to adjust our content's position.
+
+We're going to use <a href="https://facebook.github.io/react-native/docs/navigation.html#react-navigation" target="_blank" rel="noopener">React Navigation</a> to handle our navigation. There are other options available, but this is powerful enough for our needs while staying easy to use.
