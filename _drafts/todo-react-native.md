@@ -452,4 +452,67 @@ With that flury of changes, we've enabled Complete and Uncomplete functionality.
     <img src="/assets/img/todo-xamarin-forms/CompleteUncompleteIOS.gif">
 </div>
 
-All of that work also paved the way to add Delete functionality as well. The steps to do this are exactly the same as for Complete/Uncomplete, so I'm just going to show the code changes without repeating any description.
+All of that work also paved the way to add Delete functionality as well. The steps to do this are exactly the same as for Complete/Uncomplete, so I'm just going to show the code changes without repeating any description. The one thing we don't need to change this time around is the TodoItemActionButton. We were clever in our first implementation and made it generic enough to work with any onPress function.
+
+###### TodoListScreen
+{% highlight jsx %}
+...
+constructor(props) {
+  ...
+  this.deleteItem = this.deleteItem.bind(this);
+}
+...
+deleteItem(itemKey) {
+  this.setState((prevState, props) => {
+    // Use a temporary variable to avoid directly modifying state
+    let tempTodoItems = prevState.todoItems;
+    const deletedItemIndex = tempTodoItems.findIndex(item => item.key === itemKey);
+    tempTodoItems.splice(deletedItemIndex, 1);
+    return {todoItems: tempTodoItems};
+  });
+}
+...
+  <TodoList todoItems={todoItems} onToggleItemCompleted={this.toggleItemCompleted}
+    onDeleteItem={this.deleteItem} />
+...
+{% endhighlight %}
+
+###### TodoListComponent
+{% highlight jsx %}
+...
+export default function TodoList({todoItems, onToggleItemCompleted, onDeleteItem, ...props}) {
+...
+renderItem={({item, index, section}) => <TodoItemComponent {...item} 
+                                        itemKey={item.key}
+                                        onToggleCompleted={onToggleItemCompleted}
+                                        onDeleteItem={onDeleteItem} />}
+...
+{% endhighlight %}
+
+###### TodoItemComponent.TodoItem
+{% highlight jsx %}
+...
+export default function TodoItem({itemKey, title, isCompleted, 
+                                    onToggleCompleted, onDeleteItem, ...props}) {
+...
+        <TodoItemActionButton title={isCompleted ? "Uncomplete" : "Complete"} 
+          isDestructive={false}
+          onPress={() => onToggleCompleted(itemKey)} />
+        <TodoItemActionButton title="Delete" 
+          isDestructive={true}
+          onPress={() => {onDeleteItem(itemKey)} />
+...
+{% endhighlight %}
+
+And now the user can delete items from their list!
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <img src="/assets/img/todo-xamarin-forms/DeleteAndroid.gif" />
+    <label>iOS</label>
+    <img src="/assets/img/todo-xamarin-forms/DeleteIOS.gif">
+</div>
+
+We only have two pieces of functionality remaining to finish our app: persistance and 'add item'. We're going to work on persistance next so we can navigate between screens without losing data.
+
+### Persisting the Todo List
