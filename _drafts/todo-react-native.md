@@ -180,7 +180,7 @@ Now when we run our app we can see our todo items in a list!
     </picture>
 </div>
 
-A clever observer may notice that our items are going under the title bar on Android and under the notch on the iPhone X simulator. This is definitely not the desired behavior, so we'll take care of it before moving on. There are a couple ways to do this but since we know we'll eventually want navigation when we create our Add Todo screen, we'll add the basic nav structure now and use the navigation bar to adjust our content's position.
+A clever observer may notice that our items are going under the action bar on both OSs. This is definitely not the desired behavior, so we'll take care of it before moving on. There are a couple ways to do this, but since we know we'll eventually want navigation we'll add the basic nav structure now and use the navigation bar to adjust our content's position.
 
 We're going to use <a href="https://facebook.github.io/react-native/docs/navigation.html#react-navigation" target="_blank" rel="noopener">React Navigation</a> to handle our navigation. There are other options available, but this is powerful enough for our needs while staying easy to use. The first thing we need to do is install the react-navigation package
 
@@ -225,3 +225,68 @@ And that's it! Now when we run our app it looks a little better:
         <img src="/assets/img/todo-react-native/ListWithNavBarIOS.png" >
     </picture>
 </div>
+
+The last thing we want to do before moving on to actions is let the user know which items are active and which have been completed. We'll do this by splitting our list into sections, displaying active items first and completed items second. This is very easy to do from our current setup, and can be compeleted with only a few changes to TodoListComponent. We need to
+
+1. Change our FlatList to a SectionList
+2. Split our todoItems array into an array of sections
+3. Tell the SectionList how to display our section headers
+
+{% highlight jsx %}
+import React from 'react';
+import { StyleSheet, SectionList, Text } from 'react-native';
+import TodoItemComponent from './TodoItemComponent';
+
+export default function TodoList({todoItems, ...props}) {
+  let activeItems = todoItems.filter(i => !i.isCompleted);
+  let completedItems = todoItems.filter(i => i.isCompleted);
+  let sections = [
+    { title:"Active", data:activeItems },
+    { title:"Completed", data:completedItems},
+  ];
+
+  return (
+    <SectionList style={styles.container}
+      sections={sections}
+      renderItem={({item, index, section}) => <TodoItemComponent {...item} />}
+      renderSectionHeader={({section: {title}}) => (
+        <Text style={styles.sectionHeader}>{title}</Text>
+      )}
+    />
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  sectionHeader: {
+    fontWeight: 'bold',
+    backgroundColor: '#eee',
+    paddingTop: 5,
+    paddingBottom: 5,    
+  },
+});
+{% endhighlight %}
+
+Now when we run the app we see our items split apart based on their active vs completed status. 
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-react-native/SectionedListAndroid.webp">
+        <img src="/assets/img/todo-react-native/SectionedListAndroid.png" >
+    </picture>
+    <label>iOS</label>
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-react-native/SectionedListIOS.webp">
+        <img src="/assets/img/todo-react-native/SectionedListIOS.png" >
+    </picture>
+</div>
+
+> The section headers follow platform norms when scrolling. If you add enough todo items, you'll notice that iOS uses sticky headers and Android scrolls the headers off the screen immediately.
+
+Now we're ready to start adding user interactions!
+
+### Completing, Uncompleting and Deleting Items
