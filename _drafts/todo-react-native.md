@@ -358,7 +358,6 @@ const styles = StyleSheet.create({
 
 When we run the app now we'll see complete, uncomplete, and delete buttons!
 
-
 <div class="os-screenshots">
     <label>Android</label>
     <picture>
@@ -372,4 +371,85 @@ When we run the app now we'll see complete, uncomplete, and delete buttons!
     </picture>
 </div>
 
-Of course, our buttons don't do anything yet. We'll start by implementing our complete and uncomplete buttons.
+Of course, our buttons don't do anything yet. We'll start by implementing our complete and uncomplete buttons. This is an interesting thing to think about if it's your first time using React: since our todo list (state) is held up at the TodoListScreen level, that's where we want to handle changing our data there. We'll do this by adding our list to the component's "state" and creating a new function that alters the state when called.
+
+{% highlight jsx %}
+...
+  constructor(props) {
+    super(props);
+    this.state = {todoItems};
+
+    // This binding is necessary to make `this` work in the callback
+    this.toggleItemCompleted = this.toggleItemCompleted.bind(this);
+  }
+  toggleItemCompleted(itemKey) {
+    this.setState((prevState, props) => {
+      // Use a temporary variable to avoid directly modifying state
+      const tempTodoItems = prevState.todoItems;
+      const toggledItemIndex = tempTodoItems.findIndex(item => item.key === itemKey);
+      tempTodoItems[toggledItemIndex].isCompleted = 
+        !tempTodoItems[toggledItemIndex].isCompleted;
+      return {todoItems: tempTodoItems};
+    });
+  }
+  render() {
+...
+{% endhighlight %}
+
+Now we need to pass this function down through our component hierarchy until we can add it to our button.
+
+###### TodoListScreen
+{% highlight jsx %}
+...
+  <TodoList todoItems={todoItems} onToggleItemCompleted={this.toggleItemCompleted} />
+...
+{% endhighlight %}
+
+###### TodoListComponent
+{% highlight jsx %}
+...
+export default function TodoList({todoItems, onToggleItemCompleted, ...props}) {
+...
+renderItem={({item, index, section}) => <TodoItemComponent {...item} 
+                                        itemKey={item.key}
+                                        onToggleCompleted={onToggleItemCompleted} />}
+...
+{% endhighlight %}
+> Note: We also passed itemKey here. 'key' is a keyword for SectionList and is not automatically passed with ...item, and we need the key to identify which item is being edited
+
+###### TodoItemComponent.TodoItem
+{% highlight jsx %}
+...
+export default function TodoItem({itemKey, title, isCompleted, 
+                                    onToggleCompleted, ...props}) {
+...
+        <TodoItemActionButton title={isCompleted ? "Uncomplete" : "Complete"} 
+          isDestructive={false}
+          onPress={() => onToggleCompleted(itemKey)} />
+        <TodoItemActionButton title="Delete" 
+          isDestructive={true}
+          onPress={() => {}/*TODO*/} />
+...
+{% endhighlight %}
+
+###### TodoItemComponent.TodoItemActionButton
+{% highlight jsx %}
+...
+function TodoItemActionButton({title, isDestructive, onPress, ...props}) {
+...
+    <TouchableHighlight 
+      style={ isDestructive ? styles.destructiveActionButton : styles.actionButton } 
+      onPress={onPress}>
+...
+{% endhighlight %}
+
+With that flury of changes, we've enabled Complete and Uncomplete functionality. 
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <img src="/assets/img/todo-xamarin-forms/CompleteUncompleteAndroid.gif" />
+    <label>iOS</label>
+    <img src="/assets/img/todo-xamarin-forms/CompleteUncompleteIOS.gif">
+</div>
+
+All of that work also paved the way to add Delete functionality as well. The steps to do this are exactly the same as for Complete/Uncomplete, so I'm just going to show the code changes without repeating any description.
