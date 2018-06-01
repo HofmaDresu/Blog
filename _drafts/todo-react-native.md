@@ -290,3 +290,86 @@ Now when we run the app we see our items split apart based on their active vs co
 Now we're ready to start adding user interactions!
 
 ### Completing, Uncompleting and Deleting Items
+
+As much fun as it is to stare at a static list of Todos, our user probably wants to edit the list. We'll start by allowing them to complete, uncomplete, and delete items from the existing list.
+
+The first thing we want to do is add something the user can interact with. SectionList doesn't natively give us a way to add context actions to our items, so we'll just add custom buttons.
+> There are 3rd party libraries that handle this, but I want to keep outside dependencies to a minimum for this post
+
+We need to create a new component for our interaction options. We're going to use React Native's TouchableHighlight to create button-like components that we can style to make the choices obvious for the user. Since these will only be used by our TodoItemComponent, we can add our code directly to TodoItemComponent.js.
+
+{% highlight jsx %}
+...
+import { StyleSheet, Text, View, TouchableHighlight } from 'react-native';
+
+function TodoItemActionButton({title, isDestructive, ...props}) {
+  return (
+    <TouchableHighlight style={ isDestructive ? styles.destructiveActionButton : styles.actionButton }>
+      <Text style={styles.actionButtonText}>{title}</Text>
+    </TouchableHighlight>
+  );
+}
+...
+const styles = StyleSheet.create({
+  ...  
+  actionButton: {
+    backgroundColor: '#00f',
+    display: 'flex',
+    justifyContent:'center',
+  },
+  destructiveActionButton: {
+    backgroundColor: '#f00',
+    display: 'flex',
+    justifyContent:'center',
+  },
+  actionButtonText: {
+    color: '#fff',
+    paddingLeft: 10,
+    paddingRight: 10,
+  },
+});
+{% endhighlight %}
+
+Now we want to use our TodoActionButton in our TodoItemComponent. This is mostly straightforward, but we also need to make some style changes to keep things looking correct.
+
+{% highlight jsx %}
+...
+    <Text style={styles.todoTitle}>{title}</Text>
+    <TodoItemActionButton title={isCompleted ? "Uncomplete" : "Complete"}
+        isDestructive={false} />
+    <TodoItemActionButton  title="Delete" isDestructive={true} />
+...
+const styles = StyleSheet.create({
+  ...
+  content: {
+    flexGrow: 1,
+    alignItems: 'stretch',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+  },
+  ...
+  todoTitle: {
+    flexGrow: 1,
+    alignSelf: 'center',
+  },
+...
+{% endhighlight %}
+
+When we run the app now we'll see complete, uncomplete, and delete buttons!
+
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-react-native/ActionButtonsAndroid.webp">
+        <img src="/assets/img/todo-react-native/ActionButtonsAndroid.png" >
+    </picture>
+    <label>iOS</label>
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-react-native/ActionButtonsIOS.webp">
+        <img src="/assets/img/todo-react-native/ActionButtonsIOS.png" >
+    </picture>
+</div>
+
+Of course, our buttons don't do anything yet. We'll start by implementing our complete and uncomplete buttons.
