@@ -175,11 +175,53 @@ Now when we run our app we can see our todo items in a list!
     </picture>
     <label>iOS</label>
     <picture>
-        <source type="image/webp" srcset="/assets/img/todo-react-native/InitialListiOS.webp">
-        <img src="/assets/img/todo-react-native/InitialListiOS.png" >
+        <source type="image/webp" srcset="/assets/img/todo-react-native/InitialListIOS.webp">
+        <img src="/assets/img/todo-react-native/InitialListIOS.png" >
     </picture>
 </div>
 
 A clever observer may notice that our items are going under the title bar on Android and under the notch on the iPhone X simulator. This is definitely not the desired behavior, so we'll take care of it before moving on. There are a couple ways to do this but since we know we'll eventually want navigation when we create our Add Todo screen, we'll add the basic nav structure now and use the navigation bar to adjust our content's position.
 
-We're going to use <a href="https://facebook.github.io/react-native/docs/navigation.html#react-navigation" target="_blank" rel="noopener">React Navigation</a> to handle our navigation. There are other options available, but this is powerful enough for our needs while staying easy to use.
+We're going to use <a href="https://facebook.github.io/react-native/docs/navigation.html#react-navigation" target="_blank" rel="noopener">React Navigation</a> to handle our navigation. There are other options available, but this is powerful enough for our needs while staying easy to use. The first thing we need to do is install the react-navigation package
+
+{% highlight bash %}
+    npm install --save react-navigation
+{% endhighlight %}
+
+Next we're going need to create our home screen. This is going to be almost the same as our App.js file, so just rename that to TodoListScreen.js and change the class name to TodoListScreen. We'll also add a title to a new static object, navigationOptions, so our nav bar knows what to display:
+
+{% highlight jsx %}
+...
+export default class TodoListScreen extends React.Component {
+  static navigationOptions = {
+      title: 'Todo List',
+  };
+...
+{% endhighlight %}
+
+Now create a new App.js. Here we'll create our initial navigation structure. Since we only have one screen, this will be very simple:
+
+{% highlight jsx %}
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import TodoListScreen from './TodoListScreen';
+import { createStackNavigator } from 'react-navigation';
+
+export default createStackNavigator({
+  Home: TodoListScreen ,
+});
+{% endhighlight %}
+
+And that's it! Now when we run our app it looks a little better:
+<div class="os-screenshots">
+    <label>Android</label>
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-react-native/ListWithNavBarAndroid.webp">
+        <img src="/assets/img/todo-react-native/ListWithNavBarAndroid.png" >
+    </picture>
+    <label>iOS</label>
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-react-native/ListWithNavBarIOS.webp">
+        <img src="/assets/img/todo-react-native/ListWithNavBarIOS.png" >
+    </picture>
+</div>
