@@ -70,4 +70,4 @@ Now that  we have see our hello world up and running on both OSs, it's time to b
 
 The first thing we want to do is set up our main todo list
 
-> If you're already familiar with the React ecosystem you probably know about libraries like Redux and the Flux archicture and wonder why we're not using those. Basically they're a big enough topic that it felt like adding that would be too much for a single post. If you don't know about those, don't worry about it :)
+> If you're already familiar with the React ecosystem you probably know about libraries like Redux and the Flux archicture and wonder why we're not using those. Basically they're a big enough topic that it felt like adding that would be too much for a single post. If you don't already know about those, don't worry about it :)
