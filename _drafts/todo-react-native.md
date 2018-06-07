@@ -749,5 +749,44 @@ Now our Add Item screen has all the UI elements we need.
     </picture>
 </div>
 
-Last but not least we need to implement our 'add' functionality. This is almost exactly the same process we followed for Complete/Uncomplete/Delete, so I'm just going to show the relevent code without repeating the descriptions:
+Last but not least we need to implement our 'add' functionality. This will look similar to the code we used for Complete/Uncomplete/Delete, except that here we'll make all our changes in a single file (AddTodoItemScreen.js).
 
+
+
+{% highlight jsx %}
+...
+import { StyleSheet, View, TextInput, Button, AsyncStorage } from 'react-native';
+...
+  constructor(props) {
+    ...
+    this.saveTodoItem = this.saveTodoItem.bind(this);
+  }
+  async saveTodoItem() {
+    let todoItems = [];
+    let nextTodoKey = 0;
+    const storedTodoItems = await AsyncStorage.getItem("todoList");
+    if(storedTodoItems != null) {
+      const storedTodoArray = JSON.parse(storedTodoItems);
+      if(storedTodoArray.length) {
+          todoItems = storedTodoArray;
+          nextTodoKey = Math.max(...(todoItems.map(t =>parseInt(t.key)))) + 1;
+      }
+    }
+
+    todoItems.push({ key: nextTodoKey.toString(), title: this.state.newTodoTitle });
+
+    await AsyncStorage.setItem("todoList", JSON.stringify(todoItems));
+    this.props.navigation.goBack();
+  }
+  render() {
+...
+            <Button title="Save" onPress={() => this.saveTodoItem()} />
+...
+{% endhighlight %}
+
+If we run our app now, it won't look like anything's happening. This is because we haven't told the TodoListScreen to update its state when we return to the screen.
+
+{% highlight jsx %}
+...
+...
+{% endhighlight %}
