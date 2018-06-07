@@ -574,6 +574,12 @@ And that's it! Our application now persists any changes the user makes. You can 
 
 ### Adding Todo Items
 
-And now we've made it to the last piece we're going to implement for this application: Adding Items! We're going to go through a couple steps to do this: Creating an Add Todo screen, Adding an "Add Todo" Button, Wiring Up Navigation, and finally Implementing Add.
+And now we've made it to the last piece we're going to implement for this application: Adding Items! We're going to go through a couple steps to do this: Adding an 'Add Todo' Button, Wiring Up Navigation, Creating an Add Todo screen, and finally Implementing Add.
+
+Adding the 'Add Todo' button is fairly straightforward. We're just going to add a new Button element to TodoListScreen and adjust our styles to make the button always appear at the bottom of the screen:
+
+{% highlight jsx %}
+
+{% endhighlight %}
 
 Creating the Add Todo screen is fairly similiar to work we've already done, so we're not going to spend much time on it.
