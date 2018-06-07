@@ -447,9 +447,9 @@ With that flury of changes, we've enabled Complete and Uncomplete functionality.
 
 <div class="os-screenshots">
     <label>Android</label>
-    <img src="/assets/img/todo-xamarin-forms/CompleteUncompleteAndroid.gif" />
+    <img src="/assets/img/todo-react-native/CompleteUncompleteAndroid.gif" />
     <label>iOS</label>
-    <img src="/assets/img/todo-xamarin-forms/CompleteUncompleteIOS.gif">
+    <img src="/assets/img/todo-react-native/CompleteUncompleteIOS.gif">
 </div>
 
 All of that work also paved the way to add Delete functionality as well. The steps to do this are exactly the same as for Complete/Uncomplete, so I'm just going to show the code changes without repeating any description. The one thing we don't need to change this time around is the TodoItemActionButton. We were clever in our first implementation and made it generic enough to work with any onPress function.
@@ -508,9 +508,9 @@ And now the user can delete items from their list!
 
 <div class="os-screenshots">
     <label>Android</label>
-    <img src="/assets/img/todo-xamarin-forms/DeleteAndroid.gif" />
+    <img src="/assets/img/todo-react-native/DeleteAndroid.gif" />
     <label>iOS</label>
-    <img src="/assets/img/todo-xamarin-forms/DeleteIOS.gif">
+    <img src="/assets/img/todo-react-native/DeleteIOS.gif">
 </div>
 
 We only have two pieces of functionality remaining to finish our app: persistence and 'add item'. We're going to work on persistence next so we can navigate between screens without losing data.
@@ -622,6 +622,64 @@ When we run this we'll see our button at the bottom of the screen.
 
 > You may notice that the 'Add Item' button on the iPhone 10 is beneath a system control. We'll fix that later after we've created the 'add' functionality
 
+Next we'll create a placeholder screen for Add Item. We'll create a new file called AddTodoItemScreen.js and populate it with some hello-world-level code:
 
+{% highlight jsx %}import React from 'react';
+import { StyleSheet, View, Text } from 'react-native';
+
+export default class TodoListScreen extends React.Component {
+  static navigationOptions = {
+      title: 'Add Todo Item',
+  };
+  render() {
+    return (
+      <View style={styles.container}>
+        <Text>Welcome to Add</Text>
+      </View>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  container: {
+    display: 'flex',
+    flexGrow: 1,
+    flexDirection: 'column',
+  },
+});
+{% endhighlight %}
+
+In order to see this screen, we need to wire up our navigation. This involves changes to our App.js and TodoListScreen.js files. First we'll add our new screen to the Stack Navigator in App.js.
+
+{% highlight jsx %}
+...
+import AddTodoScreen from './AddTodoItemScreen';
+...
+export default createStackNavigator({
+  Home: TodoListScreen ,
+  AddTodoScreen,
+});
+...
+{% endhighlight %}
+
+Then we'll tell our "Add Item" button in TodoListScreen.js to navigate to our new screen.
+
+{% highlight jsx %}
+...
+render() {
+  const { navigate } = this.props.navigation;
+...
+  <Button title="Add Item" onPress={() => navigate('AddTodoScreen')} />
+...
+{% endhighlight %}
+
+Now when we run the app we can click our button and see the new screen.
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <img src="/assets/img/todo-react-native/NavigateToAddAndroid.gif" />
+    <label>iOS</label>
+    <img src="/assets/img/todo-react-native/NavigateToAddIOS.gif">
+</div>
 
 Creating the Add Todo screen is fairly similiar to work we've already done, so we're not going to spend much time on it.
