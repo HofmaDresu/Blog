@@ -401,7 +401,7 @@ Now we need to pass this function down through our component hierarchy until we 
 ###### TodoListScreen
 {% highlight jsx %}
 ...
-  <TodoList todoItems={todoItems} onToggleItemCompleted={this.toggleItemCompleted} />
+  <TodoList todoItems={this.state.todoItems} onToggleItemCompleted={this.toggleItemCompleted} />
 ...
 {% endhighlight %}
 
@@ -472,7 +472,7 @@ deleteItem(itemKey) {
   });
 }
 ...
-  <TodoList todoItems={todoItems} onToggleItemCompleted={this.toggleItemCompleted}
+  <TodoList todoItems={this.state.todoItems} onToggleItemCompleted={this.toggleItemCompleted}
     onDeleteItem={this.deleteItem} />
 ...
 {% endhighlight %}
