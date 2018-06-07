@@ -581,15 +581,15 @@ Adding the 'Add Todo' button is fairly straightforward. We're just going to add 
 
 {% highlight jsx %}
 ...
-import { StyleSheet, Text, View, Button, AsyncStorage } from 'react-native';
+import { StyleSheet, Text, SafeAreaView, Button, AsyncStorage } from 'react-native';
 ...
   render() {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <TodoList todoItems={this.state.todoItems} onToggleItemCompleted={this.toggleItemCompleted}
           onDeleteItem={this.deleteItem} style={styles.todoList} />
         <Button title="Add Item" onPress={() => {}} />
-      </View>
+      </SafeAreaView>
     );
   }
 }
@@ -621,7 +621,7 @@ When we run this we'll see our button at the bottom of the screen.
     </picture>
 </div>
 
-> You may notice that the 'Add Item' button on the iPhone 10 is beneath a system control. We'll fix that later after we've created the 'add' functionality
+> You may notice that we're using a SafeAreaView instead of just View. SafeAreaView handles the bottom and top margins needed on some iOS devices, like the iPhone X, for us without affecting other iOS or Android devices.
 
 Next we'll create a placeholder screen for Add Item. We'll create a new file called AddTodoItemScreen.js and populate it with some hello-world-level code:
 
@@ -751,8 +751,6 @@ Now our Add Item screen has all the UI elements we need.
 
 Last but not least we need to implement our 'add' functionality. This will look similar to the code we used for Complete/Uncomplete/Delete, except that here we'll make all our changes in a single file (AddTodoItemScreen.js).
 
-
-
 {% highlight jsx %}
 ...
 import { StyleSheet, View, TextInput, Button, AsyncStorage } from 'react-native';
@@ -784,9 +782,31 @@ import { StyleSheet, View, TextInput, Button, AsyncStorage } from 'react-native'
 ...
 {% endhighlight %}
 
-If we run our app now, it won't look like anything's happening. This is because we haven't told the TodoListScreen to update its state when we return to the screen.
+If we run our app now, it won't look like anything's happening. This is because we haven't told the TodoListScreen to update its state when we return to the screen. We'll do this by subscribing to the onFocus event and calling our initializeTodoList function from the event
 
 {% highlight jsx %}
 ...
+    this.initializeTodoList = this.initializeTodoList.bind(this);
+  }
+  componentDidMount() {
+    this._sub = this.props.navigation.addListener(
+      'didFocus',
+      this.initializeTodoList
+    );
+  }
+  componentWillUnmount() {
+    this._sub.remove();
+  }
 ...
 {% endhighlight %}
+
+Now we can add Todo items!
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <img src="/assets/img/todo-react-native/AddAndroid.gif" />
+    <label>iOS</label>
+    <img src="/assets/img/todo-react-native/AddIOS.gif">
+</div>
+
+We now have a fully operational Todo App built with React native!
