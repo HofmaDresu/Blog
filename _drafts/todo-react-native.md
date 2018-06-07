@@ -548,7 +548,8 @@ const initialTodoItems = [ // Renamed to better reflect the new usage
       if(storedTodoArray.length) todoItems = storedTodoArray;
     }
 
-    this.setState({todoItems: todoItems});
+    this.setState({todoItems: todoItems}
+      , () => AsyncStorage.setItem("todoList", JSON.stringify(this.state.todoItems)));
   }
 ...
 {% endhighlight %}
