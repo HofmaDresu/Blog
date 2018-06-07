@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Todo in React Native"
-date:   2018-05-17 13:00:00 -0400
+date:   2018-06-07 16:00:00 -0400
 tags: mobile react-native
 ---
 
@@ -371,7 +371,7 @@ When we run the app now we'll see complete, uncomplete, and delete buttons!
     </picture>
 </div>
 
-Of course, our buttons don't do anything yet. We'll start by implementing our complete and uncomplete buttons. This is an interesting thing to think about if it's your first time using React: since our todo list (state) is held up at the TodoListScreen level, that's where we want to handle changing our data there. We'll do this by adding our list to the component's "state" and creating a new function that alters the state when called.
+Of course, our buttons don't do anything yet. We'll start by implementing our complete and uncomplete buttons. This is an interesting thing to think about if it's your first time using React: since our todo list (state) is held up at the TodoListScreen level, that's where we want to handle changing our data. We'll do this by adding our list to the component's state and creating a new function that alters the state when called.
 
 {% highlight jsx %}
 ...
@@ -521,7 +521,7 @@ We're going to use a very simple form of persistence for this application, <a hr
 
 The first thing we need to do is initialize our storage and read our TodoList from it. Since this is a sample app, we'll also populate our todo list with data anytime it's empty. To do this we'll edit TodoListScreen by adding a new method, initializeTodoList, where we'll handle the basic data logic.
 
-> In a more complex application this may make more sence at a higher level, for example in App.js. However, for this example I find it easier to keep this logic contained in as few files as practical
+> In a more complex application this may make more sense at a higher level, for example in App.js. However, for this example I find it easier to keep this logic contained in as few files as practical
 
 {% highlight jsx %}
 ...
@@ -606,6 +606,8 @@ const styles = StyleSheet.create({
 });
 {% endhighlight %}
 
+> You may notice that we're using a SafeAreaView instead of just View. SafeAreaView handles the bottom and top margins needed on some iOS devices, like the iPhone X, for us without affecting other iOS or Android devices.
+
 When we run this we'll see our button at the bottom of the screen.
 
 <div class="os-screenshots">
@@ -620,8 +622,6 @@ When we run this we'll see our button at the bottom of the screen.
         <img src="/assets/img/todo-react-native/AddTodoIOS.png" >
     </picture>
 </div>
-
-> You may notice that we're using a SafeAreaView instead of just View. SafeAreaView handles the bottom and top margins needed on some iOS devices, like the iPhone X, for us without affecting other iOS or Android devices.
 
 Next we'll create a placeholder screen for Add Item. We'll create a new file called AddTodoItemScreen.js and populate it with some hello-world-level code:
 
