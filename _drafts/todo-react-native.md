@@ -579,7 +579,49 @@ And now we've made it to the last piece we're going to implement for this applic
 Adding the 'Add Todo' button is fairly straightforward. We're just going to add a new Button element to TodoListScreen and adjust our styles to make the button always appear at the bottom of the screen:
 
 {% highlight jsx %}
+...
+import { StyleSheet, Text, View, Button, AsyncStorage } from 'react-native';
+...
+  render() {
+    return (
+      <View style={styles.container}>
+        <TodoList todoItems={this.state.todoItems} onToggleItemCompleted={this.toggleItemCompleted}
+          onDeleteItem={this.deleteItem} style={styles.todoList} />
+        <Button title="Add Item" onPress={() => {}} />
+      </View>
+    );
+  }
+}
 
+const styles = StyleSheet.create({
+  container: {
+    display: 'flex',
+    flexGrow: 1,
+    flexDirection: 'column',
+  },
+  todoList: {
+    flexGrow: 1,
+  },
+});
 {% endhighlight %}
+
+When we run this we'll see our button at the bottom of the screen.
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-react-native/AddTodoAndroid.webp">
+        <img src="/assets/img/todo-react-native/AddTodoAndroid.png" >
+    </picture>
+    <label>iOS</label>
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-react-native/AddTodoIOS.webp">
+        <img src="/assets/img/todo-react-native/AddTodoIOS.png" >
+    </picture>
+</div>
+
+> You may notice that the 'Add Item' button on the iPhone 10 is beneath a system control. We'll fix that later after we've created the 'add' functionality
+
+
 
 Creating the Add Todo screen is fairly similiar to work we've already done, so we're not going to spend much time on it.
