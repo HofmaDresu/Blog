@@ -513,11 +513,11 @@ And now the user can delete items from their list!
     <img src="/assets/img/todo-xamarin-forms/DeleteIOS.gif">
 </div>
 
-We only have two pieces of functionality remaining to finish our app: persistance and 'add item'. We're going to work on persistance next so we can navigate between screens without losing data.
+We only have two pieces of functionality remaining to finish our app: persistence and 'add item'. We're going to work on persistence next so we can navigate between screens without losing data.
 
 ### Persisting the Todo List
 
-We're going to use a very simple form of persistance for this application, <a href="https://facebook.github.io/react-native/docs/asyncstorage.html" target="_blank" rel="_noopener">AsyncStorage</a>. AsyncStorage is a key-value storage mechanism provided directly in the React Native library and has a simple API. While easy to use for a small application, it has drawbacks from both performance and design perspectives. You'll likely want to look into other solutions for more complicated applications.
+We're going to use a very simple form of persistence for this application, <a href="https://facebook.github.io/react-native/docs/asyncstorage.html" target="_blank" rel="_noopener">AsyncStorage</a>. AsyncStorage is a key-value storage mechanism provided directly in the React Native library and has a simple API. While easy to use for a small application, it has drawbacks from both performance and design perspectives. You'll likely want to look into other solutions for more complicated applications.
 
 The first thing we need to do is initialize our storage and read our TodoList from it. Since this is a sample app, we'll also populate our todo list with data anytime it's empty. To do this we'll edit TodoListScreen by adding a new method, initializeTodoList, where we'll handle the basic data logic.
 
