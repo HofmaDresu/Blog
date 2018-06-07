@@ -516,3 +516,64 @@ And now the user can delete items from their list!
 We only have two pieces of functionality remaining to finish our app: persistance and 'add item'. We're going to work on persistance next so we can navigate between screens without losing data.
 
 ### Persisting the Todo List
+
+We're going to use a very simple form of persistance for this application, <a href="https://facebook.github.io/react-native/docs/asyncstorage.html" target="_blank" rel="_noopener">AsyncStorage</a>. AsyncStorage is a key-value storage mechanism provided directly in the React Native library and has a simple API. While easy to use for a small application, it has drawbacks from both performance and design perspectives. You'll likely want to look into other solutions for more complicated applications.
+
+The first thing we need to do is initialize our storage and read our TodoList from it. Since this is a sample app, we'll also populate our todo list with data anytime it's empty. To do this we'll edit TodoListScreen by adding a new method, initializeTodoList, where we'll handle the basic data logic.
+
+> In a more complex application this may make more sence at a higher level, for example in App.js. However, for this example I find it easier to keep this logic contained in as few files as practical
+
+{% highlight jsx %}
+...
+import { StyleSheet, Text, View, AsyncStorage } from 'react-native';
+...
+const initialTodoItems = [ // Renamed to better reflect the new usage
+...
+  constructor(props) {
+    super(props);
+
+    this.state = { todoItems: [] }; // Set default empty list
+    ...
+    this.initializeTodoList = this.initializeTodoList.bind(this);
+
+    this.initializeTodoList();
+  }
+  async initializeTodoList() {
+    let todoItems = initialTodoItems.slice(); // Start with a copy of our initial list
+
+    // If there's already a saved list, use that instead
+    const storedTodoItems = await AsyncStorage.getItem("todoList");
+    if(storedTodoItems != null) {
+      const storedTodoArray = JSON.parse(storedTodoItems);
+      if(storedTodoArray.length) todoItems = storedTodoArray;
+    }
+
+    this.setState({todoItems: todoItems});
+  }
+...
+{% endhighlight %}
+
+Next we want to update our toggleItemCompleted and deleteItem methods to save any changes the user makes. We can do this just by adding a callback to our setState calls.
+
+{% highlight jsx %}
+...
+  toggleItemCompleted(itemKey) {
+    this.setState((prevState, props) => {
+      ...
+    }, () => AsyncStorage.setItem("todoList", JSON.stringify(this.state.todoItems)));
+  }
+  deleteItem(itemKey) {
+    this.setState((prevState, props) => {
+      ...
+    }, () => AsyncStorage.setItem("todoList", JSON.stringify(this.state.todoItems)));
+  }
+...
+{% endhighlight %}
+
+And that's it! Our application now persists any changes the user makes. You can see this by deleting or completing a todo and reloading the application ("R,R" on Android emulator, "⌘+R" on iOS simulator). If you delete all items, you can reset the initial list by reloading the application (if you want to remove this functionality, just adjust initializeTodoList to stop using initialTodoItems).
+
+### Adding Todo Items
+
+And now we've made it to the last piece we're going to implement for this application: Adding Items! We're going to go through a couple steps to do this: Creating an Add Todo screen, Adding an "Add Todo" Button, Wiring Up Navigation, and finally Implementing Add.
+
+Creating the Add Todo screen is fairly similiar to work we've already done, so we're not going to spend much time on it.
