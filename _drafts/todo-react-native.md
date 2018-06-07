@@ -682,4 +682,71 @@ Now when we run the app we can click our button and see the new screen.
     <img src="/assets/img/todo-react-native/NavigateToAddIOS.gif">
 </div>
 
-Creating the Add Todo screen is fairly similiar to work we've already done, so we're not going to spend much time on it.
+Creating the Add Todo screen is fairly similiar to work we've already done, so we're not going to spend much time on it. We need to edit our AddTodoItemScreen.js and add a TextInput, a Save button, and a Cancel button. We'll set the Cancel button to go back when clicked, and leave the Save button empty for now. 
+
+{% highlight jsx %}
+import React from 'react';
+import { StyleSheet, View, TextInput, Button } from 'react-native';
+
+export default class TodoListScreen extends React.Component {
+  static navigationOptions = {
+      title: 'Add Todo Item',
+  };
+  constructor(props) {
+    super(props);
+
+    this.state = { newTodoTitle: "" };
+
+  }
+  saveTodoItem() {
+      this.props.addItem(this.state.newTodoTitle);
+      this.props.navigation.goBack();
+  }
+  render() {
+    return (
+      <View style={styles.container}>
+        <TextInput placeholder="Todo Title" value={this.state.newTodoTitle} 
+            onChangeText={(text) => this.setState({newTodoTitle: text})} />
+        <View style={styles.buttonsRow}>
+            <Button title="Cancel" onPress={() => this.props.navigation.goBack()} />
+            <Button title="Save" onPress={() => {}} />
+        </View>
+      </View>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  container: {
+    display: 'flex',
+    flexGrow: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+  },
+  buttonsRow: {
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+  },
+});
+{% endhighlight %}
+
+> Note: one interesting thing in this code is that we implemented our TextImput as a <a href="https://reactjs.org/docs/forms.html#controlled-components" target="_blank" rel="noopener">Controlled Component</a>. It's beyond the scope of this post to go into details on these, but controlled components give us an easy way to interact with user entered data.
+
+Now our Add Item screen has all the UI elements we need.
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-react-native/AddScreenAndroid.webp">
+        <img src="/assets/img/todo-react-native/AddScreenAndroid.png" >
+    </picture>
+    <label>iOS</label>
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-react-native/AddScreenIOS.webp">
+        <img src="/assets/img/todo-react-native/AddScreenIOS.png" >
+    </picture>
+</div>
+
+Last but not least we need to implement our 'add' functionality. This is almost exactly the same process we followed for Complete/Uncomplete/Delete, so I'm just going to show the relevent code without repeating the descriptions:
+
