@@ -24,6 +24,8 @@ With all this installed, we can now start building our app!
 <h3 id="creating-hello-world">Creating Hello World</h3>
 The first thing we want to do is create our default Android and Core projects. Unfortunately, at the time of this writing there is no built-in template to do this (there used to be one that created Android, iOS, and Core, but it was removed at some point). Instead, we're going to create our two projects manually. First we'll create a core .NET Standard project by selecting "File->New Project" and in the dialog that appears select "Visual C# -> .NET Standard -> Class Library (.NET Standard)", naming the project TodoXamarinNative.Core and the solution TodoXamarinNative.
 
+> Update 6/11/2018: The option now exists under "Visual C# -> Other -> Blank Cross-Platform App (Native)". I'd still use the steps above as this template creates the Core project as a Shared Library and I prefer .NET Standard projects.
+
 <picture>
   <source type="image/webp" srcset="/assets/img/todo-xamarin-native-android/CreateCoreProject.webp">
   <img src="/assets/img/todo-xamarin-native-android/CreateCoreProject.png" >
