@@ -139,3 +139,9 @@
   height: 100vh;
   margin-bottom: -2rem;
 }
+
+.main-content table {
+  th, td {
+    border: 1px solid $grey-color;
+  }
+}
