@@ -12,8 +12,8 @@ In this post we're going to build a basic Todo application using React Native. R
 The first things you need for developing with React Native are <a href="https://nodejs.org/en/download/" target="_blank" rel="noopener">Node.js</a>, npm, a text editor, and terminal access. If you plan to develop for iOS and use a simulator, you must develop on a Mac machine (at least at the time of this writing). Android can be developed in any environment.
 
 React Native has a few different ways you can set up your environment depending on what level of development you're doing:
-* If you're just looking for a quick prototype, you can use the command create-react-native-app to get up and runing without any additional setup. This will let you run your application on physical devices using the Expo tool. This has the advantage of letting you get up-and-running without installing any platform specific developement tools, but doesn't let you run on simulators or build native code into your project.
-* If you know you don't need to build native code into your project but want to run on simultors as well as physical devices (highly recommended for production quality projects) you can still use create-react-native-app. However you'll also need to install XCode and the Android development libraries (most easily installed with <a href="https://developer.android.com/studio/" target="_blank" rel="noopener">Android Studio</a>).
+* If you're just looking for a quick prototype, you can use the command create-react-native-app to get up and running without any additional setup. This will let you run your application on physical devices using the Expo tool. This has the advantage of letting you get up-and-running without installing any platform specific development tools, but doesn't let you run on simulators or build native code into your project.
+* If you know you don't need to build native code into your project but want to run on simulators as well as physical devices (highly recommended for production quality projects) you can still use create-react-native-app. However you'll also need to install XCode and the Android development libraries (most easily installed with <a href="https://developer.android.com/studio/" target="_blank" rel="noopener">Android Studio</a>).
 * If you're building a more complex object that needs native code, you have 2 options: you can use create-react-native-app and the "eject" command, or you can use the react-native command. Both require XCode and the Android development libraries.
 
 For more in-depth details, React Native provides good instructions for all options at its <a href="https://facebook.github.io/react-native/docs/getting-started.html" target="_blank" rel="noopener">getting started</a> page.
@@ -70,9 +70,9 @@ Now that  we have see our hello world up and running on both OSs, it's time to b
 
 The first thing we want to do is set up our main todo list
 
-> If you're already familiar with the React ecosystem you probably know about libraries like Redux and the Flux archicture and wonder why we're not using those. Basically they're a big enough topic that it felt like adding that would be too much for a single post. If you don't already know about those, don't worry about it :)
+> If you're already familiar with the React ecosystem you probably know about libraries like Redux and the Flux architecture and wonder why we're not using those. Basically they're a big enough topic that it felt like adding that would be too much for a single post. If you don't already know about those, don't worry about it :)
 
-React, and by extension React Native, is interesting because it takes a very explicitely component-driven view for creating the UI. We want to think of each individual portion of our UI from the bottom up and decide what parts should be encapsulated into their own component. This, of course, can be refactored and adjusted as we go, but it's good to put some initial thought into it. For our initial todo list we're going to create 2 components: a TodoItemComponent, which handles displaying the individual item, and a TodoListComponent, which handles displaying a list of TodoItemComponent.
+React, and by extension React Native, is interesting because it takes a very explicitly component-driven view for creating the UI. We want to think of each individual portion of our UI from the bottom up and decide what parts should be encapsulated into their own component. This, of course, can be refactored and adjusted as we go, but it's good to put some initial thought into it. For our initial todo list we're going to create 2 components: a TodoItemComponent, which handles displaying the individual item, and a TodoListComponent, which handles displaying a list of TodoItemComponent.
 
 > Note: The naming convention we're using for our components is optional. On larger projects you may find it better to use a different convention or use folders to separate file types
 
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
 });
 {% endhighlight %}
 
-This is structurally similiar to our TodoItemComponent with two differences I want to call out. First, we used a new component from ReactNative called FlatList. This handles displaying our list with a lot of added benefits over doing it ourselves, like scrolling and item virtualization (for memory optimization). Second we used our TodoItemComponent in this file, so we needed to import it at the top of this file.
+This is structurally similar to our TodoItemComponent with two differences I want to call out. First, we used a new component from ReactNative called FlatList. This handles displaying our list with a lot of added benefits over doing it ourselves, like scrolling and item virtualization (for memory optimization). Second we used our TodoItemComponent in this file, so we needed to import it at the top of this file.
 
 The final thing we need to do is adjust our App.jsx file to display this list. We need to import TodoListComponent and change our render method to display our new content:
 
@@ -226,7 +226,7 @@ And that's it! Now when we run our app it looks a little better:
     </picture>
 </div>
 
-The last thing we want to do before moving on to actions is let the user know which items are active and which have been completed. We'll do this by splitting our list into sections, displaying active items first and completed items second. This is very easy to do from our current setup, and can be compeleted with only a few changes to TodoListComponent. We need to
+The last thing we want to do before moving on to actions is let the user know which items are active and which have been completed. We'll do this by splitting our list into sections, displaying active items first and completed items second. This is very easy to do from our current setup, and can be completed with only a few changes to TodoListComponent. We need to
 
 1. Change our FlatList to a SectionList
 2. Split our todoItems array into an array of sections
@@ -683,7 +683,7 @@ Now when we run the app we can click our button and see the new screen.
     <img src="/assets/img/todo-react-native/NavigateToAddIOS.gif">
 </div>
 
-Creating the Add Todo screen is fairly similiar to work we've already done, so we're not going to spend much time on it. We need to edit our AddTodoItemScreen.js and add a TextInput, a Save button, and a Cancel button. We'll set the Cancel button to go back when clicked, and leave the Save button empty for now. 
+Creating the Add Todo screen is fairly similar to work we've already done, so we're not going to spend much time on it. We need to edit our AddTodoItemScreen.js and add a TextInput, a Save button, and a Cancel button. We'll set the Cancel button to go back when clicked, and leave the Save button empty for now. 
 
 {% highlight jsx %}
 import React from 'react';

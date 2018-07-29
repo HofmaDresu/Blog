@@ -121,7 +121,7 @@ Now that we've finished our data layer, it's time to actually show something to 
 
 There are several ways to create UIs in iOS, the most common of which are Storyboards and through code. Storyboards are designer files that allow you to lay out the UI of multiple screens and the transitions between them. They are reasonably nice to use if you're the sole developer, however they can quickly become complicated and cause conflicts if there are multiple developers. Instead we're going to create our UI in code. In my opinion, this is better both for version control and for multi-developer scenarios.
 
-We need to create two things to display our list: a UITableView to hold our items and a UITableViewSource to translate our list into rows in the table (this is similar in concept to the Adapter we used on the Android side). We'll start with the UITableaViewSource by creating a new class called TodoItemTableSource. We'll add a constructor that takes in a list of TodoItems and implement the GetCell and RowsInSection methods.
+We need to create two things to display our list: a UITableView to hold our items and a UITableViewSource to translate our list into rows in the table (this is similar in concept to the Adapter we used on the Android side). We'll start with the UITableViewSource by creating a new class called TodoItemTableSource. We'll add a constructor that takes in a list of TodoItems and implement the GetCell and RowsInSection methods.
 
 {% highlight csharp %}
 using System;
@@ -197,7 +197,7 @@ Now our application will display the list of our Todos!
     </picture>
 </div>
 
-The only thing remaining that we should show is whether-or-not the items are completed. We're going to deviate from how we did this on Android and add sections to our list. iOS makes this easy to do, and we only need to make a couple alterations to our TodoItemTableSource. We need to order our list correctly, update the RowsInSection override, and implement boty NumberOfSections and TitleForHeader.
+The only thing remaining that we should show is whether-or-not the items are completed. We're going to deviate from how we did this on Android and add sections to our list. iOS makes this easy to do, and we only need to make a couple alterations to our TodoItemTableSource. We need to order our list correctly, update the RowsInSection override, and implement both NumberOfSections and TitleForHeader.
 
 {% highlight csharp %}
     ...
@@ -248,7 +248,7 @@ With this done we can run our application and see our grouped items.
 Now we can start adding actions to our list!
 
 ### Completing, Uncompleting, and Deleting Items
-We're going to start by implemeting actions that the user can take without leaving the main screen: Completing, Uncompleting, and Deleting items. Much like displaying the items, this involves platform specific code to wire up.
+We're going to start by implementing actions that the user can take without leaving the main screen: Completing, Uncompleting, and Deleting items. Much like displaying the items, this involves platform specific code to wire up.
 
 The first thing we'll do is display the action buttons to the user without backing them with functionality. We're going to use iOS's "swipe left" functionality to display our buttons. This involves a decent number of changes, so hang tight!
 
@@ -302,7 +302,7 @@ namespace TodoXamarinNative.iOS
 }
 {% endhighlight %}
 
-The last thing we need to do is tell our table view to use our new delegate. We'll do this in MainViewController by adding a new private field _todoTableDelegete, instanciating it in ViewDidLoad, and setting it in ViewDidAppear.
+The last thing we need to do is tell our table view to use our new delegate. We'll do this in MainViewController by adding a new private field _todoTableDelegate, instantiating it in ViewDidLoad, and setting it in ViewDidAppear.
 
 {% highlight csharp %}
 ...
@@ -336,7 +336,7 @@ With all of that set, we can run our app and swipe left on items to see our acti
     </picture>
 </div>
 
-Next we'll want to have our buttons actually do something. We'll do this in MainViewController by subscribing to the event handlers we created in TodoTableDelegete. For good practice, we'll also unsubscribe from them in ViewDidDisappear. We'll also split some ouf our ViewDidAppear code off into a separate methods that we can re-use.
+Next we'll want to have our buttons actually do something. We'll do this in MainViewController by subscribing to the event handlers we created in TodoTableDelegate. For good practice, we'll also unsubscribe from them in ViewDidDisappear. We'll also split some ouf our ViewDidAppear code off into a separate methods that we can re-use.
 
 {% highlight csharp %}
 ...

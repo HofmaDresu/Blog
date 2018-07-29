@@ -10,7 +10,7 @@ In this post we're going to create a todo application on Android using Xamarin N
 
 > Note: All of my steps are using Visual Studio 2017 Community on Windows. Your mileage may vary if you work on a different edition of VS or on Visual Studio for Mac.
 
-> Note 2: If you ever see a runtime error similiar to "Android.Content.Res.Resources+NotFoundException: File res/drawable-xxhdpi-v4/abc_ab_share_pack_mtrl_alpha.9.png from xml type layout resource ID #0x7f020000", clean your solution and re-run. It also may help to make sure all axml files are closed when you start your build. I'm not sure what causes this issue, but it seems to crop up every now and then after making a change to an axml file.
+> Note 2: If you ever see a runtime error similar to "Android.Content.Res.Resources+NotFoundException: File res/drawable-xxhdpi-v4/abc_ab_share_pack_mtrl_alpha.9.png from xml type layout resource ID #0x7f020000", clean your solution and re-run. It also may help to make sure all axml files are closed when you start your build. I'm not sure what causes this issue, but it seems to crop up every now and then after making a change to an axml file.
 
 ### Tools and Environment
 > Note: If you've already read the previous post on creating the todo app with Xamarin Forms, this section will be very familiar to you and you can skip ahead to <a href="#creating-hello-world">Creating Hello World</a>
@@ -226,7 +226,7 @@ We'll start by displaying a simple list of our Todo Items without any user inter
 Android UIs generally created using a minimum of 2 files per screen: an Activity (where our behavior) and a Layout (where we'll define the UI). Conveniently, the project template created each of these for us: MainActivity.cs and Resources\layout\Main.axml.
 
 We'll start by opening Main.axml. Visual Studio will default to a designer view, with a tab to switch to the source view. We could work in the designer, however I find the source much easier to work with so that's what we'll use on this post. We'll add a new ListView to our layout.
-> Note: For most real applications you should prefer a RecyclerView to a ListView. The RecyclerView handles long lists much more effeciently, but we're using a ListView to keep this example simple. You can read about the RecyclerView <a href="https://developer.android.com/guide/topics/ui/layout/recyclerview" target="_blank" rel="noopener">here</a>
+> Note: For most real applications you should prefer a RecyclerView to a ListView. The RecyclerView handles long lists much more efficiently, but we're using a ListView to keep this example simple. You can read about the RecyclerView <a href="https://developer.android.com/guide/topics/ui/layout/recyclerview" target="_blank" rel="noopener">here</a>
 
 {% highlight xml %}
 <?xml version="1.0" encoding="utf-8"?>
@@ -243,7 +243,7 @@ We'll start by opening Main.axml. Visual Studio will default to a designer view,
 {% endhighlight %}
 > You might notice some weird syntax in there where we set the id to "@+id/...". This is Android specific syntax that tells the system to add our id to the Resource.Id enumeration so we can use it in our activity code
 
-This sets up our layout, but doesn't display any data. To do that we'll edit MainActivity.cs. We need to retrieve our todo list from the repositry and create an Adapter for our ListView to use.
+This sets up our layout, but doesn't display any data. To do that we'll edit MainActivity.cs. We need to retrieve our todo list from the repository and create an Adapter for our ListView to use.
 
 {% highlight csharp %}
 using Android.App;
@@ -312,7 +312,7 @@ First we need to create a new layout for our todo item. Right click on "Resource
 {% endhighlight %}
 > One interesting piece of code in this section is on our TextView where we set the layout_width to 0dp and the layout_weight to 1. This tells the TextView to fill any horizontal space not already used by other elements and pushes our CheckBox to the right side of the screen.
 
-Next we need to create our own custom adapter to use this layout. There's a helpful template we can use that sets up a lot of the code for us. Right click on TodoXamarinNative.Android and select "Add -> New Item". In the dialog that appears, select the Adapter template and name it TodoAdapter. This creates a basic Adapter that implements the <a href="https://developer.android.com/training/improving-layouts/smooth-scrolling" target="_blank" rel="noopener">ViewHolder pattern</a>. We won't go into detail about it here, but this pattern allows Android to make effecient use of memory in ListViews.
+Next we need to create our own custom adapter to use this layout. There's a helpful template we can use that sets up a lot of the code for us. Right click on TodoXamarinNative.Android and select "Add -> New Item". In the dialog that appears, select the Adapter template and name it TodoAdapter. This creates a basic Adapter that implements the <a href="https://developer.android.com/training/improving-layouts/smooth-scrolling" target="_blank" rel="noopener">ViewHolder pattern</a>. We won't go into detail about it here, but this pattern allows Android to make efficient use of memory in ListViews.
 
 We'll make a few changes to our adapter. First we'll accept a List<TodoItem> in the constructor and store it in a private field. Then we'll flesh out the TodoItemViewHolder and implment the GetView method and Count property.
 
@@ -596,7 +596,7 @@ This adds our new button to the bottom of our screen. Notice we used the "layout
     </picture>
 </div>
 
-Before we implement the buttions functionality, we should create a new screen for it to navigate to. We'll add a new Activity to TodoXamarinNative.Android called "AddTodoItemActivity" and a new layout to Resources/layout called "AddTodoItem". Our layout will contain an EditText and two Buttons (Cancel and Save), and we'll tell AddTodoItemActivity to use our layout in the OnCreate method.
+Before we implement the buttons functionality, we should create a new screen for it to navigate to. We'll add a new Activity to TodoXamarinNative.Android called "AddTodoItemActivity" and a new layout to Resources/layout called "AddTodoItem". Our layout will contain an EditText and two Buttons (Cancel and Save), and we'll tell AddTodoItemActivity to use our layout in the OnCreate method.
 
 {% highlight xml %}
 <?xml version="1.0" encoding="utf-8"?>
