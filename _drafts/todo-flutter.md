@@ -5,7 +5,7 @@ date:   2018-08-02 12:00:00 -0400
 tags: mobile flutter
 ---
 
-Today we're going to create a Todo application using Flutter. Flutter is a cross platform framework created by Google that uses Dart to create Android and iOS applications with a lot of code sharing opportunities. Full source code for this application is available <a href="" target="_blank" rel="noopener">on GitHub</a>
+Today we're going to create a Todo application using Flutter. Flutter is a cross platform framework created by Google that uses the <a href="https://www.dartlang.org/" target="_blank" rel="noopener">Dart language</a> to create Android and iOS applications with a lot of code sharing opportunities. Full source code for this application is available <a href="" target="_blank" rel="noopener">on GitHub</a>
 
 > Note: All of my steps are using Visual Code on Mac. Your mileage may vary if you use a different IDE or operating system.
 
