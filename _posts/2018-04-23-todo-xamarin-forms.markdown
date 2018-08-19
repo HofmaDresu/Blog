@@ -608,7 +608,7 @@ namespace TodoXamarinForms.Persistence
 
 Note the TODO in our constructor. SQLite needs to know where to store the database file. This has a different path on each operating system, so we can't directly set it in our Standard project. Instead we'll create an interface in the Standard project and implement it in each of our platform projects.
 
-Add a new C# file to the Persistance folder in TodoXamarinForms called IFileHelper and add a method declaration for GetLocalFilePath
+Add a new C# file to the Persistence folder in TodoXamarinForms called IFileHelper and add a method declaration for GetLocalFilePath
 
 {% highlight csharp %}
 namespace TodoXamarinForms.Persistence
