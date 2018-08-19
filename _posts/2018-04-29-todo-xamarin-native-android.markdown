@@ -28,21 +28,21 @@ The first thing we want to do is create our default Android and Core projects. U
 
 <picture>
   <source type="image/webp" srcset="/assets/img/todo-xamarin-native-android/CreateCoreProject.webp">
-  <img src="/assets/img/todo-xamarin-native-android/CreateCoreProject.png" >
+  <img src="/assets/img/todo-xamarin-native-android/CreateCoreProject.PNG" >
 </picture>
 
 Next we'll create our Android project and set Core as a dependency. First we right click on the Solution and select "Add -> New Project...". In the dialog that appears we'll select "Visual C# -> Android -> Blank App (Android)" and name the project TodoXamarinNative.Android.
 
 <picture>
   <source type="image/webp" srcset="/assets/img/todo-xamarin-native-android/CreateAndroidProject.webp">
-  <img src="/assets/img/todo-xamarin-native-android/CreateAndroidProject.png" >
+  <img src="/assets/img/todo-xamarin-native-android/CreateAndroidProject.PNG" >
 </picture>
 
 To set up our dependency, right click on References under TodoXamarinNative.Android and select "Add Reference". It should open a dialog with the Projects tab open (if not, select the Projects tab). We'll select TodoXamarinNative.Core and click OK.
 
 <picture>
   <source type="image/webp" srcset="/assets/img/todo-xamarin-native-android/ProjectReferenceAndroid.webp">
-  <img src="/assets/img/todo-xamarin-native-android/ProjectReferenceAndroid.png" >
+  <img src="/assets/img/todo-xamarin-native-android/ProjectReferenceAndroid.PNG" >
 </picture>
 
 This gives us a solution with two projects: Core and Android. If we run it on both Android, we'll see the default application.
@@ -113,7 +113,7 @@ That sets up our methods for the data layer, but obviously doesn't do anything y
 
 <picture>
     <source type="image/webp" srcset="/assets/img/todo-xamarin-native-android/NugetSqlite.webp">
-    <img src="/assets/img/todo-xamarin-native-android/NugetSqlite.png" >
+    <img src="/assets/img/todo-xamarin-native-android/NugetSqlite.PNG" >
 </picture>
 
 Now we need to update our TodoItem to play nicely with the database. We want to tell sqlite that our Id property is the primary key and that it should auto-increment. We can do this with a couple of attributes

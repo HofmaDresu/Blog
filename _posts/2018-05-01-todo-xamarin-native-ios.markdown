@@ -20,14 +20,14 @@ The first thing we want to do is create our default iOS project. Since we're usi
 
 <picture>
   <source type="image/webp" srcset="/assets/img/todo-xamarin-native-ios/CreateProject.webp">
-  <img src="/assets/img/todo-xamarin-native-ios/CreateProject.png" >
+  <img src="/assets/img/todo-xamarin-native-ios/CreateProject.PNG" >
 </picture>
 
 Next we need to create a reference from our new iOS project to Core. To do this, right click on References under TodoXamarinNative.iOS and select "Add Reference". It should open a dialog with the Projects tab open (if not, select the Projects tab). We'll select TodoXamarinNative.Core and click OK.
 
 <picture>
   <source type="image/webp" srcset="/assets/img/todo-xamarin-native-ios/ProjectReferenceIOS.webp">
-  <img src="/assets/img/todo-xamarin-native-ios/ProjectReferenceIOS.png" >
+  <img src="/assets/img/todo-xamarin-native-ios/ProjectReferenceIOS.PNG" >
 </picture>
 
 We now have a solution with 3 projects: Core, Android, and iOS. To run it on iOS we first tell Visual Studio to set our new project as startup project (right click on TodoXamarinNative.iOS and select "Set as Startup Project"). If we try to run our application now we'll see it start up but throw an exception. This is because we still need to create our initial screen. There are a couple ways to do this, the most common of which are using a Storyboard or creating it through code. We're going to opt for the code approach here. While this doesn't give us the designer tools that a storyboard would, it's much easier for both maintenance and when working with other developers.
@@ -89,7 +89,7 @@ Before we get to the meat of our UI, we need to connect to the data layer. The f
 
 <picture>
   <source type="image/webp" srcset="/assets/img/todo-xamarin-native-ios/AddSqlite.webp">
-  <img src="/assets/img/todo-xamarin-native-ios/AddSqlite.png" >
+  <img src="/assets/img/todo-xamarin-native-ios/AddSqlite.PNG" >
 </picture>
 
 Next we'll open AppDelegate.cs in our iOS project and add a new static property called TodoRepository. Then we'll edit the FinishedLaunching method and instantiate the new property.
