@@ -18,7 +18,7 @@ email: hofmadresu@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   Thoughts, ideas, and experiments from the mind of Matt Hoffman
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://hofmadresu.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://hofmadresu.com" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: hofmadresu
 github_username:  hofmadresu
 linkedin_username: matthewthoffman
