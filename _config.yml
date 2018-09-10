@@ -25,6 +25,13 @@ linkedin_username: matthewthoffman
 google_analytics: UA-88212615-2
 rss: "RSS"
 
+defaults:
+  - scope:
+      path: ""
+    values:
+      image: /assets/img/og_image_NewZealand_Coding_Coffee.jpg
+
+
 # Build settings
 markdown: kramdown
 theme: jekyll-theme-cayman
