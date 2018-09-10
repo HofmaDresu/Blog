@@ -33,11 +33,11 @@ Google also provides <a href="https://developer.android.com/reference/android/ha
 
 ### Creating a New Sample App
 
-While the resources above are all useful and helped me eventually create the functionality I needed, I found them hard to grok as a first time user of this API. What I plan to do with this post is create my own sample application and explain each area to the extent of my understanding. This app will be slightly more complex than the Xamarin and Google examples in order to match the real-world situation that I needed to handle. The biggest changes are:
+While the resources above are all useful and helped me eventually create the functionality I needed, I found them hard to grok as a first time user of this API. What I plan to do with this post is create my own sample application and explain each area to the extent of my understanding. This app will be slightly more complex than the Xamarin and Google examples in order to match the real-world situation that I needed to handle. The biggest additions are:
 
 * Support for both front and rear cameras
 * Support for both photo and video capture on the same screen
-* View the photo/video after it is taken
+* A view to display the photo/video after it is taken
 
 The first two points add complications to the code that are tricky to figure out the first time around. I will explain both the complications and the solutions when we get to them. 
 
