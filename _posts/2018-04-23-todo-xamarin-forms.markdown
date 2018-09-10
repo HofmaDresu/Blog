@@ -2,7 +2,7 @@
 layout: post
 title:  "Todo in Xamarin Forms"
 date:   2018-04-23 13:00:00 -0400
-tags: mobile xamarin
+tags: todo-app xamarin forms
 ---
 
 

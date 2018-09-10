@@ -2,7 +2,7 @@
 layout: post
 title:  "Todo in Xamarin Native Part 2 (iOS)"
 date:   2018-05-01 00:00:00 -0400
-tags: mobile xamarin ios
+tags: todo-app xamarin ios
 excerpt_separator: "<!--more-->"
 ---
 
