@@ -153,25 +153,20 @@ namespace AndroidCamera2Demo.Controls
             }
             else
             {
-                // The commented out section allows this method to alter the height of this view if that is the smaller change.
-                // In this sample we want to have a fixed height, so we're only allowing this method to change width
-                /*
+                // This code allows us to alter the height or width of the view to match our desired aspect ration         
                 if (width < (float)height * ratioWidth / ratioHeight)
                 {
                     SetMeasuredDimension(width, width * ratioHeight / ratioWidth);
                 }
                 else
                 {
-                */
                     SetMeasuredDimension(height * ratioWidth / ratioHeight, height);
-                //}
+                }
             }
         }
     }
 }
 {% endhighlight %}
-
-> Note that I've commented out a section of the OnMeasure method. This class comes from the Xamarin (and Google) samples for Camera2, but it has functionality I don't want for this example. The real-world application I worked on required that the device always be in portrait mode and that the height of the preview be set in stone. Without commenting out code, the example AutoFitTextureView allows either height or width to change depending on which is the smaller adjustment. I left the full code in this sample for completeness, but in a real app I would recommend deleting anything you don't use.
 
 After adding this code our view looks like this:
 
