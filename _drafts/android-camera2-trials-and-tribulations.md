@@ -223,7 +223,7 @@ namespace AndroidCamera2Demo.Callbacks
 {% endhighlight %}
 
 ##### CaptureStateSessionCallback
-This callback is used during the Preview Configuration phase of our code. We'll use this after requesting a preview capture session. The API will then call either OnConfigured or OnConfigureFailed as needed.
+This callback is used during the Preview Configuration phase of both photo and video portions of our code (separate instances, of course). We'll use this after requesting a preview capture session. The API will then call either OnConfigured or OnConfigureFailed as needed.
 
 {% highlight csharp%}
 using System;
