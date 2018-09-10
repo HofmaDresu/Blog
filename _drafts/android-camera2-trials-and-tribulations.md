@@ -181,3 +181,143 @@ After adding this code our view looks like this:
         <img src="/assets/img/android-camera2-trials-and-tribulations/InitialLayoutView.png" >
     </picture>
 </div>
+
+#### Supporting Classes
+
+Before we really get going with the camera, there are several supporting classes that we'll need to use. 
+
+The Camera2 API is set up to use Java-style callbacks and listeners, so we need to create classes that implement the required interfaces. I think these are cleanest if they just provide an Action that the main class can use to tie into the callback events. We'll create 4 classes in this category: CameraStateCallback, CaptureStateSessionCallback, CameraCaptureCallback, and ImageAvailableListener. In addition to those we'll need one comparison class, which we'll call CompareSizesByArea.
+
+##### CameraStateCallback
+This callback is used during the camera activation phase of our code. We'll use this when we ask the Camera2 API to open our camera. The API will call one of 3 methods depending on the results of our open request: OnOpened, OnError, and OnDisconnected.
+
+{% highlight csharp%}
+using System;
+using Android.Hardware.Camera2;
+using Android.Runtime;
+
+namespace AndroidCamera2Demo.Callbacks
+{
+    public class CameraStateCallback : CameraDevice.StateCallback
+    {
+        public Action<CameraDevice> Disconnected;
+        public Action<CameraDevice, CameraError> Error;
+        public Action<CameraDevice> Opened;
+
+        public override void OnDisconnected(CameraDevice camera)
+        {
+            Disconnected?.Invoke(camera);
+        }
+
+        public override void OnError(CameraDevice camera, [GeneratedEnum] CameraError error)
+        {
+            Error?.Invoke(camera, error);
+        }
+
+        public override void OnOpened(CameraDevice camera)
+        {
+            Opened?.Invoke(camera);
+        }
+    }
+}
+{% endhighlight %}
+
+##### CaptureStateSessionCallback
+This callback is used during the Preview Configuration phase of our code. We'll use this after requesting a preview capture session. The API will then call either OnConfigured or OnConfigureFailed as needed.
+
+{% highlight csharp%}
+using System;
+using Android.Hardware.Camera2;
+
+namespace AndroidCamera2Demo.Callbacks
+{
+    public class CaptureStateSessionCallback : CameraCaptureSession.StateCallback
+    {
+        public Action<CameraCaptureSession> Failed;
+        public Action<CameraCaptureSession> Configured;
+
+        public override void OnConfigured(CameraCaptureSession session)
+        {
+            Configured?.Invoke(session);
+        }
+
+        public override void OnConfigureFailed(CameraCaptureSession session)
+        {
+            Failed?.Invoke(session);
+        }
+    }
+}
+{% endhighlight %}
+
+##### CameraCaptureCallback
+This callback is used during the Preview and Image Capture phases of our code. This will allow us to interact with the camera and image during focus, light balance (for flash), and image capture. We'll need this when we start our preview and when the user takes a photo. The API will call OnCaptureProgressed and OnCaptureCompleted as needed.
+> We'll handle OnCaptureProgressed and OnCaptureCompleted the same way. I'm sure there are reasons to handle them differently, however this is one of the areas of Camera2 I don't yet fully understand.
+
+{% highlight csharp%}
+using System;
+using Android.Hardware.Camera2;
+
+namespace AndroidCamera2Demo.Callbacks
+{
+    public class CameraCaptureCallback : CameraCaptureSession.CaptureCallback
+    {
+        public Action<CameraCaptureSession, CaptureRequest, TotalCaptureResult> CaptureCompleted;
+
+        public Action<CameraCaptureSession, CaptureRequest, CaptureResult> CaptureProgressed;
+
+        public override void OnCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result)
+        {
+            CaptureCompleted?.Invoke(session, request, result);
+        }
+
+        public override void OnCaptureProgressed(CameraCaptureSession session, CaptureRequest request, CaptureResult partialResult)
+        {
+            CaptureProgressed?.Invoke(session, request, partialResult);
+        }
+    }
+}
+{% endhighlight %}
+
+##### ImageAvailableListener
+This listener is after the photo capture process is complete. We'll use it at the end of the Take Photo process is complete. The API will call OnImageAvailable when it has finished processing the image, and we will use the results to save our photo.
+
+{% highlight csharp%}
+using System;
+using Android.Media;
+
+namespace AndroidCamera2Demo.Callbacks
+{
+    public class ImageAvailableListener : Java.Lang.Object, ImageReader.IOnImageAvailableListener
+    {
+        public Action<ImageReader> ImageAvailable;
+
+        public void OnImageAvailable(ImageReader reader)
+        {
+            ImageAvailable?.Invoke(reader);
+        }
+    }
+}
+{% endhighlight %}
+
+#### CompareSizesByArea
+This class will be used in several calculations to determine the correct image and view sizes for our screen and camera configurations. This was provided by both the Xamarin and Android sample applications.
+
+{% highlight csharp %}
+using Android.Util;
+using Java.Lang;
+using Java.Util;
+
+namespace AndroidCamera2Demo
+{
+    public class CompareSizesByArea : Object, IComparator
+    {
+        public int Compare(Object lhs, Object rhs)
+        {
+            var lhsSize = (Size)lhs;
+            var rhsSize = (Size)rhs;
+            // We cast here to ensure the multiplications won't overflow
+            return Long.Signum((long)lhsSize.Width * lhsSize.Height - (long)rhsSize.Width * rhsSize.Height);
+        }
+    }
+}
+{% endhighlight %}
