@@ -965,10 +965,209 @@ private void SurfaceTextureView_SurfaceTextureAvailable(object sender, TextureVi
 {% endhighlight %}
 
 ##### Start / Stop Background Thread
+These are a couple of staightforward methods that start and stop an Android background thread. The Camera2 API allows use to pass a thread handler into many of our methods and we want to take advantage of that. This allows the camera actions to run without interfering with the user's actions. I don't think it's strictly necessary to use the camera, but that it improves the user's experience. Start is called in OnResume and Stop is called in OnPause.
 
+> This code is taken directly from the Xamarin sample without alteration
 
+{% highlight csharp %}
+private void StartBackgroundThread()
+{
+    backgroundThread = new HandlerThread("CameraBackground");
+    backgroundThread.Start();
+    backgroundHandler = new Handler(backgroundThread.Looper);
+}
 
-##### [Force]ResetLensFacing
+private void StopBackgroundThread()
+{
+    if (backgroundThread == null) return;
+
+    backgroundThread.QuitSafely();
+    try
+    {
+        backgroundThread.Join();
+        backgroundThread = null;
+        backgroundHandler = null;
+    }
+    catch (Exception e)
+    {
+        System.Diagnostics.Debug.WriteLine($"{e.Message} {e.StackTrace}");
+    }
+}
+{% endhighlight %}
+
+##### [ForceRe]SetLensFacing
+
+These methods are where our real preview code starts. SetLenseFacing handles a few important things for us. The first thing it does is retrieve the cameraId and characteristics for our desired LensFacing (Back vs. Front). Both of these will be used during other steps of the process, so it's good to store these into a class field. Next it checks if we already have a preview running for the requested LensFacing. If so nothing needs to be done. If we changed LensFacing or there isn't an existing preview, it stops any existing preview then configures and opens a camera session. 
+
+{% highlight csharp %}
+private void SetLensFacing(LensFacing lenseFacing)
+{
+    bool shouldRestartCamera = currentLensFacing != lenseFacing;
+    currentLensFacing = lenseFacing;
+    string cameraId = string.Empty;
+    characteristics = null;
+
+    foreach (var id in manager.GetCameraIdList())
+    {
+        cameraId = id;
+        characteristics = manager.GetCameraCharacteristics(id);
+
+        var face = (int)characteristics.Get(CameraCharacteristics.LensFacing);
+        if (face == (int)currentLensFacing)
+        {
+            break;
+        }
+    }
+
+    if (characteristics == null) return;
+
+    if (cameraDevice != null)
+    {
+        try
+        {
+            if (!shouldRestartCamera)
+                return;
+            if (cameraDevice.Handle != IntPtr.Zero)
+            {
+                cameraDevice.Close();
+                cameraDevice.Dispose();
+                cameraDevice = null;
+            }
+        }
+        catch (Exception e)
+        {
+            //Ignored
+            System.Diagnostics.Debug.WriteLine(e);
+        }
+    }
+
+    SetUpCameraOutputs(cameraId);
+    ConfigureTransform(surfaceTextureView.Width, surfaceTextureView.Height);
+    manager.OpenCamera(cameraId, cameraStateCallback, null);
+}
+{% endhighlight %}
+
+ForceResetLensFacing is used when we need to restart our preview with the same settings it already had. It switches the currentLensFacing field and calls SetLensFacing with the initial value. This may not always be necessary, but it's good protection in case the situation comes up.
+
+{% highlight csharp %}
+/// <summary>
+/// This method forces our view to re-create the camera session by changing 'currentLensFacing' and requesting the original value
+/// </summary>
+private void ForceResetLensFacing()
+{
+    var targetLensFacing = currentLensFacing;
+    currentLensFacing = currentLensFacing == LensFacing.Back ? LensFacing.Front : LensFacing.Back;
+    SetLensFacing(targetLensFacing);
+}
+{% endhighlight %}
+
+##### SetUpCameraOutputs
+
+SetUpCameraOutputs is responsible for configuring our image and preview dimensions as-well-as determining if our requested camera supports flash. There's a lot going on in this method, so we're going to break it into smaller pieces.
+
+> All of the code in this method are adapted from the Xamarin example. Most changes I made were just stylistic, however I allow the front camera whereas their sample does not
+
+The first thing we do is initialize our ImageReader to the correct size. This is what we will use to actually capture the photo. It's not realy a part of the preview process, but I found this to be a good place to make sure it's properly initialized. We create it by finding the largest available JPEG size on the device and create a new instance using those dimensions. We also set the maxImages parameter to 1. This controls how many images the reader can keep active in memory at one time. Since we're planning to save each image to disk immediatly we can save memory by only holding one in memory at a time. ImageReader will throw an exception if we try to take a second picure, so we'll need to clear out our image after saving to disk.
+
+{% highlight csharp %}
+var map = (StreamConfigurationMap)characteristics.Get(CameraCharacteristics.ScalerStreamConfigurationMap);
+if (map == null)
+{
+    return;
+}
+
+// For still image captures, we use the largest available size.
+Size largest = (Size)Collections.Max(Arrays.AsList(map.GetOutputSizes((int)ImageFormatType.Jpeg)),
+    new CompareSizesByArea());
+
+if (imageReader == null)
+{
+    imageReader = ImageReader.NewInstance(largest.Width, largest.Height, ImageFormatType.Jpeg, maxImages: 1);
+    imageReader.SetOnImageAvailableListener(onImageAvailableListener, backgroundHandler);
+}
+{% endhighlight %}
+
+Next we need to determine our preview size and set its aspect ratio. Android has a strange setup with its cameras which makes this more complicated than it would seem at first glance: the camera lens can be rotated differently relative to the phone on different devices. For example: the camera could be rotated 90° on a Nexus 5 and 270° on a Samsung Galaxy S7 (those are just made up examples, I don't actually know the orientation of various devices).
+
+{% highlight csharp %}
+// Find out if we need to swap dimension to get the preview size relative to sensor
+// coordinate.
+var displayRotation = windowManager.DefaultDisplay.Rotation;
+sensorOrientation = (int)characteristics.Get(CameraCharacteristics.SensorOrientation);
+bool swappedDimensions = false;
+switch (displayRotation)
+{
+    case SurfaceOrientation.Rotation0:
+    case SurfaceOrientation.Rotation180:
+        if (sensorOrientation == 90 || sensorOrientation == 270)
+        {
+            swappedDimensions = true;
+        }
+        break;
+    case SurfaceOrientation.Rotation90:
+    case SurfaceOrientation.Rotation270:
+        if (sensorOrientation == 0 || sensorOrientation == 180)
+        {
+            swappedDimensions = true;
+        }
+        break;
+    default:
+        System.Diagnostics.Debug.WriteLine($"Display rotation is invalid: {displayRotation}");
+        break;
+}
+
+Point displaySize = new Point();
+windowManager.DefaultDisplay.GetSize(displaySize);
+var rotatedPreviewWidth = surfaceTextureView.Width;
+var rotatedPreviewHeight = surfaceTextureView.Height;
+var maxPreviewWidth = displaySize.X;
+var maxPreviewHeight = displaySize.Y;
+
+if (swappedDimensions)
+{
+    rotatedPreviewWidth = surfaceTextureView.Height;
+    rotatedPreviewHeight = surfaceTextureView.Width;
+    maxPreviewWidth = displaySize.Y;
+    maxPreviewHeight = displaySize.X;
+}
+
+// Danger, W.R.! Attempting to use too large a preview size could  exceed the camera
+// bus' bandwidth limitation, resulting in gorgeous previews but the storage of
+// garbage capture data.
+previewSize = ChooseOptimalSize(map.GetOutputSizes(Java.Lang.Class.FromType(typeof(SurfaceTexture))),
+    rotatedPreviewWidth, rotatedPreviewHeight, maxPreviewWidth,
+    maxPreviewHeight, largest);
+
+// We fit the aspect ratio of TextureView to the size of preview we picked.
+// The commented code handles landscape layouts. This app is portrait only, so this is not needed
+/*
+var orientation = Application.Context.Resources.Configuration.Orientation;
+if (orientation == global::Android.Content.Res.Orientation.Landscape)
+{
+    surfaceTextureView.SetAspectRatio(previewSize.Width, previewSize.Height);
+}
+else
+{*/
+    surfaceTextureView.SetAspectRatio(previewSize.Height, previewSize.Width);
+/*}*/
+{% endhighlight %}
+
+The last thing we do in this method is check if our camera supports flash. Fortunatly, Android provides characteristics for each camera that we can query to check for things like this.
+
+{% highlight csharp %}
+// Check if the flash is supported.
+var available = (bool?)characteristics.Get(CameraCharacteristics.FlashInfoAvailable);
+if (available == null)
+{
+    flashSupported = false;
+}
+else
+{
+    flashSupported = (bool)available;
+}
+{% endhighlight %}
+
+##### ConfigureTransform
 
 
 
