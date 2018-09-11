@@ -1619,3 +1619,31 @@ private void HandleImageCaptured(ImageReader imageReader)
     }
 }
 {% endhighlight %}
+
+Finally we're going to add an UnlockFocus method. This restarts our preview session and the repeating request. After this is complete the user can again see the camera preview.
+
+{% highlight csharp %}
+void UnlockFocus()
+{
+    try
+    {
+        // Reset the auto-focus trigger
+        previewRequestBuilder.Set(CaptureRequest.ControlAfTrigger, (int)ControlAFTrigger.Cancel);
+        SetAutoFlash(previewRequestBuilder);
+        captureSession.Capture(previewRequestBuilder.Build(), cameraCaptureCallback,
+                backgroundHandler);
+        // After this, the camera will go back to the normal state of preview.
+        state = MediaCaptorState.Preview;
+        captureSession.SetRepeatingRequest(previewRequest, cameraCaptureCallback,
+                backgroundHandler);
+    }
+    catch (CameraAccessException e)
+    {
+        e.PrintStackTrace();
+    }
+}
+{% endhighlight %}
+
+And that's that last thing we need to do for image capture! If you're not looking for video capture you can stop here and ignore the rest of the post. If you're sticking around until the end, lets move on to recording a video.
+
+#### Recording a Video
