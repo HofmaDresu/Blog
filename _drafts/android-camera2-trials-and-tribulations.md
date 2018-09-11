@@ -10,6 +10,9 @@ I recently had the opportunity to work with the Android Camera2 API on a Xamarin
 
 All code for this post is available on <a href="https://github.com/HofmaDresu/AndroidCamera2Sample" target="_blank" rel="noopener">GitHub</a>. I recommend downloading a copy to follow along on your own. I will include relevent code samples in this post, but I think it's helpful to see everything together as well.
 
+> Disclaimer: I've tried to make this sample as complete and usable as possible, but I definitely could have missed edge cases. You should test against many devices, especially making sure to hit both Samsung and non-Samsung phones as there can be odd camera differences between them. If you find a case I missed I'd love to hear about it so I can update this post. Feel free to tweet me <a href="https://www.twitter.com/{{ site.twitter_username| cgi_escape | escape }}" target="_blank">@{{site.twitter_username}}</a>
+
+
 ### Existing Resources
 
 Before we get started, I wanted to call out the existing resources I found during my search. Both Xamarin and Google provide sample projects for rear-camera picture and rear-camera video. The links in the table below will bring you to the various projects:
