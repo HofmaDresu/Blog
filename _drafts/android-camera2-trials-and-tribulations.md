@@ -1647,3 +1647,145 @@ void UnlockFocus()
 And that's that last thing we need to do for image capture! If you're not looking for video capture you can stop here and ignore the rest of the post. If you're sticking around until the end, lets move on to recording a video.
 
 #### Recording a Video
+
+Recording a video is a much simpler process than taking a picture. We're going to create a MediaRecorder instance tied to our preview surface and tell Android to use that for the video source.
+
+To start with we'll create a few class fields and a helper method for our video's size. The method comes directly from Xamarin's video sample.
+
+{% highlight csharp %}
+private MediaRecorder mediaRecorder;
+private bool isRecording;
+private string videoFileName;
+
+...
+
+Size ChooseVideoSize(Size[] choices)
+{
+    foreach (Size size in choices)
+    {
+        if (size.Width == size.Height * 4 / 3 && size.Width <= 1000)
+            return size;
+    }
+    System.Diagnostics.Debug.WriteLine("Couldn't find any suitable video size");
+    return choices[choices.Length - 1];
+}
+{% endhighlight %}
+
+Next we're going to implement the RecordVideoButton_Click method. We want this to start recording if there isn't already an ongoing recording and stop if there is one. Most of the work is done in another method called PrepareMediaRecorder and in the videoSessionStateCallback, but there are a couple interesting things here too:
+
+* We create a new capture session for the recording using both the previewSurface and mediaRecorder.Surface. This is similar to how we set up the preview session using the imageReader.Surface
+* mediaRecorder.Stop() can throw an exception if the user records a 0 length video. We don't deal with that here, but it should be handled in a real app
+* We always reset the mediaRecorder and close the captureSession when finishing a recording
+
+{% highlight csharp %}
+private void RecordVideoButton_Click(object sender, EventArgs e)
+{
+    if (!isRecording)
+    {
+        recordVideoButton.Text = "Stop Recording";
+        PrepareMediaRecorder();
+        cameraDevice.CreateCaptureSession(new List<Surface> { previewSurface, mediaRecorder.Surface }, videoSessionStateCallback, backgroundHandler);
+    }
+    else
+    {
+        recordVideoButton.Text = "Record Video";
+        isRecording = false;
+        if (mediaRecorder != null)
+        {
+            try
+            {
+                mediaRecorder.Stop();
+                var intent = new Intent(Intent.ActionView);
+                intent.AddFlags(ActivityFlags.NewTask);
+                intent.SetDataAndType(Android.Net.Uri.Parse(videoFileName), "video/mp4");
+                StartActivity(intent);
+            }
+            catch (Exception)
+            {
+                // Stop can throw an exception if the user records a 0 length video.This should be handled by deleting the empty file
+            }
+            finally
+            {
+                mediaRecorder.Reset();
+                captureSession.Close();
+            }
+        }
+    }
+}
+{% endhighlight %}
+
+Now we need to implement PrepareMediaRecorder. This is where we apply all our settings for our video. This is a fairly straightforward process. I think the only interesting portion is that we're using GetOrientation again to deal with camera rotation.
+
+{% highlight csharp %}
+void PrepareMediaRecorder()
+{
+    if (mediaRecorder == null)
+    {
+        mediaRecorder = new MediaRecorder();
+    }
+    else
+    {
+        mediaRecorder.Reset();
+    }
+
+    var map = (StreamConfigurationMap)characteristics.Get(CameraCharacteristics.ScalerStreamConfigurationMap);
+    if (map == null)
+    {
+        return;
+    }
+
+    videoFileName = Guid.NewGuid().ToString();
+
+    var storageDir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryMovies);
+    var storageFilePath = storageDir + Java.IO.File.Separator + "AndroidCamera2Demo" + Java.IO.File.Separator + "Videos" + Java.IO.File.Separator;
+    videoFileName = storageFilePath + videoFileName;
+
+    var file = new Java.IO.File(storageFilePath);
+    if (!file.Exists())
+    {
+        file.Mkdirs();
+    }
+
+    mediaRecorder.SetAudioSource(AudioSource.Mic);
+    mediaRecorder.SetVideoSource(VideoSource.Surface);
+    mediaRecorder.SetOutputFormat(OutputFormat.Mpeg4);
+    mediaRecorder.SetOutputFile(videoFileName);
+    mediaRecorder.SetVideoEncodingBitRate(10000000);
+    mediaRecorder.SetVideoFrameRate(30);
+    var videoSize = ChooseVideoSize(map.GetOutputSizes(Java.Lang.Class.FromType(typeof(MediaRecorder))));
+    mediaRecorder.SetVideoEncoder(VideoEncoder.H264);
+    mediaRecorder.SetAudioEncoder(AudioEncoder.Aac);
+    mediaRecorder.SetVideoSize(videoSize.Width, videoSize.Height);
+    int rotation = (int)WindowManager.DefaultDisplay.Rotation;
+    mediaRecorder.SetOrientationHint(GetOrientation(rotation));
+    mediaRecorder.Prepare();
+}
+{% endhighlight %}
+
+Finally we'll implement the OnVideoSessionConfigured method. Here we create a new Preview capture request and set the auto-focus to ContinuousVideo (if available). We then start a repeating request for our new request then tell the mediaRecorder to start recording.
+
+{% highlight csharp %}
+private void OnVideoSessionConfigured(CameraCaptureSession session)
+{
+    var recordRequestBuilder = cameraDevice.CreateCaptureRequest(CameraTemplate.Preview);
+    recordRequestBuilder.AddTarget(previewSurface);
+    recordRequestBuilder.AddTarget(mediaRecorder.Surface);
+
+    var availableAutoFocusModes = (int[])characteristics.Get(CameraCharacteristics.ControlAfAvailableModes);
+    if (availableAutoFocusModes.Any(afMode => afMode == (int)ControlAFMode.ContinuousVideo))
+    {
+        previewRequestBuilder.Set(CaptureRequest.ControlAfMode, (int)ControlAFMode.ContinuousVideo);
+    }
+
+    captureSession.Close();
+    captureSession = session;
+    captureSession.SetRepeatingRequest(recordRequestBuilder.Build(), null, null);
+
+    mediaRecorder.Start();
+    isRecording = true;
+}
+{% endhighlight %}
+
+### Conclusion
+
+If you made it this far, congratulations! We're finally done creating a basic app that uses the Android Camera2 API! Hopefully you leave this post with a greater understanding than when you started. There's still plenty more to learn about Camera2 if you're interested in going into more depth or playing with other features, but I think this is enough to get started with (and this post is long enough as it is 😄).
