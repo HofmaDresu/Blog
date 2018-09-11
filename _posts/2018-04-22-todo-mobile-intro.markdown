@@ -2,7 +2,7 @@
 layout: post
 title:  "Creating Todo Mobile"
 date:   2018-04-23 12:00:00 -0400
-tags: todo mobile
+tags: todo-app
 ---
 
 This is the the first post in a series where I'll create a simple Todo application on both Android and iOS using multiple systems. I've wanted to try out new ways of building apps for a while, and this is both an outlet and motivation for me to keep making the same thing over and over. The series will be released over time, with each post uploaded after I finish building the application with the current framework. I'm starting with tools I'm already familiar with to create a baseline for both the application and the posts, then I'll move into others I'm less familiar with (or haven't used at all).

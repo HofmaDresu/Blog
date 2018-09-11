@@ -2,7 +2,7 @@
 layout: post
 title:  "GPS Movement Routes"
 date:   2018-07-24 19:00:00 -0400
-tags: mobile gps gpx kml
+tags: gps gpx kml
 excerpt_separator: "<!--more-->"
 ---
 
