@@ -1219,3 +1219,30 @@ private void OnOpened(CameraDevice cameraDevice)
 {% endhighlight %}
 
 ##### OnPreviewSessionConfigured
+
+This is the final step for displaying our preview. It's called as the 'success' callback of CreateCaptureSession(). Here we handle the last setup actions needed like activating auto-focus (if available), activating flash (if available) and starting a repeating capture request. The repeating request tells Android to continuously read from the camera and display the results on our preview surface.
+
+> You may ask "Why do we need flash on our preview?", and my answer to that is "I don't really know". It doesn't actually turn the flash on during preview, but for some reason it needs to be set here for flash to work when we take the photo.
+
+{% highlight csharp %}
+private void OnPreviewSessionConfigured(CameraCaptureSession session)
+{
+    captureSession = session;
+
+    previewRequestBuilder = cameraDevice.CreateCaptureRequest(CameraTemplate.Preview);
+    previewRequestBuilder.AddTarget(previewSurface);
+
+    var availableAutoFocusModes = (int[])characteristics.Get(CameraCharacteristics.ControlAfAvailableModes);
+    if (availableAutoFocusModes.Any(afMode => afMode == (int)ControlAFMode.ContinuousPicture))
+    {
+        previewRequestBuilder.Set(CaptureRequest.ControlAfMode, (int)ControlAFMode.ContinuousPicture);
+    }
+    SetAutoFlash(previewRequestBuilder);
+
+    previewRequest = previewRequestBuilder.Build();
+
+    captureSession.SetRepeatingRequest(previewRequest, cameraCaptureCallback, backgroundHandler);
+}
+{% endhighlight %}
+
+> Note that we're using the cameraCaptureCallback for this request. This seemed weird to me when I first started using the API, as we'll use that same callback for taking our picture. From what I've discovered, this is used here to work with auto-focus and auto-flash as those happen prior to actually taking a picture.
