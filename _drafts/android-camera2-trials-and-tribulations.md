@@ -1346,3 +1346,42 @@ We need to deal with sensor orientation when saving our photo (and later when ca
 /// </summary>
 int GetOrientation(int rotation) => (orientations.Get(rotation) + sensorOrientation + 270) % 360;
 {% endhighlight %}
+
+Now it's time to start taking our picture. All of our work for this portion will be in MainActivity_PhotoCapture since it's all photo-specific. 
+
+We'll begin by adding a LockFocus method and calling it from our TakePictureButton_Click method. Here we check to see if our camera supports auto-focus. If it does we'll set an auto-focus trigger to our request and start a new capture, using our cameraCaptureCallback to subscribe to the results. If the camera doesn't support auto-focus, we can just take the picture.
+
+{% highlight csharp %}
+private void TakePictureButton_Click(object sender, EventArgs e)
+{
+    LockFocus();
+}
+
+// Lock the focus as the first step for a still image capture.
+private void LockFocus()
+{
+    try
+    {
+        var availableAutoFocusModes = (int[])characteristics.Get(CameraCharacteristics.ControlAfAvailableModes);
+
+        // Set autofocus if supported
+        if (availableAutoFocusModes.Any(afMode => afMode != (int)ControlAFMode.Off))
+        {
+            previewRequestBuilder.Set(CaptureRequest.ControlAfTrigger, (int)ControlAFTrigger.Start);
+            state = MediaCaptorState.WaitingLock;
+            // Tell cameraCaptureCallback to wait for the lock.
+            captureSession.Capture(previewRequestBuilder.Build(), cameraCaptureCallback,
+                    backgroundHandler);
+        }
+        else
+        {
+            // If autofocus is not enabled, just capture the image
+            CaptureStillPicture();
+        }
+    }
+    catch (CameraAccessException e)
+    {
+        e.PrintStackTrace();
+    }
+}
+{% endhighlight %}
