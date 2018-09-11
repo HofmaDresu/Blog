@@ -1255,3 +1255,16 @@ Whew! That was a lot to get through, but we now have a working preview using our
         <img src="/assets/img/android-camera2-trials-and-tribulations/PreviewView.png" >
     </picture>
 </div>
+
+#### The Front Camera
+
+Now that we have the preview working for our back camera, we should get implement our switch camera button to activate the front 'selfie' camera. Fortunately for us, all of our work on the back camera translates to the front and makes this addition very easy.
+
+{% highlight csharp %}
+private void SwitchCameraButton_Click(object sender, EventArgs e)
+{
+    SetLensFacing(currentLensFacing == LensFacing.Back ? LensFacing.Front : LensFacing.Back);
+}
+{% endhighlight %}
+
+> Seems almost too easy, doesn't it? This is one of those nice areas where prior hard work pays off and makes our life easy. Don't worry, we get into heavy code again while taking the picture 😎
