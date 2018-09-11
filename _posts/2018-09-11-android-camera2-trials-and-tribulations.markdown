@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Trials and Tribulations with Android Camera2 API"
-date:   2018-09-09 19:00:00 -0400
+date:   2018-09-11 15:00:00 -0400
 tags: Android Camera2 Xamarin 
 excerpt_separator: "<!--more-->"
 ---
@@ -42,9 +42,7 @@ While the resources above are all useful and helped me eventually create the fun
 * Support for both photo and video capture on the same screen
 * A view to display the photo/video after it is taken
 
-The first two points add complications to the code that are tricky to figure out the first time around. I will explain both the complications and the solutions when we get to them. 
-
-The third point provides an easy way to test that we're capturing the photo/video correctly. I won't provide much explanation for the preview screens, but I feel the existing samples are harder to understand without them.
+The first two points add complications to the code that are tricky to figure out the first time around. The third point provides an easy way to test that we're capturing the photo/video correctly. I won't provide much explanation for the preview screens, but I feel the existing samples are harder to understand without them.
 
 > Note: For this sample I'm targeting SDK 21. I'm doing keep permissions code from complicating the example. For a real production app, you'll need to target a modern version and make sure you handle the required permissions (Camera, Microphone, Storage)
 
@@ -898,7 +896,7 @@ namespace AndroidCamera2Demo
         private void OnDisconnected(CameraDevice cameraDevice)
         {
             // In a real application we may need to handle the user disconnecting external devices.
-            // Here we're only worring about built-in cameras
+            // Here we're only worrying about built-in cameras
         }
 
         private void OnError(CameraDevice cameraDevice, CameraError cameraError)
@@ -968,7 +966,7 @@ private void SurfaceTextureView_SurfaceTextureAvailable(object sender, TextureVi
 {% endhighlight %}
 
 ##### Start / Stop Background Thread
-These are a couple of staightforward methods that start and stop an Android background thread. The Camera2 API allows use to pass a thread handler into many of our methods and we want to take advantage of that. This allows the camera actions to run without interfering with the user's actions. I don't think it's strictly necessary to use the camera, but that it improves the user's experience. Start is called in OnResume and Stop is called in OnPause.
+These are a couple of straightforward methods that start and stop an Android background thread. The Camera2 API allows use to pass a thread handler into many of our methods and we want to take advantage of that. This allows the camera actions to run without interfering with the user's actions. I don't think it's strictly necessary to use the camera, but that it improves the user's experience. Start is called in OnResume and Stop is called in OnPause.
 
 > This code is taken directly from the Xamarin sample without alteration
 
@@ -1070,7 +1068,7 @@ SetUpCameraOutputs is responsible for configuring our image and preview dimensio
 
 > All of the code in this method are adapted from the Xamarin example. Most changes I made were just stylistic, however I allow the front camera whereas their sample does not
 
-The first thing we do is initialize our ImageReader to the correct size. This is what we will use to actually capture the photo. It's not realy a part of the preview process, but I found this to be a good place to make sure it's properly initialized. We create it by finding the largest available JPEG size on the device and create a new instance using those dimensions. We also set the maxImages parameter to 1. This controls how many images the reader can keep active in memory at one time. Since we're planning to save each image to disk immediatly we can save memory by only holding one in memory at a time. ImageReader will throw an exception if we try to take a second picure, so we'll need to clear out our image after saving to disk.
+The first thing we do is initialize our ImageReader to the correct size. This is what we will use to actually capture the photo. It's not realy a part of the preview process, but I found this to be a good place to make sure it's properly initialized. We create it by finding the largest available JPEG size on the device and create a new instance using those dimensions. We also set the maxImages parameter to 1. This controls how many images the reader can keep active in memory at one time. Since we're planning to save each image to disk immediately we can save memory by only holding one in memory at a time. ImageReader will throw an exception if we try to take a second picture, so we'll need to clear out our image after saving to disk.
 
 {% highlight csharp %}
 var map = (StreamConfigurationMap)characteristics.Get(CameraCharacteristics.ScalerStreamConfigurationMap);
@@ -1155,7 +1153,7 @@ else
 /*}*/
 {% endhighlight %}
 
-The last thing we do in this method is check if our camera supports flash. Fortunatly, Android provides characteristics for each camera that we can query to check for things like this.
+The last thing we do in this method is check if our camera supports flash. Fortunately, Android provides characteristics for each camera that we can query to check for things like this.
 
 {% highlight csharp %}
 // Check if the flash is supported.
@@ -1274,7 +1272,7 @@ private void SwitchCameraButton_Click(object sender, EventArgs e)
 
 #### The Cleanup
 
-Before we get to taking and especially displaying a photo, we should probably handle cleaning up our state on pause. If we run the app as-is with logcat attached, we'll notice that the log goes haywire when we background the app. This is because we've left our camera session running and is not meant to run in the background. To fix this we'll update our OnPause method to call a new CloseCamera method.
+Before we get to taking and especially displaying a photo, we should probably handle cleaning up our state on pause. If we run the app as-is with Logcat attached, we'll notice that the log goes haywire when we background the app. This is because we've left our camera session running and is not meant to run in the background. To fix this we'll update our OnPause method to call a new CloseCamera method.
 
 {% highlight csharp %}
 protected override void OnPause()
@@ -1344,7 +1342,8 @@ We need to deal with sensor orientation when saving our photo (and later when ca
 /// For devices with orientation of 90, we simply return our mapping from orientations.
 /// For devices with orientation of 270, we need to rotate 180 degrees. 
 /// </summary>
-int GetOrientation(int rotation) => (orientations.Get(rotation) + sensorOrientation + 270) % 360;
+int GetOrientation(int rotation) => 
+            (orientations.Get(rotation) + sensorOrientation + 270) % 360;
 {% endhighlight %}
 
 Now it's time to start taking our picture. All of our work for this portion will be in MainActivity_PhotoCapture since it's all photo-specific. 
@@ -1388,7 +1387,7 @@ private void LockFocus()
 
 Next we'll take care of our auto-focus process by implementing ProcessImageCapture. This is called many times during the capture process, and we need to take different actions based on our state. 
 
-The first state we'll handle is WaitingLock. This is the first state we set in LockFocus, and we use it as a first opportunity to check auto-focus. If the auto-focus state is null then everythings ready to go and we can call CaptureStillPicture. Otherwise we want to see if the state is FocusLocked or FocusNotLocked. In those cases we're ready to look at auto-exposure (for flash) as well. If the camera doesn't support auto exposure or if the state is already converged (ready) we can call CaptureStillPicture(). Otherwise we want to call RunPrecaptureSequence() to tell the device to adjust focus and exposure.
+The first state we'll handle is WaitingLock. This is the first state we set in LockFocus, and we use it as a first opportunity to check auto-focus. If the auto-focus state is null then everything's ready to go and we can call CaptureStillPicture. Otherwise we want to see if the state is FocusLocked or FocusNotLocked. In those cases we're ready to look at auto-exposure (for flash) as well. If the camera doesn't support auto exposure or if the state is already converged (ready) we can call CaptureStillPicture(). Otherwise we want to call RunPrecaptureSequence() to tell the device to adjust focus and exposure.
 
 {% highlight csharp %}
 private void ProcessImageCapture(CaptureResult result)
