@@ -1312,3 +1312,34 @@ void CloseCamera()
     }
 }
 {% endhighlight %}
+
+#### Taking a Photo
+
+Now it's time to turn our preview into an actual photo! To start with we're going to add a supporting field and method to our activity, then we'll get into the real code.
+
+In MainActivity_PhotoCapture we'll add an enum and field to track the state of our capture process. We'll use this to deal with the auto focus and auto flash period of photo capture.
+
+{% highlight csharp %}
+private MediaCaptorState state = MediaCaptorState.Preview;
+
+enum MediaCaptorState
+{
+    Preview,
+    WaitingLock,
+    WaitingPrecapture,
+    WaitingNonPrecapture,
+    PictureTaken,
+}
+{% endhighlight %}
+
+We need to deal with sensor orientation when saving our photo (and later when capturing videos), so we'll create a helper method in MainActivity.
+
+{% highlight csharp %}
+/// <summary>
+/// Sensor orientation is 90 for most devices, or 270 for some devices (eg. Nexus 5X)
+/// We have to take that into account and rotate image properly.
+/// For devices with orientation of 90, we simply return our mapping from orientations.
+/// For devices with orientation of 270, we need to rotate 180 degrees. 
+/// </summary>
+int GetOrientation(int rotation) => (orientations.Get(rotation) + sensorOrientation + 270) % 360;
+{% endhighlight %}
