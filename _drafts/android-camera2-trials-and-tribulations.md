@@ -1539,3 +1539,83 @@ public void CaptureStillPicture()
     }
 }
 {% endhighlight %}
+
+At this point we've done everything needed to capture an image from the camera and store it in memory. The last things to do are save the image to disk and show it to the user. We'll do both by implementing HandleImageCapture. There isn't a lot special going on here, we're just saving the image to disk. There are a couple things worth calling out, though:
+
+* We need to make sure we call Close on our image. If we don't the ImageReader never frees up resources and will throw an exception if the user attempts a second photo (remember that we set maxImages to 1)
+* We need to call UnlockFocus to restore the preview session. This should be done on the UI thread
+
+> We're going to cheat a little showing the image by just asking Android to open the default photo view application with our file.
+
+{% highlight csharp %}
+private void HandleImageCaptured(ImageReader imageReader)
+{
+    Java.IO.FileOutputStream fos = null;
+    Java.IO.File imageFile = null;
+    var photoSaved = false;
+    try
+    {
+        var image = imageReader.AcquireLatestImage();
+        var buffer = image.GetPlanes()[0].Buffer;
+        var data = new byte[buffer.Remaining()];
+        buffer.Get(data);
+        var bitmap = BitmapFactory.DecodeByteArray(data, 0, data.Length);
+        var widthGreaterThanHeight = bitmap.Width > bitmap.Height;
+        image.Close();
+
+        string imageFileName = Guid.NewGuid().ToString();
+        var storageDir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures);
+
+        var storageFilePath = storageDir + Java.IO.File.Separator + "AndroidCamera2Demo" + Java.IO.File.Separator + "Photos";
+        var folder = new Java.IO.File(storageFilePath);
+        if (!folder.Exists())
+        {
+            folder.Mkdirs();
+        }
+
+        imageFile = new Java.IO.File(storageFilePath + Java.IO.File.Separator + imageFileName + ".jpg");
+        if (imageFile.Exists())
+        {
+            imageFile.Delete();
+        }
+        if (imageFile.CreateNewFile())
+        {
+            fos = new Java.IO.FileOutputStream(imageFile);
+            using (var stream = new MemoryStream())
+            {
+                if (bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, stream))
+                {
+                    //We set the data array to the rotated bitmap. 
+                    data = stream.ToArray();
+                    fos.Write(data);
+                }
+                else
+                {
+                    //something went wrong, let's just save the bitmap without rotation.
+                    fos.Write(data);
+                }
+                stream.Close();
+                photoSaved = true;
+            }
+        }
+    }
+    catch (Exception)
+    {
+        // In a real application we would handle this gracefully, likely alerting the user to the error
+    }
+    finally
+    {
+        if (fos != null) fos.Close();
+        RunOnUiThread(UnlockFocus);
+    }
+
+    // Request that Android display our image if we successfully saved it
+    if (imageFile != null && photoSaved)
+    {
+        var intent = new Intent(Intent.ActionView);
+        var imageUri = Android.Net.Uri.Parse("file://" + imageFile.AbsolutePath);
+        intent.SetDataAndType(imageUri, "image/*");
+        StartActivity(intent);
+    }
+}
+{% endhighlight %}
