@@ -1246,3 +1246,12 @@ private void OnPreviewSessionConfigured(CameraCaptureSession session)
 {% endhighlight %}
 
 > Note that we're using the cameraCaptureCallback for this request. This seemed weird to me when I first started using the API, as we'll use that same callback for taking our picture. From what I've discovered, this is used here to work with auto-focus and auto-flash as those happen prior to actually taking a picture.
+
+Whew! That was a lot to get through, but we now have a working preview using our device's rear camera! If we run the application with all of this in place we'll see something like this: 
+
+<div class="os-screenshots">
+    <picture>
+        <source type="image/webp" srcset="/assets/img/android-camera2-trials-and-tribulations/PreviewView.webp">
+        <img src="/assets/img/android-camera2-trials-and-tribulations/PreviewView.png" >
+    </picture>
+</div>
