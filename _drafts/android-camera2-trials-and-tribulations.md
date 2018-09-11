@@ -1385,3 +1385,157 @@ private void LockFocus()
     }
 }
 {% endhighlight %}
+
+Next we'll take care of our auto-focus process by implementing ProcessImageCapture. This is called many times during the capture process, and we need to take different actions based on our state. 
+
+The first state we'll handle is WaitingLock. This is the first state we set in LockFocus, and we use it as a first opportunity to check auto-focus. If the auto-focus state is null then everythings ready to go and we can call CaptureStillPicture. Otherwise we want to see if the state is FocusLocked or FocusNotLocked. In those cases we're ready to look at auto-exposure (for flash) as well. If the camera doesn't support auto exposure or if the state is already converged (ready) we can call CaptureStillPicture(). Otherwise we want to call RunPrecaptureSequence() to tell the device to adjust focus and exposure.
+
+{% highlight csharp %}
+private void ProcessImageCapture(CaptureResult result)
+{
+    switch (state)
+    {
+        case MediaCaptorState.WaitingLock:
+            {
+                var afState = (int?)result.Get(CaptureResult.ControlAfState);
+                if (afState == null)
+                {
+                    CaptureStillPicture();
+                }
+                else if ((((int)ControlAFState.FocusedLocked) == afState.Value) ||
+                            (((int)ControlAFState.NotFocusedLocked) == afState.Value))
+                {
+                    // ControlAeState can be null on some devices
+                    var aeState = (int?)result.Get(CaptureResult.ControlAeState);
+                    if (aeState == null || aeState.Value == ((int)ControlAEState.Converged))
+                    {
+                        state = MediaCaptorState.PictureTaken;
+                        CaptureStillPicture();
+                    }
+                    else
+                    {
+                        RunPrecaptureSequence();
+                    }
+                }
+                break;
+            }
+        ...
+    }
+}
+{% endhighlight %}
+
+Next we'll handle the WaitingPrecapture state. Here we're just waiting until the auto-exposure state is either Precapture or FlashRequired, with a null check just in case. Once that condition is met we just change our state WaitingNonPrecapture to move to the next step.
+
+{% highlight csharp %}
+private void ProcessImageCapture(CaptureResult result)
+{
+    switch (state)
+    {
+       ...
+        case MediaCaptorState.WaitingPrecapture:
+            {
+                // ControlAeState can be null on some devices
+                var aeState = (int?)result.Get(CaptureResult.ControlAeState);
+                if (aeState == null ||
+                        aeState.Value == ((int)ControlAEState.Precapture) ||
+                        aeState.Value == ((int)ControlAEState.FlashRequired))
+                {
+                    state = MediaCaptorState.WaitingNonPrecapture;
+                }
+                break;
+            }
+        ...
+    }
+}
+{% endhighlight %}
+
+Last we'll handle the WaitingNonPrecapture. Here we wait until our auto-exposure state is not Precapture. This means that the device has finished focusing and light balancing and we're ready to call CaptureStillPicture.
+
+{% highlight csharp %}
+private void ProcessImageCapture(CaptureResult result)
+{
+    switch (state)
+    {
+       ...
+        case MediaCaptorState.WaitingNonPrecapture:
+            {
+                // ControlAeState can be null on some devices
+                var aeState = (int?)result.Get(CaptureResult.ControlAeState);
+                if (aeState == null || aeState.Value != ((int)ControlAEState.Precapture))
+                {
+                    state = MediaCaptorState.PictureTaken;
+                    CaptureStillPicture();
+                }
+                break;
+            }
+    }
+}
+{% endhighlight %}
+
+Now we want to implement the RunPrecaptureSequence method we called in ProcessImageCapture. This is a short method that sets an auto-exposure trigger and starts a new capture. Without this trigger our auto-flash would not work.
+
+{% highlight csharp %}
+public void RunPrecaptureSequence()
+{
+    try
+    {
+        // This is how to tell the camera to trigger.
+        previewRequestBuilder.Set(CaptureRequest.ControlAePrecaptureTrigger, (int)ControlAEPrecaptureTrigger.Start);
+        // Tell captureCallback to wait for the precapture sequence to be set.
+        state = MediaCaptorState.WaitingPrecapture;
+        captureSession.Capture(previewRequestBuilder.Build(), cameraCaptureCallback, backgroundHandler);
+    }
+    catch (CameraAccessException e)
+    {
+        e.PrintStackTrace();
+    }
+}
+{% endhighlight %}
+
+Now we're ready to capture the still image in CaptureStillPicture(). Here we'll create a new capture request using the StillCapture template and add our ImageReader surface as a target. Then we'll set flash and auto-focus to the same settings we used in the preview. Since this is a new request, we also need to deal with orientation again. It's a little different this time but we can use the GetOrientation method we created earlier to help us. Finally we stop and abort the preview captures and start a new one with our stillCaptureBuilder. 
+
+> I've also added code to make a shutter click sound at this point. It's not needed for functionality, but it's something most users will expect
+
+{% highlight csharp %}
+public void CaptureStillPicture()
+{
+    try
+    {
+        if (null == cameraDevice)
+        {
+            return;
+        }
+
+        // This is the CaptureRequest.Builder that we use to take a picture.
+        var stillCaptureBuilder = cameraDevice.CreateCaptureRequest(CameraTemplate.StillCapture);
+
+        stillCaptureBuilder.AddTarget(imageReader.Surface);
+
+        // Use the same AE and AF modes as the preview.
+        stillCaptureBuilder.Set(CaptureRequest.ControlAfMode, (int)ControlAFMode.ContinuousPicture);
+        SetAutoFlash(stillCaptureBuilder);
+
+        // Orientation
+        int rotation = (int)WindowManager.DefaultDisplay.Rotation;
+        int orientation = GetOrientation(rotation);
+        stillCaptureBuilder.Set(CaptureRequest.JpegOrientation, orientation);
+
+        captureSession.StopRepeating();
+        captureSession.AbortCaptures();
+        captureSession.Capture(stillCaptureBuilder.Build(), cameraCaptureCallback, null);
+
+        // Play shutter sound to alert user that image was captured
+        var am = (AudioManager)GetSystemService(AudioService);
+        if (am != null && am.RingerMode == RingerMode.Normal)
+        {
+            var cameraSound = new MediaActionSound();
+            cameraSound.Load(MediaActionSoundType.ShutterClick);
+            cameraSound.Play(MediaActionSoundType.ShutterClick);
+        }
+    }
+    catch (CameraAccessException e)
+    {
+        e.PrintStackTrace();
+    }
+}
+{% endhighlight %}
