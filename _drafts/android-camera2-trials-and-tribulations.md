@@ -1268,3 +1268,47 @@ private void SwitchCameraButton_Click(object sender, EventArgs e)
 {% endhighlight %}
 
 > Seems almost too easy, doesn't it? This is one of those nice areas where prior hard work pays off and makes our life easy. Don't worry, we get into heavy code again while taking the picture 😎
+
+#### The Cleanup
+
+Before we get to taking and especially displaying a photo, we should probably handle cleaning up our state on pause. If we run the app as-is with logcat attached, we'll notice that the log goes haywire when we background the app. This is because we've left our camera session running and is not meant to run in the background. To fix this we'll update our OnPause method to call a new CloseCamera method.
+
+{% highlight csharp %}
+protected override void OnPause()
+{
+    base.OnPause();
+    switchCameraButton.Click -= SwitchCameraButton_Click;
+    takePictureButton.Click -= TakePictureButton_Click;
+    recordVideoButton.Click -= RecordVideoButton_Click;
+    surfaceTextureView.SurfaceTextureAvailable -= SurfaceTextureView_SurfaceTextureAvailable;
+
+    CloseCamera();
+    StopBackgroundThread();
+}
+
+void CloseCamera()
+{
+    try
+    {
+        if (null != captureSession)
+        {
+            captureSession.Close();
+            captureSession = null;
+        }
+        if (null != cameraDevice)
+        {
+            cameraDevice.Close();
+            cameraDevice = null;
+        }
+        if (null != imageReader)
+        {
+            imageReader.Close();
+            imageReader = null;
+        }
+    }
+    catch (Exception e)
+    {
+        System.Diagnostics.Debug.WriteLine($"{e.Message} {e.StackTrace}");
+    }
+}
+{% endhighlight %}
