@@ -936,8 +936,33 @@ namespace AndroidCamera2Demo
 There's a lot to unpack here, so let's get started!
 
 ##### OnResume
+This is where everything gets started. Every time the user opens or restores our activity, we want to start up our camera preview. To do this we need to do 2 things: start a background thread and initialize the preview. For the background thread we just call our StartBackgroundThread method, which we'll look at in the next section. Before we initialize the preview we need to make sure everything is ready for it. Our camera will need access to the TextureView's SurfaceTexture. It can take a little time for that to become available, especially on first run, so we check if it's available. If it is we can just continue our process, otherwise we add a listener to the SurfaceTextureAvailable event
 
+{% highlight csharp%}
+protected override void OnResume()
+{
+    base.OnResume();
+    switchCameraButton.Click += SwitchCameraButton_Click;
+    takePictureButton.Click += TakePictureButton_Click;
+    recordVideoButton.Click += RecordVideoButton_Click;
 
+    StartBackgroundThread();
+
+    if (surfaceTextureView.IsAvailable)
+    {
+        ForceResetLensFacing();
+    }
+    else
+    {
+        surfaceTextureView.SurfaceTextureAvailable += SurfaceTextureView_SurfaceTextureAvailable;
+    }
+}
+
+private void SurfaceTextureView_SurfaceTextureAvailable(object sender, TextureView.SurfaceTextureAvailableEventArgs e)
+{
+    ForceResetLensFacing();
+}
+{% endhighlight %}
 
 ##### Start / Stop Background Thread
 
