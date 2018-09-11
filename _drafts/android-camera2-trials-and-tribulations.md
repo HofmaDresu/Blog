@@ -1168,11 +1168,54 @@ else
 {% endhighlight %}
 
 ##### ConfigureTransform
+This method is completely pulled from the Xamarin/Google sample code, and is one of the areas I don't fully understand. It's used to set our TextureView's transform, so I believe it works along-side the aspect ratio to make sure our preview appears without stretching or squashing. Fortunately this code is given to us, so we don't need to figure it out every time we want to use the camera.
 
-
+{% highlight csharp %}
+// Configures the necessary matrix
+// transformation to `surfaceTextureView`.
+// This method should be called after the camera preview size is determined in
+// setUpCameraOutputs and also the size of `surfaceTextureView` is fixed.
+public void ConfigureTransform(int viewWidth, int viewHeight)
+{
+    if (null == surfaceTextureView || null == previewSize)
+    {
+        return;
+    }
+    var rotation = (int)WindowManager.DefaultDisplay.Rotation;
+    Matrix matrix = new Matrix();
+    RectF viewRect = new RectF(0, 0, viewWidth, viewHeight);
+    RectF bufferRect = new RectF(0, 0, previewSize.Height, previewSize.Width);
+    float centerX = viewRect.CenterX();
+    float centerY = viewRect.CenterY();
+    if ((int)SurfaceOrientation.Rotation90 == rotation || (int)SurfaceOrientation.Rotation270 == rotation)
+    {
+        bufferRect.Offset(centerX - bufferRect.CenterX(), centerY - bufferRect.CenterY());
+        matrix.SetRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.Fill);
+        float scale = Math.Max((float)viewHeight / previewSize.Height, (float)viewWidth / previewSize.Width);
+        matrix.PostScale(scale, scale, centerX, centerY);
+        matrix.PostRotate(90 * (rotation - 2), centerX, centerY);
+    }
+    else if ((int)SurfaceOrientation.Rotation180 == rotation)
+    {
+        matrix.PostRotate(180, centerX, centerY);
+    }
+    surfaceTextureView.SetTransform(matrix);
+}
+{% endhighlight %}
 
 ##### OnOpened
 
+OnOpened is called as the 'success' callback of manager.OpenCamera() and gives us access to the CameraDevice. We take this opportunity to set our TextureView's SurfaceTexture buffer size to match our preview size. Then we start a capture session that will be used for both preview and image capture. The capture session needs access to any surface that will be used, so we pass in our TextureView and ImageReader's respective surfaces.
 
+{% highlight csharp %}
+private void OnOpened(CameraDevice cameraDevice)
+{
+    this.cameraDevice = cameraDevice;
+    surfaceTextureView.SurfaceTexture.SetDefaultBufferSize(previewSize.Width, previewSize.Height);
+    previewSurface = new Surface(surfaceTextureView.SurfaceTexture);
+
+    this.cameraDevice.CreateCaptureSession(new List<Surface> { previewSurface, imageReader.Surface }, captureStateSessionCallback, backgroundHandler);
+}
+{% endhighlight %}
 
 ##### OnPreviewSessionConfigured
