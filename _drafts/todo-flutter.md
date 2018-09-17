@@ -227,3 +227,38 @@ With that done we can run our app and see a few Todo items.
         <img src="/assets/img/todo-flutter/InitialListIOS.png" >
     </picture>
 </div>
+
+This is nice, but we probably want to show the user which items are completed. We'll do this by adding a simple checkbox on the right side of each item. Since we already separated TodoItem widget creation into a separate method, we only need to adjust _createTodoItemWidget in todoListScreen.dart.
+
+{% highlight dart %}
+Widget _createTodoItemWidget(TodoItem item) {
+  return ListTile(
+    title: Text(item.name),
+    contentPadding: EdgeInsets.all(16.0),
+    trailing: Checkbox(
+      value: item.isComplete,
+      onChanged: (value) => { }
+    ),
+  );
+}
+{% endhighlight %}
+
+This will let our users see which items are complete and which still need to be done.
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-flutter/ShowCompleteAndroid.webp">
+        <img src="/assets/img/todo-flutter/ShowCompleteAndroid.png" >
+    </picture>
+    <label>iOS</label>
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-flutter/ShowCompleteIOS.webp">
+        <img src="/assets/img/todo-flutter/ShowCompleteIOS.png" >
+    </picture>
+</div>
+
+### Completing, Uncompleting and Deleting Items
+Now that we're showing our list of Todos, we should let the user interact with them. We'll start by adding the ability to complete, uncomplete, and delete items from the list. These will all be in-memory operations to start with. Later we'll add persistance to the app so these actions are saved.
+
+The first thing we'll add is complete and uncomplete functionality. The user will trigger these changes by tapping on the checkbox we created in the last section.
