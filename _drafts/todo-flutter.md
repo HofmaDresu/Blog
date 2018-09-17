@@ -261,4 +261,40 @@ This will let our users see which items are complete and which still need to be 
 ### Completing, Uncompleting and Deleting Items
 Now that we're showing our list of Todos, we should let the user interact with them. We'll start by adding the ability to complete, uncomplete, and delete items from the list. These will all be in-memory operations to start with. Later we'll add persistance to the app so these actions are saved.
 
-The first thing we'll add is complete and uncomplete functionality. The user will trigger these changes by tapping on the checkbox we created in the last section.
+The first thing we'll add is complete and uncomplete functionality. The user will trigger these changes by tapping on the checkbox we created in the last section. We need to add a new private method to _TodoListScreenState called _updateTodoCompleteStatus(TodoItem item, bool newStatus). There we'll copy our item list and update the target's completed status. Then we'll call setState to tell Flutter to update our state and refresh the UI. Last we'll update the checkbox in _createTodoItemWidget to call our new method.
+
+> Note: Our new method is not particularly efficient. If we were building a production-quality app that could have a long list we would want to use a smarter algorithm
+
+{% highlight dart %}
+void _updateTodoCompleteStatus(TodoItem item, bool newStatus) {
+  final tempTodoItems = _todoItems;
+  tempTodoItems.firstWhere((i) => i.id ==item.id).isComplete = newStatus;
+  setState(() { _todoItems = tempTodoItems; });
+  // TODO: Persist change
+}
+
+...
+
+Widget _createTodoItemWidget(TodoItem item) {
+  return ListTile(
+    title: Text(item.name),
+    trailing: Checkbox(
+      value: item.isComplete,
+      onChanged: (value) => _updateTodoCompleteStatus(item, value),
+    ),
+  );
+}
+{% endhighlight %}
+
+Now when we run the app we can see the list updating when todo items are completed and uncompleted.
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <picture>
+        <img src="/assets/img/todo-flutter/CompleteUncompleteAndroid.gif" >
+    </picture>
+    <label>iOS</label>
+    <picture>
+        <img src="/assets/img/todo-flutter/CompleteUncompleteIOS.gif" >
+    </picture>
+</div>
