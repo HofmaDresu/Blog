@@ -7,7 +7,7 @@ tags: mobile flutter
 
 Today we're going to create a Todo application using Flutter. Flutter is a cross platform framework created by Google that uses the <a href="https://www.dartlang.org/" target="_blank" rel="noopener">Dart language</a> to create Android and iOS applications with a lot of code sharing opportunities. Full source code for this application is available <a href="" target="_blank" rel="noopener">on GitHub</a>. 
 
-This post was extra fun for me as I had not used either Flutter or Dart before working on this! I ended up going through Dart's <a href="https://www.dartlang.org/guides/language/language-tour" target="_blank" rel="noopener">Language Tour</a> and a free Flutter introduction on <a href="https://www.udacity.com/course/build-native-mobile-apps-with-flutter--ud905" target="_blank" rel="noopener">Udacity</a>. I highly recommend both if you want to start learning Flutter development.
+This post was extra fun for me as I had not used either Flutter or Dart before working on this! I ended up going through Dart's <a href="https://www.dartlang.org/guides/language/language-tour" target="_blank" rel="noopener">Language Tour</a> and a free Flutter introduction on <a href="https://www.udacity.com/course/build-native-mobile-apps-with-flutter--ud905" target="_blank" rel="noopener">Udacity</a>. I highly recommend both if you want to start learning Flutter development. Because this is my first time using Flutter, I'm sure there are optimizations and useful tricks that I missed while creating this post. If you know of anything good that I missed, I'd love to hear about it on Twitter <a href="https://www.twitter.com/{{ site.twitter_username| cgi_escape | escape }}" target="_blank">@{{site.twitter_username}}</a>.
 
 > Note: All of my steps are using Visual Code on Mac. Your mileage may vary if you use a different IDE or operating system.
 
@@ -100,3 +100,130 @@ Once that's up and running we can see our app running on both OSs.
 This initial app doesn't do much yet, but it gives us the structure we need and some examples of layout and actions we can use to create our Todo app!
 
 ### Displaying a list of Todo items
+
+The first thing we want to do is create a TodoItem class that will hold our data. We only need 3 properties on this object to cover this app's functionality: a unique id, a title, and whether-or-not it has been completed. We'll also extend the Comparable class so we can easily sort our items later.  For this we'll create a new file in the 'lib' directory called "todoItem.dart" with the following content:
+
+{% highlight dart %}
+class TodoItem extends Comparable {
+  final int id;
+  final String name;
+  bool isComplete;
+
+  TodoItem({this.id, this.name, this.isComplete = false});
+
+  @override
+  int compareTo(other) {
+    if (this.isComplete && !other.isComplete) {
+      return 1;
+    } else if (!this.isComplete && other.isComplete) {
+      return -1;
+    } else {
+      return this.id.compareTo(other.id);
+    }
+  }
+}
+{% endhighlight %}
+
+Next we'll create an initial list scree where we'll show the Todo items. All UI elements in Flutter are Widgets and extend either StatelessWidget or StatefulWidget. Since our list will include data we can manipulate (the isComplete property) we'll use Stateful for this screen. StatefulWidgets use 2 main parts: the Widget and a State object. The State object should be named _[WidgetName]State by convention. We'll first create the Widget by creating a "todoListScreen.dart" file in the lib directory and adding the following content.
+
+{% highlight dart %}
+import 'package:flutter/material.dart';
+import 'todoItem.dart';
+
+class TodoListScreen extends StatefulWidget {
+  TodoListScreen({Key key, this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  _TodoListScreenState createState() => new _TodoListScreenState();
+}
+{% endhighlight %}
+
+As you can see, there's not much to a basic stateful screen widget. The real work happens in the companion State class. We'll create this in the same file for simplicity's sake. _TodoListScreenState will handle creating and displaying a static list of Todo items. We'll also wire up a placeholder button and action that we'll later use for adding items.
+
+{% highlight dart %}
+class _TodoListScreenState extends State<TodoListScreen> {
+  List<TodoItem> _todoItems = List();
+
+  @override
+  initState() {
+    super.initState();
+    // TODO use dynamic todo items
+    _todoItems.add(TodoItem(id: 0, name: "Create First Todo", isComplete: true));
+    _todoItems.add(TodoItem(id: 1, name: "Run a Marathon"));
+    _todoItems.add(TodoItem(id: 2, name: "Create Todo_Flutter blog post"));
+  }
+
+  void _addTodoItem() {
+    // TODO navigate to Create Todo Item Screen
+  }
+
+  Widget _createTodoItemWidget(TodoItem item) {
+    // TODO customize todo item display to show completion status
+    return ListTile(
+      title: Text(item.name),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _todoItems.sort();
+    final todoItemWidgets = _todoItems.map(_createTodoItemWidget).toList();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: ListView(
+        children: todoItemWidgets,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _addTodoItem,
+        tooltip: 'Add Todo',
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+}
+{% endhighlight %}
+
+The last thing we need to do before running the app is update main.dart to use our new TodoListScreen. This mostly involves deleting the placeholder code and importing and using our new class.
+
+{% highlight dart %}
+import 'package:flutter/material.dart';
+import 'todoListScreen.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Todo Flutter',
+      theme: new ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: TodoListScreen(title: 'Todo List'),
+    );
+  }
+}
+{% endhighlight %}
+
+> I also removed usages of the 'new' keyword from this code. Older dart required the keyword but it became optional in dart 2. I've decided to omit it from this project as I think it makes reading the widget structure easier. I'm not sure what the best practice for it is.
+
+With that done we can run our app and see a few Todo items.
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-flutter/InitialListAndroid.webp">
+        <img src="/assets/img/todo-flutter/InitialListAndroid.png" >
+    </picture>
+    <label>iOS</label>
+    <picture>
+        <source type="image/webp" srcset="/assets/img/todo-flutter/InitialListIOS.webp">
+        <img src="/assets/img/todo-flutter/InitialListIOS.png" >
+    </picture>
+</div>
