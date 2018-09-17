@@ -49,7 +49,7 @@ Most of our work will be done in the .NET Standard library, with only minor vent
 Out of the box we have a Hello World app running on both Android and iOS. It's not very exciting yet, but this is where the real fun begins.
 
 ### Displaying a list of Todo items
-Xamarin Forms uses XAML for UI developent, which provides access to two way databinding. Unfortunately, there is a little boilerplate code required to get this working. We're going to use the <a href="https://github.com/Fody/PropertyChanged" target="_blank" rel="noopener">Fody</a> package and a base class to clean that up a little.
+Xamarin Forms uses XAML for UI development, which provides access to two way databinding. Unfortunately, there is a little boilerplate code required to get this working. We're going to use the <a href="https://github.com/Fody/PropertyChanged" target="_blank" rel="noopener">Fody</a> package and a base class to clean that up a little.
 
 First we'll install the Fody package. Right click on the solution and select 'Manage NuGet Packages for Solution'. Search for PropertyChanged.Fody and install it on the .NET Standard project (reminder: the one that says neither Android nor iOS). Next we need to create a configuration XML file.
 

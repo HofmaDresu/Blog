@@ -96,3 +96,7 @@ Once that's up and running we can see our app running on both OSs.
         <img src="/assets/img/todo-flutter/HelloWorldIOS.png" >
     </picture>
 </div>
+
+This initial app doesn't do much yet, but it gives us the structure we need and some examples of layout and actions we can use to create our Todo app!
+
+### Displaying a list of Todo items
