@@ -298,3 +298,78 @@ Now when we run the app we can see the list updating when todo items are complet
         <img src="/assets/img/todo-flutter/CompleteUncompleteIOS.gif" >
     </picture>
 </div>
+
+Next we should let the user delete Todo items. We're going to add this as an action on each item's long press. When the user long presses a Todo item we'll display an AlertDialog confirming that they want to delete that item. We'll allow them to cancel either by tapping away from the dialog or tapping a 'Cancel' button. They can confirm the deletion by tapping a 'Delete' button. 
+
+These changes will all be made in our todoListScreen.dart. First we'll create a private method that deletes a Todo item. This will look similar to our _updateTodoCompleteStatus method.
+
+{% highlight dart %}
+void _deleteTodoItem(TodoItem item) {
+  final tempTodoItems = _todoItems;
+  tempTodoItems.remove(item);
+  setState(() { _todoItems = tempTodoItems; });
+  // TODO: Persist change
+}
+{% endhighlight %}
+
+Next we'll create a method to display our Alert Dialog and handle button presses. The method for displaying the dialog, showDialog<T>, returns a Future object so we also need to import dart:async.
+
+> Futures are what Dart uses for asynchronous programming. It's a bit much to get into here, but if you're interested you can read about them in <a href="https://www.dartlang.org/tutorials/language/futures" target="_blank" rel="noopener">Dart's tutorial</a>. 
+
+{% highlight dart %}
+...
+import 'dart:async';
+...
+Future<Null> _displayDeleteConfirmationDialog(TodoItem item) {
+  return showDialog<Null>(
+    context: context,
+    barrierDismissible: true, // Allow dismiss when tapping away from dialog
+    builder: (BuildContext context) {
+      return  AlertDialog(
+        title: Text("Delete TODO"),
+        content: Text("Do you want to delete \"${item.name}\"?"),
+        actions: <Widget>[
+          FlatButton(
+            child: Text("Cancel"),
+            onPressed: Navigator.of(context).pop, // Close dialog
+          ),
+          FlatButton(
+            child: Text("Delete"),
+            onPressed: () {
+              _deleteTodoItem(item);
+              Navigator.of(context).pop(); // Close dialog
+            },
+          ),
+        ],
+      );
+    }
+  );
+}
+{% endhighlight %}
+
+Finally we'll update _createTodoItemWidget to call _displayDeleteConfirmationDialog on an Todo's long press.
+
+{% highlight dart %}
+Widget _createTodoItemWidget(TodoItem item) {
+  return ListTile(
+    ...
+    onLongPress: () => _displayDeleteConfirmationDialog(item),
+  );
+}
+{% endhighlight %}
+
+With that in place we can run our app and see Delete in action!
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <picture>
+        <img src="/assets/img/todo-flutter/DeleteTodoAndroid.gif" >
+    </picture>
+    <label>iOS</label>
+    <picture>
+        <img src="/assets/img/todo-flutter/DeleteTodoIOS.gif" >
+    </picture>
+</div>
+
+### Persisting the Todo List
+Our users can now edit and delete their Todo items. However we're just storing these changes in memory, so they'll be lost if the user closes our app. The next thing we should put in place is data persistence so changes are kept across app restarts and device reboots.
