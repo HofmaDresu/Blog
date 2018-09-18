@@ -373,3 +373,159 @@ With that in place we can run our app and see Delete in action!
 
 ### Persisting the Todo List
 Our users can now edit and delete their Todo items. However we're just storing these changes in memory, so they'll be lost if the user closes our app. The next thing we should put in place is data persistence so changes are kept across app restarts and device reboots.
+
+We're going to use a SQLite database to store, update, delete, and retrieve our Todo Items. <a href="https://github.com/tekartik/sqflite"  target="_blank" rel="noopener">sqflite</a> is a Flutter plugin that allows us to access SQLite databases and provides useful helpers that reduce how much raw SQL we need to write. It also allows for raw SQL queries if they're needed.
+
+To install this plugin, all we need to do is edit the pubspec.yaml file and add a dependency on sqflite. Once added, VSCode will automatically download the necessary files and place them in our project.
+
+{% highlight yaml %}
+dependencies:
+  ...
+  sqflite: any
+{% endhighlight %}
+
+> Current instructions from sqflite say to use "any". This may change in the future
+
+sqflite's helper methods use maps to handle interacting with the database. In order to take advantage of this, we'll need to update TodoItem with a "fromMap" constructor and "toMap" method. We'll also remove 'id' from the default constructor so we can use the database's AutoIncrement functionality.
+
+{% highlight dart %}
+class TodoItem extends Comparable {
+  int id;
+  final String name;
+  bool isComplete;
+
+  TodoItem({this.name, this.isComplete = false});
+  
+  TodoItem.fromMap(Map<String, dynamic> map)
+  : id = map["id"],
+    name = map["name"],
+    isComplete = map["isComplete"] == 1;  
+
+  @override
+  int compareTo(other) {
+    if (this.isComplete && !other.isComplete) {
+      return 1;
+    } else if (!this.isComplete && other.isComplete) {
+      return -1;
+    } else {
+      return this.id.compareTo(other.id);
+    }
+  }
+
+  Map<String, dynamic> toMap() {
+    var map = <String, dynamic>{
+      "name": name,
+      "isComplete": isComplete ? 1 : 0
+    };
+    // Allow for auto-increment
+    if (id != null) {
+      map["id"] = id;
+    }
+    return map;
+  }
+}
+{% endhighlight %}
+
+#### Storing and Retrieving Todo Items
+
+With that in place we can create our data access logic. We'll create a file called 'dataAccess.dart' in the lib folder. This file will contain a DataAccess class that uses Dart's factory constructor to create a singleton object.
+
+{% highlight dart %}
+class DataAccess {
+  static final DataAccess _instance = DataAccess._internal();
+  Database _db;
+
+  factory DataAccess() {
+    return _instance;
+  }
+
+  DataAccess._internal();
+}
+{% endhighlight %}
+
+Next we'll add an 'open' method that handles creating and opening our database, creating a TodoItems table, and populating the table if needed. This requires us to add a couple import statements as well.
+
+{% highlight dart %}
+import 'dart:async';
+import 'package:sqflite/sqflite.dart';
+import 'todoItem.dart';
+
+final String todoTable = "TodoItems";
+
+class DataAccess {
+  ...
+  Database _db;
+  ...
+  Future open() async {
+    var databasesPath = await getDatabasesPath();
+    String path = databasesPath + "\todo.db";
+
+    _db = await openDatabase(path, version: 1,
+        onCreate: (Database db, int version) async {
+          await db.execute('''
+            create table $todoTable ( 
+            id integer primary key autoincrement, 
+            name text not null,
+            isComplete integer not null)
+            ''');
+    });
+
+    // This is just a convenience block to populate the database if it's empty.
+    // We likely wouldn't use this in a real application
+    if((await getTodoItems()).length == 0) {      
+      insertTodo(TodoItem(name: "Create First Todo", isComplete: true));
+      insertTodo(TodoItem(name: "Run a Marathon"));
+      insertTodo(TodoItem(name: "Create Todo_Flutter blog post"));
+    }
+  }
+  ...
+{% endhighlight %}
+
+> Note: The data population code is just for our convenience. We probably wouldn't have this in the end product if it were a real app
+
+We also need to add insert and get methods so we can interact with the database.
+
+{% highlight dart %}
+...
+Future<List<TodoItem>> getTodoItems() async {
+var data = await _db.query(todoTable);
+return data.map((d) => TodoItem.fromMap(d)).toList();
+}
+
+Future insertTodo(TodoItem item) {
+return _db.insert(todoTable, item.toMap());
+}
+...
+{% endhighlight %}
+
+This gives us everything we need to fetch our default Todo list from the database. Now we need to update todoListScreen to read our initial state from the database.
+
+{% highlight dart %}
+...
+import 'dart:async';
+import 'dataAccess.dart';
+...
+class _TodoListScreenState extends State<TodoListScreen> {
+  List<TodoItem> _todoItems = List();
+  DataAccess _dataAccess;
+
+  _TodoListScreenState() {
+    _dataAccess = DataAccess();
+  }
+
+  @override
+  initState() {
+    super.initState();
+    _dataAccess.open().then((result) { 
+      _dataAccess.getTodoItems()
+                .then((r) {
+                  setState(() { _todoItems = r; });
+                });
+    });
+  }
+...
+{% endhighlight %}
+
+If we run our app now we'll see our Todo list populated by data from our database! This won't look any different from before, since we used the same default items, but it sets up all the structure we need to persist update and delete commands!
+
+#### Updating Todo Items
