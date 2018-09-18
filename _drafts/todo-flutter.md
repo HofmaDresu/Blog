@@ -528,4 +528,48 @@ class _TodoListScreenState extends State<TodoListScreen> {
 
 If we run our app now we'll see our Todo list populated by data from our database! This won't look any different from before, since we used the same default items, but it sets up all the structure we need to persist update and delete commands!
 
-#### Updating Todo Items
+#### Updating and Deleting Todo Items
+
+Both updating and deleting our Todo items involve very similar code, so we'll handle them at the same time. The first thing we need to do is add 'update' and 'delete' methods to our dataAccess.dart file.
+
+{% highlight dart %}
+...
+Future updateTodo(TodoItem item) {
+  return _db.update(todoTable, item.toMap(),
+    where: "id = ?", whereArgs: [item.id]);
+}
+
+Future deleteTodo(TodoItem item) {
+  return _db.delete(todoTable, where: "id = ?", whereArgs: [item.id]);
+}
+...
+{% endhighlight %}
+
+With that done we can update _TodoListScreenState's update and delete methods to call our new DataAccess methods and to use getTodoItems to retrieve the updated state.
+
+{% highlight dart %}
+...
+void _updateTodoCompleteStatus(TodoItem item, bool newStatus) {
+  item.isComplete = newStatus;
+  _dataAccess.updateTodo(item);
+  _dataAccess.getTodoItems()
+    .then((items) {
+      setState(() { _todoItems = items; });
+    });
+}
+
+void _deleteTodoItem(TodoItem item) {
+  _dataAccess.deleteTodo(item);
+  _dataAccess.getTodoItems()
+    .then((items) {
+      setState(() { _todoItems = items; });
+    });
+}
+...
+{% endhighlight %}
+
+> Note: This wouldn't be the best way to update our UI if we had a lot of data. I decided to use simpler code as data-access efficiency isn't the purpose of this post
+
+### Adding Todo Items
+
+At this point we can update and delete Todo items and see the changes preserved across app restarts and device reboots! However this still isn't much good without the ability to add new Todo items. We'll add this feature on a new screen that the user navigates to by clicking the '+' FloatingActionButton on todoListScreen.
