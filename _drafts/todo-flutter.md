@@ -680,3 +680,34 @@ class _AddTodoItemScreenState extends State<AddTodoItemScreen> {
 {% endhighlight %}
 
 If we run the app now we'll be able to add new TodoItems to our database! However, we'll quickly notice something important is missing: TodoListScreen doesn't show the new item. This is because we haven't told the list to update. 
+
+An easy way to do this is to 'await' our call to Navigator.push then refresh our list from the database. This works because Navigator.push returns a Future that returns after we call Navigator.pop on the target screen.
+
+> This can also be used to return a result from the target screen. In our case we could return a boolean that tells us if the user created a new Todo. Then we could refresh the list only when changes were made
+
+{% highlight dart %}
+void _addTodoItem() async {
+  await Navigator.push(context, MaterialPageRoute(builder: (context) => AddTodoItemScreen()));
+  _dataAccess.getTodoItems()
+              .then((r) {
+                setState(() { _todoItems = r; });
+              });
+}
+{% endhighlight %}
+
+> Note that we added the async modifier to _addTodoItem() since we're now using await inside it
+
+With that in place we can add TodoItems and see them appear on our list!
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <picture>
+        <img src="/assets/img/todo-flutter/AddItemAndroid.gif" >
+    </picture>
+    <label>iOS</label>
+    <picture>
+        <img src="/assets/img/todo-flutter/AddItemIOS.gif" >
+    </picture>
+</div>
+
+And that's it! We now have a working Todo application that runs in both iOS and Android! There's definitely a lot more we could do on this, like adding validation and customizing styles, but we're up and running with a basic app.
