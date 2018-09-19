@@ -10,7 +10,8 @@ This is the the first post in a series where I'll create a simple Todo applicati
 My current plan is to build this app with the following:
 
 * <a href="/2018/04/23/todo-xamarin-forms.html">Xamarin Forms (Android and iOS)</a>
-* Xamarin Native (<a href="/2018/04/29/todo-xamarin-native-android.html">Android</a> and <a href="/2018/05/01/todo-xamarin-native-ios.html">iOS</a>)
+* <a href="/2018/04/29/todo-xamarin-native-android.html">Xamarin Native (part 1: Android)</a>
+* <a href="/2018/05/01/todo-xamarin-native-ios.html">Xamarin Native (part 2: iOS)</a>
 * <a href="/2018/06/07/todo-react-native.html">React Native (Android and iOS)</a>
 * <a href="/2018/09/19/todo-flutter.html">Flutter (Android and iOS)</a>
 * Kotlin (Android)
