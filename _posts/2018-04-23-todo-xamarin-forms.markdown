@@ -897,4 +897,4 @@ Now when we run the application we'll see new items appear in our list.
     <img src="/assets/img/todo-xamarin-forms/AddItemIOS.gif" />
 </div>
 
-And there we have it! A function Todo application on both iOS and Android built with Xamarin Forms. Obviously there's a lot more we could do with this application, like customizing styles or adding application icons, but this gets us through the basics of creating a simple cross platform application.
+And there we have it! A functional Todo application on both iOS and Android built with Xamarin Forms. Obviously there's a lot more we could do with this application, like customizing styles or adding application icons, but this gets us through the basics of creating a simple cross platform application.
