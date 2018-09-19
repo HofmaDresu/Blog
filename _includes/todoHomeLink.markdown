@@ -1,0 +1,1 @@
+> This post is part of a series where I create the same Todo application on iOS and Android using several different systems. To see the other posts in this series, check out the <a href="/2018/04/23/todo-mobile-intro.html">first post</a>.

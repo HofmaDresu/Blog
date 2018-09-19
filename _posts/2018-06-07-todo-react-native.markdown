@@ -7,6 +7,8 @@ tags: todo-app react-native
 
 In this post we're going to build a basic Todo application using React Native. React Native is a cross platform tool created by Facebook that lets you build iOS and Android applications. It provides a lot of code sharing between applications, both from your business logic and at least some of your UI code. This doesn't include platform specific controls, like Android's Floating Action Button, or native behaviors, like notifications, but it still allows a lot of re-use. Let's get started by seeing what React Native gives out-of-the-box with a Hello World application. Full source code for this application is available <a href="https://github.com/HofmaDresu/TodoMobile/tree/master/TodoReactNative" target="_blank" rel="noopener">on GitHub</a>
 
+{% include todoHomeLink.markdown %}
+
 ### Tools and Environment
 
 The first things you need for developing with React Native are <a href="https://nodejs.org/en/download/" target="_blank" rel="noopener">Node.js</a>, npm, a text editor, and terminal access. If you plan to develop for iOS and use a simulator, you must develop on a Mac machine (at least at the time of this writing). Android can be developed in any environment.

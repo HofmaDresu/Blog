@@ -10,6 +10,8 @@ Today we're going to look at creating a Todo application using Xamarin Forms. Xa
 
 > Note: All of my steps are using Visual Studio 2017 Community on Windows. Your mileage may vary if you work on a different edition of VS or on Visual Studio for Mac.
 
+{% include todoHomeLink.markdown %}
+
 ### Tools and Environment
 We can develop for Xamarin Forms on either a PC or a Mac. On PC we would use Visual Studio (I'm using Visual Studio 2017 Community) and on Mac we would use Visual Studio for Mac, both available <a href="https://www.visualstudio.com/" target="_blank" rel="noopener">here</a>. For Android development, the installers for Visual Studio will install all additional dependencies, like the Android SDK, emulators, Java, etc. iOS setup can be a little trickier: no matter which OS you develop on, you'll
 need a Mac with XCode installed. If you're developing on a Windows machine, Visual Studio will connect to the Mac for iOS compilation. This is needed because Apple requires a Mac to compile iOS applications.
@@ -49,7 +51,7 @@ Most of our work will be done in the .NET Standard library, with only minor vent
 Out of the box we have a Hello World app running on both Android and iOS. It's not very exciting yet, but this is where the real fun begins.
 
 ### Displaying a list of Todo items
-Xamarin Forms uses XAML for UI developent, which provides access to two way databinding. Unfortunately, there is a little boilerplate code required to get this working. We're going to use the <a href="https://github.com/Fody/PropertyChanged" target="_blank" rel="noopener">Fody</a> package and a base class to clean that up a little.
+Xamarin Forms uses XAML for UI development, which provides access to two way databinding. Unfortunately, there is a little boilerplate code required to get this working. We're going to use the <a href="https://github.com/Fody/PropertyChanged" target="_blank" rel="noopener">Fody</a> package and a base class to clean that up a little.
 
 First we'll install the Fody package. Right click on the solution and select 'Manage NuGet Packages for Solution'. Search for PropertyChanged.Fody and install it on the .NET Standard project (reminder: the one that says neither Android nor iOS). Next we need to create a configuration XML file.
 
@@ -897,4 +899,4 @@ Now when we run the application we'll see new items appear in our list.
     <img src="/assets/img/todo-xamarin-forms/AddItemIOS.gif" />
 </div>
 
-And there we have it! A function Todo application on both iOS and Android built with Xamarin Forms. Obviously there's a lot more we could do with this application, like customizing styles or adding application icons, but this gets us through the basics of creating a simple cross platform application.
+And there we have it! A functional Todo application on both iOS and Android built with Xamarin Forms. Obviously there's a lot more we could do with this application, like customizing styles or adding application icons, but this gets us through the basics of creating a simple cross platform application.
