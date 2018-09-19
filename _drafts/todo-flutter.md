@@ -5,7 +5,7 @@ date:   2018-09-16 12:00:00 -0400
 tags: mobile flutter
 ---
 
-Today we're going to create a Todo application using Flutter. Flutter is a cross platform framework created by Google that uses the <a href="https://www.dartlang.org/" target="_blank" rel="noopener">Dart language</a> to create Android and iOS applications with a lot of code sharing opportunities. Full source code for this application is available <a href="" target="_blank" rel="noopener">on GitHub</a>. 
+Today we're going to create a Todo application using Flutter. Flutter is a cross platform framework created by Google that uses the <a href="https://www.dartlang.org/" target="_blank" rel="noopener">Dart language</a> to create Android and iOS applications with a lot of code sharing opportunities. Full source code for this application is available <a href="https://github.com/HofmaDresu/TodoMobile/tree/master/todo_flutter" target="_blank" rel="noopener">on GitHub</a>. 
 
 This post was extra fun for me as I had not used either Flutter or Dart before working on this! I ended up going through Dart's <a href="https://www.dartlang.org/guides/language/language-tour" target="_blank" rel="noopener">Language Tour</a> and a free Flutter introduction on <a href="https://www.udacity.com/course/build-native-mobile-apps-with-flutter--ud905" target="_blank" rel="noopener">Udacity</a>. I highly recommend both if you want to start learning Flutter development. Because this is my first time using Flutter, I'm sure there are optimizations and useful tricks that I missed while creating this post. If you know of anything good that I missed, I'd love to hear about it on Twitter <a href="https://www.twitter.com/{{ site.twitter_username| cgi_escape | escape }}" target="_blank">@{{site.twitter_username}}</a>.
 
@@ -124,7 +124,7 @@ class TodoItem extends Comparable {
 }
 {% endhighlight %}
 
-Next we'll create an initial list scree where we'll show the Todo items. All UI elements in Flutter are Widgets and extend either StatelessWidget or StatefulWidget. Since our list will include data we can manipulate (the isComplete property) we'll use Stateful for this screen. StatefulWidgets use 2 main parts: the Widget and a State object. The State object should be named _[WidgetName]State by convention. We'll first create the Widget by creating a "todoListScreen.dart" file in the lib directory and adding the following content.
+Next we'll create an initial list screen where we'll show the Todo items. All UI elements in Flutter are Widgets and extend either StatelessWidget or StatefulWidget. Since our list will include data we can manipulate (the isComplete property) we'll use Stateful for this screen. StatefulWidgets use 2 main parts: the Widget and a State object. The State object should be named _[WidgetName]State by convention. We'll first create the Widget by creating a "todoListScreen.dart" file in the lib directory and adding the following content.
 
 {% highlight dart %}
 import 'package:flutter/material.dart';
@@ -347,7 +347,7 @@ Future<Null> _displayDeleteConfirmationDialog(TodoItem item) {
 }
 {% endhighlight %}
 
-Finally we'll update _createTodoItemWidget to call _displayDeleteConfirmationDialog on an Todo's long press.
+Finally we'll update _createTodoItemWidget to call _displayDeleteConfirmationDialog on a Todo's long press.
 
 {% highlight dart %}
 Widget _createTodoItemWidget(TodoItem item) {
@@ -386,7 +386,7 @@ dependencies:
 
 > Current instructions from sqflite say to use "any". This may change in the future
 
-sqflite's helper methods use maps to handle interacting with the database. In order to take advantage of this, we'll need to update TodoItem with a "fromMap" constructor and "toMap" method. We'll also remove 'id' from the default constructor so we can use the database's AutoIncrement functionality.
+sqflite's helper methods use maps to handle interacting with the database. In order to take advantage of this, we'll need to update TodoItem with a "fromMap" constructor and "toMap" method. We'll also remove "id" from the default constructor so we can use the database's AutoIncrement functionality.
 
 {% highlight dart %}
 class TodoItem extends Comparable {
@@ -574,7 +574,7 @@ void _deleteTodoItem(TodoItem item) {
 
 At this point we can update and delete Todo items and see the changes preserved across app restarts and device reboots! However this still isn't much good without the ability to add new Todo items. We'll add this feature on a new screen that the user navigates to by clicking the '+' FloatingActionButton on todoListScreen.
 
-The first things we need to do are create an AddTodoItemScreen and navigate to it when the user taps our FloatingActionButton. We're going add a new file called addTodoItemScreen.dart to the lib directory and create AddTodoItemScreen as a stateful widget. Our initial version will be a pretty static layout that doesn't need state but we'll need it when we add real functionality. This is very similar to how we created the TodoListScreen.
+The first things we need to do are create an AddTodoItemScreen and navigate to it when the user taps our FloatingActionButton. We're going add a new file called addTodoItemScreen.dart to the lib directory and create AddTodoItemScreen as a stateful widget. Our initial version will be a static layout that doesn't need state, but we'll need it when we add real functionality. This is very similar to how we created the TodoListScreen.
 
 {% highlight dart %}
 import 'package:flutter/material.dart';
@@ -681,7 +681,7 @@ class _AddTodoItemScreenState extends State<AddTodoItemScreen> {
 
 If we run the app now we'll be able to add new TodoItems to our database! However, we'll quickly notice something important is missing: TodoListScreen doesn't show the new item. This is because we haven't told the list to update. 
 
-An easy way to do this is to 'await' our call to Navigator.push then refresh our list from the database. This works because Navigator.push returns a Future that returns after we call Navigator.pop on the target screen.
+An easy way to do this is to 'await' our call to Navigator.push then refresh our list from the database. This works because Navigator.push returns a Future after we call Navigator.pop on the target screen.
 
 > This can also be used to return a result from the target screen. In our case we could return a boolean that tells us if the user created a new Todo. Then we could refresh the list only when changes were made
 
