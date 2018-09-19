@@ -31,7 +31,9 @@
     </script>
   </head>
   <body style="background: #f4f8fb;">
-    <section class="page-header" style="background-image: url('/assets/img/NewZealand.jpg');background-image: -webkit-image-set(url('/assets/img/NewZealand.webp') 1x);background-position: left;background-size: cover;">
+    <section class="page-header" style="position:relative;">
+      <img src="/assets/img/NewZealand.webp" onerror="this.onerror=null; this.src='/assets/img/NewZealand.jpg'"
+        style="position:absolute; top:0; left:0; width:100%; height: 100%; z-index: -1" />
       <h1 class="project-name">{{ site.title | default: site.github.repository_name }}</h1>
       <h2 class="project-tagline">{{ site.description | default: site.github.project_tagline }}</h2>
     </section>
