@@ -11,6 +11,8 @@ This post was extra fun for me as I had not used either Flutter or Dart before w
 
 > Note: All of my steps are using Visual Code on Mac. Your mileage may vary if you use a different IDE or operating system.
 
+{% include todoHomeLink.markdown %}
+
 # Tools and Environment
 You can develop Flutter applications on Windows, Mac, and Linux. However, iOS development can only be done on Mac, which is why I'm using it for this application. You also have your choice on what IDE you want to use. Flutter's documentation currently provides setup steps for <a href="https://flutter.io/using-ide/" target="_blank" rel="noopener">Android Studio/IntelliJ</a> and <a href="https://flutter.io/using-ide-vscode/" target="_blank" rel="noopener">Visual Studio Code</a>. I have both installed: Android Studio for easy Android SDK and emulator support, and VS Code for development. 
 

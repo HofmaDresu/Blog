@@ -12,6 +12,8 @@ In this post we're going to create a todo application on Android using Xamarin N
 
 > Note 2: If you ever see a runtime error similar to "Android.Content.Res.Resources+NotFoundException: File res/drawable-xxhdpi-v4/abc_ab_share_pack_mtrl_alpha.9.png from xml type layout resource ID #0x7f020000", clean your solution and re-run. It also may help to make sure all axml files are closed when you start your build. I'm not sure what causes this issue, but it seems to crop up every now and then after making a change to an axml file.
 
+{% include todoHomeLink.markdown %}
+
 ### Tools and Environment
 > Note: If you've already read the previous post on creating the todo app with Xamarin Forms, this section will be very familiar to you and you can skip ahead to <a href="#creating-hello-world">Creating Hello World</a>
 
