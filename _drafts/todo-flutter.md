@@ -573,3 +573,74 @@ void _deleteTodoItem(TodoItem item) {
 ### Adding Todo Items
 
 At this point we can update and delete Todo items and see the changes preserved across app restarts and device reboots! However this still isn't much good without the ability to add new Todo items. We'll add this feature on a new screen that the user navigates to by clicking the '+' FloatingActionButton on todoListScreen.
+
+The first things we need to do are create an AddTodoItemScreen and navigate to it when the user taps our FloatingActionButton. We're going add a new file called addTodoItemScreen.dart to the lib directory and create AddTodoItemScreen as a stateful widget. Our initial version will be a pretty static layout that doesn't need state but we'll need it when we add real functionality. This is very similar to how we created the TodoListScreen.
+
+{% highlight dart %}
+import 'package:flutter/material.dart';
+
+class AddTodoItemScreen extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => new _AddTodoItemScreenState();
+}
+
+class _AddTodoItemScreenState extends State<AddTodoItemScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(title: Text("Add Todo Item")),
+        body: Container(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextFormField(decoration: InputDecoration(labelText: "Todo Name")),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  RaisedButton(
+                    child: Text("Cancel"),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  RaisedButton(
+                    child: Text("Save"),
+                    onPressed: () {
+                      //TODO: Save
+                      Navigator.pop(context);
+                    },
+                  )
+                ],
+              )
+            ],
+          )
+        )
+      );
+  }
+}
+{% endhighlight %}
+
+One new thing we used in this widget is Navigator.pop(context). Flutter has a built in navigator with push (navigate forward) and pop (navigate back) functionality. Here we're using pop to send the user back to TodoListScreen when they click either Cancel or Save. Based on that, you probably have a pretty good guess how we're going to navigate to our new screen: Navigator.push(). There is one tricky thing with this method that is a little non-intuitive the first time you use it: it takes a Route&lt;T&gt; as a parameter instead of our screen's widget. Since we're using the Material package, we'll use MaterialPageRoute. We'll call this method in _TodoListScreenState._addTodoItem().
+
+{% highlight dart %}
+...
+void _addTodoItem() {
+  Navigator.push(context, MaterialPageRoute(builder: (context) => AddTodoItemScreen()));
+}
+...
+{% endhighlight %}
+
+Now we can navigate between our two screens!
+
+<div class="os-screenshots">
+    <label>Android</label>
+    <picture>
+        <img src="/assets/img/todo-flutter/NavigationAndroid.gif" >
+    </picture>
+    <label>iOS</label>
+    <picture>
+        <img src="/assets/img/todo-flutter/NavigationIOS.gif" >
+    </picture>
+</div>
+
