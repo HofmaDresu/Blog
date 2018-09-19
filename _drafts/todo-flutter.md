@@ -644,3 +644,39 @@ Now we can navigate between our two screens!
     </picture>
 </div>
 
+Next we'll write our 'add todo' logic. This will insert a new TodoItem into our database based on text the user enters on AddTodoItemScreen. In order to do this we need to be able to get the entered text. This is not a direct property of TextField (or FormTextField in our case), so this is where we'll use the state of our StatefulWidget. We'll add a TextEditingController to our FormTextField which will allow us to read the entered text. We also need to make sure to dispose of TextEditingController when our state widget is disposed.
+
+{% highlight dart %}
+import 'dataAccess.dart';
+import 'todoItem.dart';
+...
+class _AddTodoItemScreenState extends State<AddTodoItemScreen> {
+  final _todoNameController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+...
+              TextFormField(
+                decoration: InputDecoration(labelText: "Todo Name"),
+                controller: _todoNameController,
+              ),
+...
+                  RaisedButton(
+                    child: Text("Save"),
+                    onPressed: () {
+                      // Here we're depending on TodoListScreen to have opened our database
+                      // In a real app we would want to design this more robustly
+                      DataAccess().insertTodo(TodoItem(name: _todoNameController.text));
+                      Navigator.pop(context);
+                    },
+                  )
+...
+  @override
+  void dispose() {
+    _todoNameController.dispose();
+    super.dispose();
+  }
+}
+{% endhighlight %}
+
+If we run the app now we'll be able to add new TodoItems to our database! However, we'll quickly notice something important is missing: TodoListScreen doesn't show the new item. This is because we haven't told the list to update. 
