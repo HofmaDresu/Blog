@@ -12,8 +12,8 @@ My current plan is to build this app with the following:
 * <a href="/2018/04/23/todo-xamarin-forms.html">Xamarin Forms (Android and iOS)</a>
 * Xamarin Native (<a href="/2018/04/29/todo-xamarin-native-android.html">Android</a> and <a href="/2018/05/01/todo-xamarin-native-ios.html">iOS</a>)
 * <a href="/2018/06/07/todo-react-native.html">React Native (Android and iOS)</a>
-* Flutter (Android and iOS)
+* <a href="/2018/09/19/todo-flutter.html">Flutter (Android and iOS)</a>
 * Kotlin (Android)
 * Swift (iOS)
 
-Each post will contain a link to the finished source code for the application, our you can view the full repository <a href="https://github.com/HofmaDresu/TodoMobile/">on Github</a>. I hope you enjoy reading these as much as I do writing them!
+Each post will contain a link to the finished source code for the application, our you can view the full repository <a href="https://github.com/HofmaDresu/TodoMobile/" target="_blank" rel="noopener">on Github</a>. I hope you enjoy reading these as much as I do writing them!
