@@ -166,8 +166,9 @@
   align-items: flex-end;
 
   .page-date {
-    font-size: .7em;
+    font-size: .5em;
     color: $grey-color;
+    flex-shrink: 0;
   }
 }
 
