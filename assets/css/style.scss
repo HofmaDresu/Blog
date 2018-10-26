@@ -161,6 +161,10 @@
 }
 
 .page-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+
   .page-date {
     font-size: .7em;
     color: $grey-color;
