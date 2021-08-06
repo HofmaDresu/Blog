@@ -2,7 +2,7 @@
 layout: post
 title: "Coming back to Personal Development: Old Friends, New Friends, and Authentication Woes"
 date: 2021-08-06 12:00:00 -0400
-tags: not-the-manager c# vue
+tags: not-the-damn-manager the-damn-manager
 ---
 Between learning everything needed for a new job (Ruby / frameworks / tools / company / product / etc), a global pandemic, and the ever growing pile of tech debt that comes from having a mobile application that you aren't constantly updating (Make Me Move, only available on Android because apparently not deploying new versions is enough to get booted from the App Store): I haven't felt much of a drive for side projects in a while. But that seems to be coming to an end! I came up with a new somewhat-silly idea that seems fun to build, and figured I'd use it as an excuse/motivation to blog again too. This post will be about getting back into side coding and my plans for the new project.
 
@@ -38,4 +38,4 @@ C# remains my favorite language, even if I haven't worked in it in a couple year
     * Is this still good / cool or is there a new hotness or cheeper setup?
 
 ## Next Steps
-Next steps are actually building the sites! I need to catch up on what all the cool .NET devs are doing these days as-well-as do some reading and tutorials on Vue.js before I can really get get going. I'm not going to go deep into anything to try and avoid rabbit holes, but at least want to learn the basics. I plan to blog about the process in future posts, which I'll list under the tag `not-the-manager`
+Next steps are actually building the sites! I need to catch up on what all the cool .NET devs are doing these days as-well-as do some reading and tutorials on Vue.js before I can really get get going. I'm not going to go deep into anything to try and avoid rabbit holes, but at least want to learn the basics. I plan to blog about the process in future posts, which I'll list under the tag `not-the-damn-manager` and/or `the-damn-manager` depending on what parts I'm working on. I'll also try to remember to come back and update this post with links to future posts in this chain. TBD on how successful I'll be at that!
