@@ -14,7 +14,7 @@ My current plan is to build this app with the following:
 * <a href="/2018/05/01/todo-xamarin-native-ios.html">Xamarin Native (part 2: iOS)</a>
 * <a href="/2018/06/07/todo-react-native.html">React Native (Android and iOS)</a>
 * <a href="/2018/09/19/todo-flutter.html">Flutter (Android and iOS)</a>
-* Kotlin (Android)
-* Swift (iOS)
+* ~~Kotlin (Android)~~ _abandoned_
+* ~~Swift (iOS)~~ _abandoned_
 
-Each post will contain a link to the finished source code for the application, our you can view the full repository <a href="https://github.com/HofmaDresu/TodoMobile/" target="_blank" rel="noopener">on Github</a>. I hope you enjoy reading these as much as I do writing them!
+Each post will contain a link to the finished source code for the application, or you can view the full repository <a href="https://github.com/HofmaDresu/TodoMobile/" target="_blank" rel="noopener">on Github</a>. I hope you enjoy reading these as much as I do writing them!
