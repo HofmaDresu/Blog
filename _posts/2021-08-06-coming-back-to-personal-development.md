@@ -17,10 +17,15 @@ The first thing I tried to do is create a new branch to track this post, and fou
 
 _UPDATE_: Neither my main PC nor my previous phone are logged in or set up (my last set up phone took a swim and no longer works). Nor do any of my saved backup codes for whatever reason. I get to go through the fun 3-5+ business day process to get someone at GitHub to review my account and hopefully unlock it for me. Lesson to me and any readers: Don't let your 2FA lapse on anything!
 
+_UPDATE2_: GitHub was faster than advertised and responded within 1 business day! I'm now good to go.
+
 ### Jekyll
 Being blocked from GitHub doesn't stop me from writing this post and getting other setup work, right? Turns out another thing I've forgotten is how to use Jekyll. It's a really quick search to find the commands for how to test locally (`bundle exec jekyll serve --drafts`), however I can't remember how I set this machine to run it or if I ever even did. None of powershell, cmd prompt, or git bash (the installed terminals in my VSCode) have bundle or jekyll installed. On inspiration I checked the Linux Subsystem and both are there! Once I move to the right directory I can run Jekyll. It's not ideal since I don't have the window integrated into VSCode, but it at least works!
 
 _UPDATE_: After running WSL in a separate window for a while I realized there's a `wsl` command I can run in the VSCode terminal to do things all in that window. Much nicer!
+
+### Technology
+This is definitely the most fun to fix self inflicted woe. Since I haven't been working on side projects, I've been out of the .NET and web experiment world for a couple years and things have definitely changed in that time! I'm going to be learning about all the new cool things like Blazor, C# latest version, newest .NET data access and API development, Vue.js, and anything that catches my fancy.
 
 ## Picking Tech
 ### The Platform
@@ -38,4 +43,4 @@ C# remains my favorite language, even if I haven't worked in it in a couple year
     * Is this still good / cool or is there a new hotness or cheeper setup?
 
 ## Next Steps
-Next steps are actually building the sites! I need to catch up on what all the cool .NET devs are doing these days as-well-as do some reading and tutorials on Vue.js before I can really get get going. I'm not going to go deep into anything to try and avoid rabbit holes, but at least want to learn the basics. I plan to blog about the process in future posts, which I'll list under the tag `not-the-damn-manager` and/or `the-damn-manager` depending on what parts I'm working on. I'll also try to remember to come back and update this post with links to future posts in this chain. TBD on how successful I'll be at that!
+Next steps are actually building the sites! I need to catch up on what all the cool .NET devs are doing these days (follow along on <a href="https://docs.microsoft.com/en-us/users/hofmadresu-4505/" target="_blank" rel="noopener">Microsoft Docs</a>) as-well-as do some reading and tutorials on Vue.js before I can really get get going. I'm not going to go deep into anything to try and avoid rabbit holes, but at least want to learn the basics. I plan to blog about the process in future posts, which I'll list under the tag `not-the-damn-manager` and/or `the-damn-manager` depending on what parts I'm working on. I'll also try to remember to come back and update this post with links to future posts in this chain. TBD on how successful I'll be at that!
