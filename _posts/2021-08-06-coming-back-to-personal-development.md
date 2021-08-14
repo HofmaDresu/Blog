@@ -44,3 +44,7 @@ C# remains my favorite language, even if I haven't worked in it in a couple year
 
 ## Next Steps
 Next steps are actually building the sites! I need to catch up on what all the cool .NET devs are doing these days (follow along on <a href="https://docs.microsoft.com/en-us/users/hofmadresu-4505/" target="_blank" rel="noopener">Microsoft Docs</a>) as-well-as do some reading and tutorials on Vue.js before I can really get get going. I'm not going to go deep into anything to try and avoid rabbit holes, but at least want to learn the basics. I plan to blog about the process in future posts, which I'll list under the tag `not-the-damn-manager` and/or `the-damn-manager` depending on what parts I'm working on. I'll also try to remember to come back and update this post with links to future posts in this chain. TBD on how successful I'll be at that!
+
+
+## The Posts
+* <a href="/2021/08/14/musings-while-learning.html">Musings While Learning</a>
