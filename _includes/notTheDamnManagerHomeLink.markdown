@@ -1,0 +1,1 @@
+> This post is part of a series I'm using to track my progress on `[Not] The Damn Manager`. To see the other posts in this series, check out the <a href="/2021/08/06/coming-back-to-personal-development.html">first post</a>.

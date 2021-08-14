@@ -7,6 +7,8 @@ tags: not-the-damn-manager the-damn-manager
 
 This post is just a bunch of things I encountered while catching up on tech for `[Not] The Damn Manager`. There won't be much of a through-line or story, as I just jot things down as I encounter them. This post may update a couple of times if I come across other things that fit in here better than their own post.
 
+{% include notTheDamnManagerHomeLink.markdown %}
+
 # Dependabot
 So after publishing my 'coming back' post a few days ago GitHub created a few automated PRs for me (<a href="https://github.com/HofmaDresu/Blog/pull/1" rel="noopener" target="_blank">example</a>). This was a bit of a surprise so I read through the <a href="https://docs.github.com/en/code-security/supply-chain-security/managing-vulnerabilities-in-your-projects-dependencies/about-dependabot-security-updates" rel="noopener" target="_blank">documentation</a> included. What I can tell from a really quick read is it's an automated service that watches repositiories and security updates, and creates PRs if it sees a trivial patch to fix vulnerabilities. I of course merged the recommendations, and noticed another nice feature when it auto-rebased a later PR for me. This is a pretty awesome service, thanks GitHub!
 
