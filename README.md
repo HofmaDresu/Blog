@@ -6,4 +6,4 @@ Running locally:
 2. run `bundle exec jekyll serve --drafts` in terminal
 
 Publishing updates:
-TODO
+Just push to GitHub and wait :)
