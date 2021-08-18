@@ -16,6 +16,8 @@ PIC
 ### Windows Setup
 Initial setup was pretty straightforward, but for the first time I let it sign in with my MicroSoft account and set up facial unlock. I of course turned off all privacy things in the setup flow. Once the machine finished setup, it was time to go through all settings and turn off even more privacy things (under security). Then I removed or uninstalled every widget from the Start Menu and collapsed it to minimal width. I also set darkmode, the correct timezone, turned off OneDrive (again, hopefully it stays off now), and uninstalled a lot of programs. Most uninstalled programs were the obvious, but a couple notable were Office for having 3 different versions installed + OneNote and Skype, which decided to sign me in without asking. I deleted Skype extra hard!
 
+One thing that wasn't straightforward was disabling web search in the start menu. I thought I'd disabled that in setting somewhere, but the first time I typed into the Start Menu web search started happening. Turns out you can only disable this via a registry edit (thanks MicroSoft), so that's what I did.
+
 ### Installing things
 Just a list of things I installed for future Matt to reference
 
