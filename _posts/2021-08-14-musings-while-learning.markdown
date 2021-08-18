@@ -3,7 +3,6 @@ layout: post
 title: "Musings while learning"
 date: 2021-08-14 12:00:00 -0400
 tags: not-the-damn-manager the-damn-manager
-tags: todo-app xamarin android
 excerpt_separator: "<!--more-->"
 ---
 
