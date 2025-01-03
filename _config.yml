@@ -33,7 +33,7 @@ defaults:
         path: /assets/img/og_image_NewZealand_Coding_Coffee.jpg
         width: 1200
         height: 630
-
+include: ['.well-known']
 
 # Build settings
 markdown: kramdown
